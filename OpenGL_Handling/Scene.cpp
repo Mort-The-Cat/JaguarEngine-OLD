@@ -25,9 +25,25 @@ namespace Jaguar
 		*/
 	}
 
-	void Add_Scene_Object(Scene_Data* Target_Scene, World_Object* New_Object, Render_Pipeline* Target_Pipeline, const Shader* Shader_Program)
+	void Add_Scene_Object(Jaguar_Engine* Engine, World_Object* New_Object, Render_Pipeline* Target_Pipeline, const Shader* Shader_Program)
 	{
-		Target_Scene->Objects.push_back(New_Object);
+		Engine->Scene.Objects.push_back(New_Object);
+
+		if (New_Object->Flags[MF_SOLID])
+		{
+			// Then, there's another check if it's a physics object
+
+			for (size_t Index = 0; Index < New_Object->Collision.size(); Index++)
+			{
+				Engine->Physics.Hitboxes.push_back(New_Object->Collision[Index]);
+
+				if (New_Object->Flags[MF_PHYSICS_OBJECT] && Engine->Physics.Hitboxes.size() > Engine->Physics.Physics_Objects.size())
+					std::swap(Engine->Physics.Hitboxes[Engine->Physics.Physics_Objects.size() - 1], Engine->Physics.Hitboxes.back());
+			}
+		}
+
+		// We'll handle the physics object initialisation in the physics object controller
+		// because this object might have a different controller object
 
 		if (Target_Pipeline)
 		{
@@ -55,7 +71,10 @@ namespace Jaguar
 		Object->Orientation = Orientation;
 		Object->Orientation_Up = Orientation_Up;
 
-		Add_Scene_Object(&Engine->Scene, Object, &Engine->Pipeline, Object_Shader);
+		Add_Scene_Object(Engine, Object, &Engine->Pipeline, Object_Shader);
+
+		if(Object->Control)					// Double check the object even has a controller
+			Object->Control->Init(Engine);	// This calls the init function AFTER we've added all of the hitboxes and world objects to the scene
 	}
 
 

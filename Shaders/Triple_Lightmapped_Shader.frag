@@ -55,7 +55,7 @@ vec3 Parallax_Corrected_Reflection_Vector(vec3 Reflection_Vector)
 
 	if(L < 0.0f)
 	{
-		return Reflection_Vector;
+		Reflection_Vector *= -1;
 	}
 
 	vec3 Origin = Cubemap_AABB[0] + Cubemap_AABB[1];
@@ -110,7 +110,7 @@ void main()
 						Reflection_Vector
 					).xyz;
 
-	Reflection *= sqrt(1 - square(dot(Camera_To_Pixel, Final_Normal))) * 0.2f;
+	Reflection *= sqrt(1 - square(dot(Camera_To_Pixel, Final_Normal))) * 0.1f;
 
 	Out_Colour = 
 				vec4(

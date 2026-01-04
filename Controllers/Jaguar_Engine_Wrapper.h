@@ -14,6 +14,9 @@
 
 #include "../Controllers/Lightmapping.h"
 
+#include "../Collision/Hitboxes.h"
+#include "../Collision/Physics_Engine.h"
+
 #include "Job_System.h"
 
 namespace Jaguar
@@ -29,6 +32,8 @@ namespace Jaguar
 		Job_System Job_Handler;
 
 		Scene_Data Scene;
+
+		Physics_Data Physics;		// This handles the collisions and physics of objects in the scene
 
 		Render_Pipeline Pipeline;	// This is the pipeline for drawing regular scene objects such as buildings or characters
 									// We'll use a different interface for particles etc

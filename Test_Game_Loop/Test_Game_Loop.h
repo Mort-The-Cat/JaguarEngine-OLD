@@ -112,7 +112,7 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 			Engine->Pipeline.Render_Queues[1].Objects.back()->Position = Player_Position - glm::vec3(0, 0.3, 0) + glm::vec3(0.5f) * Get_Direction_Vector(Camera_X_Direction + 0.25f);
 			Engine->Pipeline.Render_Queues[1].Objects.back()->Orientation = Get_Direction_Vector(Camera_X_Direction);
 
-			printf("Position: %f %f %f\n", Player_Position.x, Player_Position.y, Player_Position.z);
+			// printf("Position: %f %f %f\n", Player_Position.x, Player_Position.y, Player_Position.z);
 
 			// This code right now is fairly awful but it's just a test obviously
 		}
@@ -229,10 +229,10 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
 	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Test_Scene_Flood_Light";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Cornell_Box_Flood_Light";
 
-	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
-	Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	//Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 

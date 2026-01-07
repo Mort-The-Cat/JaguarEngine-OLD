@@ -52,6 +52,8 @@ namespace Jaguar
 		virtual Collision_Info Test_Collision(Hitbox* Other_Hitbox) override;
 		virtual Collision_Info AABB_Collision(AABB_Hitbox* Other_Hitbox) override;
 	};
+
+	std::vector<Hitbox*> Wrap_AABB_Hitboxes()
 }
 
 

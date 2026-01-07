@@ -58,6 +58,14 @@ namespace Jaguar
 		Texture Normal;			// Normal map texture
 
 		Vertex_Buffer Mesh;			// Bound and rendered (can be shared by multiple world objects, pulled from same asset pool)
+
+		Physics_Object* Get_Physics_Object() 
+		{
+			if (Control)
+				return Control->Get_Physics_Object();
+
+			return nullptr;
+		}
 	};
 
 	void Destroy_World_Object(World_Object* Target_Object);

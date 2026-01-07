@@ -99,6 +99,20 @@ void Setup_Cornell_Box(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,
 		nullptr);
 
+	Object = new Jaguar::World_Object();
+	Object->Flags[MF_ACTIVE] = true;
+	Jaguar::Create_World_Object(Engine, Object, &Test_Skeletal_Animation_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Test_Door.dae").Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Grey.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default.png").Texture,	// Normal map
+		new Jaguar::Animator_Controller(
+			Object,
+			Jaguar::Pull_Animation(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Test_Door.dae").Animation,
+			Jaguar::Pull_Skeleton(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Test_Door.dae").Skeleton
+		),
+		glm::vec3(-1.0f) * glm::vec3(-1.30557f, 0.85809f, -4.22892f)
+	);
+
 	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
 	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.4f);
 	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(0.0f, 0.8f, 0.32f);

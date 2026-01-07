@@ -14,10 +14,19 @@ namespace Jaguar
 	struct Jaguar_Engine;
 	typedef struct Jaguar_Engine Jaguar_Engine;
 
+	class Physics_Object;
+
 	class Controller // These objects control what a World_Object does
 	{
 	public:
 		World_Object* Object;
+
+		virtual Physics_Object* Get_Physics_Object() 
+		{
+			return nullptr;	
+			
+			// by default, Controllers don't have a physics object associated with them
+		}
 
 		virtual void Init(Jaguar_Engine* Engine) {}
 		virtual void Control_Function(Jaguar_Engine* Engine) {}

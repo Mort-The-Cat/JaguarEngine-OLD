@@ -111,7 +111,7 @@ void main()
 						Reflection_Vector
 					).xyz;
 
-	Reflection *= sqrt(1 - square(dot(Camera_To_Pixel, Final_Normal))) * 0.1f;
+	Reflection *= sqrt(1 - square(dot(Camera_To_Pixel, Final_Normal))) * 0.05f;
 	
 	//  * 0.6f;
 

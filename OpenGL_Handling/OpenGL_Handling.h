@@ -50,6 +50,8 @@ namespace Jaguar
 
 	void Initialise_Static_Lightmap_Vertex_Attributes(Vertex_Buffer* Target_Buffer);
 	void Initialise_Joint_Vertex_Attributes(Vertex_Buffer* Target_Buffer);
+
+	float Clamp(float Min, float Value, float Max);
 }
 
 #endif

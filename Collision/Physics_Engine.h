@@ -2,6 +2,7 @@
 #define JAGUAR_PHYSICS_ENGINE
 
 #include "Hitboxes.h"
+#include "../OpenGL_Handling/Scene.h"
 
 namespace Jaguar
 {
@@ -12,19 +13,7 @@ namespace Jaguar
 #define PF_TO_BE_DELETED 0u
 #define PF_LOCK_ROTATION 1u
 
-	void Axis_Angle_Rotate_Orientation(glm::vec3 Rotation_Vector, glm::vec3* Orientation, glm::vec3* Orientation_Up)
-	{
-		float Length = glm::length(Rotation_Vector);	// gets 'angle' from axis/angle vector
-
-		Rotation_Vector *= 1.0f / Length;	// Normalises rotation vector to create normalised axis
-
-		float Sin_Theta = sinf(Length);
-		float Cos_Theta = cosf(Length);
-
-		*Orientation = *Orientation * Cos_Theta + glm::cross(Rotation_Vector, *Orientation) * Sin_Theta;
-
-		*Orientation_Up = *Orientation_Up * Cos_Theta + glm::cross(Rotation_Vector, *Orientation_Up) * Sin_Theta;
-	}
+	void Axis_Angle_Rotate_Orientation(glm::vec3 Rotation_Vector, glm::vec3* Orientation, glm::vec3* Orientation_Up);
 
 	class Physics_Object
 	{
@@ -41,7 +30,7 @@ namespace Jaguar
 
 		float Mass = 1.0f;
 
-		float Elasticity = 0.8f;	// Fraction of kinetic energy is preserved
+		float Elasticity = 0.5f;	// Fraction of kinetic energy is preserved
 		float Friction = 0.75f;		// Friction coefficient
 
 		glm::vec3 Velocity, Rotational_Velocity;	// Velocity and angular velocity (as an axis with magnitude of rotation)
@@ -63,9 +52,17 @@ namespace Jaguar
 			Velocity += Force;						// ... and after the movement (more accurate)
 			Force = glm::vec3(0.0f);				// reset force
 			
+			if (Flags[PF_LOCK_ROTATION])
+				Inv_Mass = 0.0f;
+
 			Torque *= Inv_Mass;					// convert from torque -> angular_acceleration/2
 
 			Rotational_Velocity += Torque;			// Apply half of the torque before ...
+			if(
+				Rotational_Velocity.x != 0 ||
+				Rotational_Velocity.y != 0 ||
+				Rotational_Velocity.z != 0
+				)
 			Axis_Angle_Rotate_Orientation(Rotational_Velocity * Time, &Orientation, &Orientation_Up);
 			Rotational_Velocity += Torque;			// ... and after the rotation
 
@@ -78,16 +75,20 @@ namespace Jaguar
 		}
 	};
 
-	struct Impulse_Info
+	class Physics_Object_Controller : public Controller
 	{
-		Physics_Object* Object;			// The object to which the force is applied
-		glm::vec3 Point;				// The position of the forces
-		glm::vec3 Force;				// The force applied
+	public:
+		Physics_Object Physics;
+
+		virtual Physics_Object* Get_Physics_Object() override;
+
+		virtual void Init(Jaguar_Engine* Engine) override;
+
+		virtual void Control_Function(Jaguar_Engine* Engine) override;
 	};
 
-	class Physics_Object_Controller;// : public Controller;
-
 	void Record_Collisions(Jaguar_Engine* Engine);
+	void Resolve_Collisions(Jaguar_Engine* Engine);
 
 	struct Physics_Data
 	{

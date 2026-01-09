@@ -24,6 +24,7 @@ enum Controls
 	Look_Down,
 
 	Interact,
+	Drop,
 
 	Number_Of_Keys
 };
@@ -45,7 +46,8 @@ void Set_Input_Keycodes(Jaguar::Input_Data* Inputs)
 	Inputs->Keys[Controls::Look_Up].Keycode			=		GLFW_KEY_UP;
 	Inputs->Keys[Controls::Look_Down].Keycode		=		GLFW_KEY_DOWN;
 
-	Inputs->Keys[Controls::Interact].Keycode		 =		GLFW_KEY_F;
+	Inputs->Keys[Controls::Interact].Keycode		=		GLFW_KEY_F;
+	Inputs->Keys[Controls::Drop].Keycode			=		GLFW_KEY_G;
 }
 
 glm::vec3 Get_Direction_Vector(float X_Direction)
@@ -64,8 +66,29 @@ void Place_Lighting_Node_Visuals(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader N
 		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Light_Source.dae").Buffer,			// Doesn't matter what mesh hint we give
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Grey.png").Texture,
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,	// Normal map
+		{},
 		nullptr,
 		Engine->Scene.Lighting.Lighting_Nodes.Nodes.back().Position
+	);
+}
+
+void Shoot_Physics_Object(Jaguar::Jaguar_Engine* Engine)
+{
+	Jaguar::World_Object* Object;
+
+	Object = new Jaguar::World_Object();
+	Object->Flags[MF_ACTIVE] = true;																	// sets active flag
+	Object->Flags[MF_SOLID] = true;
+	Object->Flags[MF_PHYSICS_OBJECT] = true;
+	Jaguar::Create_World_Object(Engine, Object, &Engine->Pipeline.Render_Queues.back().Queue_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Sphere.dae").Buffer,			// Model
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Grey.png").Texture,	// Texture
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,	// Normal map
+		Jaguar::Wrap_Sphere_Hitbox(
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Sphere.dae").Mesh, 0.01f
+		),
+		new Jaguar::Physics_Object_Controller(),
+		glm::vec3(0.0f, 0.8f, 0.0f)	+ glm::vec3(Jaguar::RNG(), Jaguar::RNG(), Jaguar::RNG())	// Position
 	);
 }
 
@@ -88,6 +111,8 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 	glCullFace(GL_FRONT);
 	glFrontFace(GL_CW);
 
+	float Drop_Time = 0.0f;
+
 	while (!glfwWindowShouldClose(Engine->Window))
 	{
 		// Basic graphics loop
@@ -102,6 +127,17 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 		Jaguar::Get_User_Inputs(Engine->Window, &Engine->User_Inputs);
 
 		glm::mat4 View_Matrix = glm::mat4(1.0f);
+
+		if (Drop_Time > 0.5f)
+		{
+			if (Engine->User_Inputs.Keys[Controls::Drop].Pressed)
+			{
+				Shoot_Physics_Object(Engine);
+				Drop_Time = 0.0f;
+			}
+		}
+		else
+			Drop_Time += Engine->Time;
 
 		if (Engine->User_Inputs.Keys[Controls::Interact].Pressed) // && Engine->User_Inputs.Keys[Controls::Interact].Changed) // if newly pressed
 		{
@@ -167,6 +203,9 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 
 		Engine->Scene.Camera_Position = Player_Position;
 
+		Jaguar::Record_Collisions(Engine);
+		Jaguar::Resolve_Collisions(Engine);
+
 		Jaguar::Handle_Scene_Controllers(Engine);
 
 		Jaguar::Draw_Render_Pipeline(&Engine->Pipeline, &Engine->Scene);
@@ -202,7 +241,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 	Set_Input_Keycodes(&Engine->User_Inputs);
 
-	Jaguar::Initialise_Job_System(&Engine->Job_Handler, 7); // initialise 7 worker threads
+	Jaguar::Initialise_Job_System(&Engine->Job_Handler, 2); // initialise 7 worker threads
 
 	//
 
@@ -221,18 +260,24 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	Jaguar::Shader Lighting_Node_Shader;
 	Jaguar::Create_Shader("Shaders/Test_Shader.frag", "Shaders/Test_Shader.vert", &Lighting_Node_Shader);
 
+	Jaguar::Shader Test_Physics_Object_Shader;
+	Jaguar::Create_Shader("Shaders/Dynamic_Shader.frag", "Shaders/Simple_Dynamic_Shader.vert", &Test_Physics_Object_Shader, "Shaders/Dynamic_TBN_Geometry.geom");
+
 	Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Test_Shader,
 		Jaguar::Lightmapped_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 	Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Test_Skeletal_Animation_Shader, 
 		Jaguar::Default_Shader_Init_Function, Jaguar::Skeletal_Animation_Uniform_Assign_Function);
 
+	Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Test_Physics_Object_Shader,
+		Jaguar::Default_Shader_Init_Function, Jaguar::Lighting_Node_Uniform_Assign_Function);
+
 	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
 	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Cornell_Box_Flood_Light";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Test_Scene_Flood_Light";
 
-	Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
-	//Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 

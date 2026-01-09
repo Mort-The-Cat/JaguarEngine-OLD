@@ -47,7 +47,7 @@ void main()
 
 	Vertex.Position = Local_Position;
 	Vertex.Normal = normalize(Local_Normal);
-
+	
 	//Vertex.Position = vec3(
 	//	Model_Matrix * vec4(vec3(Joint_Matrices[Joint_Index] * vec4(In_Position, 1.0f)), 1)		// 4d vector is required to apply translation to position
 	//);

@@ -801,6 +801,9 @@
     <ClInclude Include="Collision\Hitboxes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Collision\Physics_Engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Collada_Loader\XML_Document_Loader.cpp">
@@ -870,6 +873,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Controllers\Cubemap_Reflection_Generation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision\Hitboxes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision\Physics_Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1289,5 +1298,6 @@
     <None Include="Shaders\Triple_Lightmapped_Shader.vert" />
     <None Include="Shaders\Old_Dynamic_TBN_Geometry.geom" />
     <None Include="Shaders\Dynamic_Shader.frag" />
+    <None Include="Shaders\Simple_Dynamic_Shader.vert" />
   </ItemGroup>
 </Project>

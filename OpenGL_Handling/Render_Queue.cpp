@@ -86,7 +86,7 @@ namespace Jaguar
 #endif
 	}
 
-	void Lighting_Node_Uniform_Assign_Function(const Shader* Target_Shader, const World_Object* Object, const Scene_Data* Scene)
+	/*void Lighting_Node_Uniform_Assign_Function(const Shader* Target_Shader, const World_Object* Object, const Scene_Data* Scene)
 	{
 		Default_Uniform_Assign_Function(Target_Shader, Object, Scene);
 
@@ -94,7 +94,7 @@ namespace Jaguar
 		Get_Nearest_Lighting_Nodes(&Scene->Lighting.Lighting_Nodes, Object->Position, Node);
 
 		glUniform3fv(glGetUniformLocation(Target_Shader->Program_ID, "Lighting_Node"), 6, glm::value_ptr(Node[0]->Illumination[0]));
-	}
+	}*/
 
 	void Default_Uniform_Assign_Function(const Shader* Target_Shader, const World_Object* Object, const Scene_Data* Scene)
 	{
@@ -112,19 +112,9 @@ namespace Jaguar
 		glBindTexture(GL_TEXTURE_2D, Object->Normal.Texture_Buffer_ID);
 	}
 
-	void Skeletal_Animation_Uniform_Assign_Function(const Shader* Target_Shader, const World_Object* Object, const Scene_Data* Scene)
+	void Lighting_Node_Uniform_Assign_Function(const Shader* Target_Shader, const World_Object* Object, const Scene_Data* Scene)
 	{
 		Default_Uniform_Assign_Function(Target_Shader, Object, Scene); // Does all the regular stuff,
-
-		// then also assigns skeletal animation data!!
-
-		const Animator_Controller* Animator_Object = (Animator_Controller*)Object->Control;
-
-		glUniformMatrix4fv(glGetUniformLocation(Target_Shader->Program_ID, "Joint_Matrices"), 
-			JOINT_BUFFER_COUNT, GL_FALSE, 
-			glm::value_ptr(*Animator_Object->Joint_Buffer));
-
-		//
 
 		const Lighting_Node* Node[8];
 		Get_Nearest_Lighting_Node(&Scene->Lighting.Lighting_Nodes, Object->Position, Node);
@@ -146,15 +136,29 @@ namespace Jaguar
 
 		// Then just do the same for all other nodes but do up/down instead!
 
-		for(size_t Index = 1; Index < 8; Index++)
+		for (size_t Index = 1; Index < 8; Index++)
 			glUniform3fv(glGetUniformLocation(Target_Shader->Program_ID, ("Lighting_Node_Uniform_" + std::to_string(Index)).c_str()), 6, glm::value_ptr(Node[Index]->Illumination[0]));
 		//glUniform3fv(glGetUniformLocation(Target_Shader->Program_ID, "Lighting_Node_Uniform_2"), 6, glm::value_ptr(Node[2]->Illumination[0]));
 		//glUniform3fv(glGetUniformLocation(Target_Shader->Program_ID, "Lighting_Node_Uniform_3"), 6, glm::value_ptr(Node[3]->Illumination[0]));
 
 		glUniform3f(glGetUniformLocation(Target_Shader->Program_ID, "Lighting_Node_Position"), Node[0]->Position.x, Node[0]->Position.y, Node[0]->Position.z);
-		
+
 		glUniform3f(glGetUniformLocation(Target_Shader->Program_ID, "Lighting_Node_Deltas"), Delta.x, Delta.y, Delta.z);
-		
+
+	}
+
+	void Skeletal_Animation_Uniform_Assign_Function(const Shader* Target_Shader, const World_Object* Object, const Scene_Data* Scene)
+	{
+		Lighting_Node_Uniform_Assign_Function(Target_Shader, Object, Scene); // Does all the regular stuff,
+
+		// then also assigns skeletal animation data!!
+
+		const Animator_Controller* Animator_Object = (Animator_Controller*)Object->Control;
+
+		glUniformMatrix4fv(glGetUniformLocation(Target_Shader->Program_ID, "Joint_Matrices"), 
+			JOINT_BUFFER_COUNT, GL_FALSE, 
+			glm::value_ptr(*Animator_Object->Joint_Buffer));
+
 		//glUniform3f(glGetUniformLocation(Target_Shader->Program_ID, "Lighting_Node_Positions[1]"), Node[1]->Position.x, Node[1]->Position.y, Node[1]->Position.z);
 		//glUniform3f(glGetUniformLocation(Target_Shader->Program_ID, "Lighting_Node_Positions[2]"), Node[2]->Position.x, Node[2]->Position.y, Node[2]->Position.z);
 		//glUniform3f(glGetUniformLocation(Target_Shader->Program_ID, "Lighting_Node_Positions[3]"), Node[3]->Position.x, Node[3]->Position.y, Node[3]->Position.z);

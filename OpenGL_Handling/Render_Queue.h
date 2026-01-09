@@ -32,6 +32,7 @@ namespace Jaguar
 
 	void Default_Shader_Init_Function(const Shader* Target_Shader, const Scene_Data* Scene);
 	void Default_Uniform_Assign_Function(const Shader* Target_Shader, const World_Object* Object, const Scene_Data*);
+	void Lighting_Node_Uniform_Assign_Function(const Shader* Target_Shader, const World_Object* Object, const Scene_Data* Scene);
 
 	void Push_Render_Pipeline_Queue(Render_Pipeline* Target_Pipeline, Shader Queue_Shader, void(*Shader_Init_Function)(const Shader*, const Scene_Data*) = Default_Shader_Init_Function, void(*Uniform_Assign_Function)(const Shader*, const World_Object*, const Scene_Data*) = Default_Uniform_Assign_Function);
 

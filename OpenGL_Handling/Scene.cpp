@@ -6,6 +6,11 @@
 
 namespace Jaguar
 {
+	float Clamp(float Min, float Value, float Max)
+	{
+		return std::fminf(Max, std::fmaxf(Min, Value));
+	}
+
 	glm::mat4 Get_Model_Matrix(const World_Object* Object) // Generates model transformation matrix from orientation vectors and world-object's position
 	{
 		glm::vec3 Right = glm::cross(Object->Orientation, Object->Orientation_Up);
@@ -35,10 +40,12 @@ namespace Jaguar
 
 			for (size_t Index = 0; Index < New_Object->Collision.size(); Index++)
 			{
+				New_Object->Collision[Index]->Object = New_Object;
+
 				Engine->Physics.Hitboxes.push_back(New_Object->Collision[Index]);
 
-				if (New_Object->Flags[MF_PHYSICS_OBJECT] && Engine->Physics.Hitboxes.size() > Engine->Physics.Physics_Objects.size())
-					std::swap(Engine->Physics.Hitboxes[Engine->Physics.Physics_Objects.size() - 1], Engine->Physics.Hitboxes.back());
+				if (New_Object->Flags[MF_PHYSICS_OBJECT] && Engine->Physics.Hitboxes.size() - 1 > Engine->Physics.Physics_Objects.size())
+					std::swap(Engine->Physics.Hitboxes[Engine->Physics.Physics_Objects.size()], Engine->Physics.Hitboxes.back());
 			}
 		}
 
@@ -57,6 +64,7 @@ namespace Jaguar
 		Vertex_Buffer Mesh_Buffer,
 		Texture Albedo,
 		Texture Normal,
+		std::vector<Hitbox*> Collision,
 		Controller* Control,
 		glm::vec3 Position,
 		glm::vec3 Orientation,
@@ -71,15 +79,23 @@ namespace Jaguar
 		Object->Orientation = Orientation;
 		Object->Orientation_Up = Orientation_Up;
 
+		Object->Collision = std::move(Collision);
+
 		Add_Scene_Object(Engine, Object, &Engine->Pipeline, Object_Shader);
 
-		if(Object->Control)					// Double check the object even has a controller
+		if (Object->Control)					// Double check the object even has a controller
+		{
+			Object->Control->Object = Object;
+
 			Object->Control->Init(Engine);	// This calls the init function AFTER we've added all of the hitboxes and world objects to the scene
+		}
 	}
 
 
 	void Destroy_World_Object(World_Object* Target_Object)
 	{
+		delete Target_Object->Control;
+
 		delete Target_Object; // There will be more code added here later, related to controllers and hitboxes
 	}
 }

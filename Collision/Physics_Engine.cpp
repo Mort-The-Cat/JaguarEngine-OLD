@@ -4,37 +4,49 @@
 
 namespace Jaguar
 {
-	class Physics_Object_Controller : public Controller
+	Physics_Object* Physics_Object_Controller::Get_Physics_Object()
 	{
-	public:
-		Physics_Object Physics;
+		return &Physics;
+	}
 
-		virtual Physics_Object* Get_Physics_Object() override
-		{
-			return &Physics;
-		}
+	void Physics_Object_Controller::Init(Jaguar_Engine* Engine)
+	{
+		Physics.Position = Object->Position;
+		Physics.Orientation = Object->Orientation;
+		Physics.Orientation_Up = Object->Orientation_Up;
 
-		virtual void Init(Jaguar_Engine* Engine) override
-		{
-			Engine->Physics.Physics_Objects.push_back(&Physics);
-		}
+		Engine->Physics.Physics_Objects.push_back(&Physics);
+	}
 
-		virtual void Control_Function(Jaguar_Engine* Engine) override
-		{
-			// This will apply the new transformations to the object
+	void Physics_Object_Controller::Control_Function(Jaguar_Engine* Engine)
+	{
+		// This will apply the new transformations to the object
 
-			Object->Position = Physics.Position;
-			Object->Orientation = Physics.Orientation;
-			Object->Orientation_Up = Physics.Orientation_Up;
+		Object->Position = Physics.Position;
+		Object->Orientation = Physics.Orientation;
+		Object->Orientation_Up = Physics.Orientation_Up;
 
-			Physics.Force += glm::vec3(0.0f, Engine->Time * Physics.Mass * -4.905f, 0.0f);	
-			// Apply Earth's weight-force to object
+		Physics.Force += glm::vec3(0.0f, Engine->Time * Physics.Mass * -1.0f, 0.0f);
+		// Apply Earth's weight-force to object
 
-			// Note that we don't need to use the 'apply force' function here because it's uniform and no torque is produced from this alone
+		// Note that we don't need to use the 'apply force' function here because it's uniform and no torque is produced from this alone
 
-			// Not much else to do! Could perhaps play sound effects if the object experienced a large force
-		}
-	};
+		// Not much else to do! Could perhaps play sound effects if the object experienced a large force
+	}
+
+	void Axis_Angle_Rotate_Orientation(glm::vec3 Rotation_Vector, glm::vec3* Orientation, glm::vec3* Orientation_Up)
+	{
+		float Length = glm::length(Rotation_Vector);	// gets 'angle' from axis/angle vector
+
+		Rotation_Vector *= 1.0f / Length;	// Normalises rotation vector to create normalised axis
+
+		float Sin_Theta = sinf(Length);
+		float Cos_Theta = cosf(Length);
+
+		*Orientation = *Orientation * Cos_Theta + glm::cross(Rotation_Vector, *Orientation) * Sin_Theta;
+
+		*Orientation_Up = *Orientation_Up * Cos_Theta + glm::cross(Rotation_Vector, *Orientation_Up) * Sin_Theta;
+	}
 
 	glm::vec3 Velocity_At_Point(const Physics_Object* Physics, glm::vec3 Point)
 	{
@@ -77,8 +89,8 @@ namespace Jaguar
 			{
 				B_Velocity = glm::vec3(0.0f);
 
-				B_Elasticity = 0.9f;
-				B_Friction = 0.8f;
+				B_Elasticity = 0.5f;
+				B_Friction = 0.4f;
 
 				B_Inv_Mass = 0.0f;
 			}
@@ -87,11 +99,11 @@ namespace Jaguar
 
 			float Inv_Combined_Mass = 1.0f / (A_Inv_Mass + B_Inv_Mass);
 
-			glm::vec3 Relative_Velocity = B_Velocity - A_Velocity;
+			glm::vec3 Relative_Velocity = A_Velocity - B_Velocity;
 
-			float Normal_Velocity = glm::dot(Relative_Velocity, Collision.Normal);
+			float Normal_Velocity = glm::dot(Relative_Velocity, -Collision.Normal);
 
-			glm::vec3 Tangential_Velocity = Relative_Velocity + Normal_Velocity * Collision.Normal;
+			glm::vec3 Tangential_Velocity = Relative_Velocity - Normal_Velocity * Collision.Normal;
 
 			if (Normal_Velocity > 0.0f)
 			{
@@ -101,12 +113,18 @@ namespace Jaguar
 
 				float Normal_Force_Magnitude = -(1.0f + Elasticity) * Normal_Velocity * Inv_Combined_Mass;
 
-				glm::vec3 Force = Collision.Normal * Normal_Force_Magnitude + Friction * Tangential_Velocity * (1 - expf(Normal_Force_Magnitude));
+				glm::vec3 Force = Collision.Normal * Normal_Force_Magnitude + Friction * Tangential_Velocity * (1.0f - expf(Normal_Force_Magnitude));
 
-				Apply_Force_To_Physics_Object(Collision.A->Object->Control->Get_Physics_Object(), Force, Collision.Points[Index]);
+				Apply_Force_To_Physics_Object(Collision.A->Object->Control->Get_Physics_Object(), -Force, Collision.Points[Index]);
+
+				Collision.A->Object->Control->Get_Physics_Object()->Step(Engine->Time);
 
 				if (Collision.B->Object->Get_Physics_Object())
-					Apply_Force_To_Physics_Object(Collision.B->Object->Control->Get_Physics_Object(), -Force, Collision.Points[Index]);
+				{
+					Apply_Force_To_Physics_Object(Collision.B->Object->Control->Get_Physics_Object(), Force, Collision.Points[Index]);
+
+					Collision.B->Object->Control->Get_Physics_Object()->Step(Engine->Time);
+				}
 			}
 		}
 	}
@@ -152,13 +170,13 @@ namespace Jaguar
 
 			Physics_Object* B_Physics = Engine->Physics.Collision_Info[Index].B->Object->Get_Physics_Object();
 
-			glm::vec3 Delta = Engine->Physics.Collision_Info[Index].Normal * Engine->Physics.Collision_Info[Index].Delta;
+			glm::vec3 Delta = Engine->Physics.Collision_Info[Index].Normal * (Engine->Physics.Collision_Info[Index].Delta + 0.00001f);
 
 			if (B_Physics)
 			{
 				Delta *= 0.5f;
 
-				Engine->Physics.Collision_Info[Index].B->Object->Get_Physics_Object()->Position -= Delta;
+				B_Physics->Position -= Delta;
 			}
 
 			Engine->Physics.Collision_Info[Index].A->Object->Get_Physics_Object()->Position += Delta;
@@ -166,5 +184,7 @@ namespace Jaguar
 
 		for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)
 			Engine->Physics.Physics_Objects[Index]->Step(Engine->Time);						// pass the 'delta time' to the step function
+
+		Engine->Physics.Collision_Info.clear();
 	}
 }

@@ -421,6 +421,7 @@
     <ClCompile Include="Collada_Loader\Collada_Mesh_Loader.cpp" />
     <ClCompile Include="Collision\Hitboxes.cpp" />
     <ClCompile Include="Collision\Physics_Engine.cpp" />
+    <ClCompile Include="Collision\Separating_Axis_Theorem.cpp" />
     <ClCompile Include="Controllers\Asset_Cache.cpp" />
     <ClCompile Include="Controllers\Controller_Handling.cpp" />
     <ClCompile Include="Controllers\Cubemap_Reflection_Generation.cpp" />

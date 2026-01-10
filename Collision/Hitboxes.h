@@ -15,6 +15,8 @@ namespace Jaguar
 
 	class Sphere_Hitbox;
 
+	class Mesh_Hitbox;
+
 	struct Collision_Info
 	{
 		glm::vec3 Normal;		// The normal from B to A
@@ -46,11 +48,30 @@ namespace Jaguar
 
 		virtual Collision_Info Sphere_Collision(Sphere_Hitbox* Other_Hitbox)
 		{ return Collision_Info(); }
+
+		virtual Collision_Info Mesh_Collision(Mesh_Hitbox* Other_Hitbox)
+		{ return Collision_Info(); }
 	};
 
 	//
 
 	Collision_Info AABB_Sphere_Collision(AABB_Hitbox* This, Sphere_Hitbox* Other_Hitbox);
+
+	class Mesh_Hitbox : public Hitbox
+	{
+	public:
+		std::vector<glm::vec3> Transformed_Points;	// These are the points that have undergone a transformation (rotation/displacement)
+
+		std::vector<glm::vec3> Points;
+
+		std::vector<uint16_t> Indices;	// Every 3 indices is a single triangle
+
+										// triangles with the same normal are merged
+
+		//virtual Collision_Info Test_Collision(Hitbox* Other_Hitbox) override;
+
+		//virtual Collision_Info Mesh_Collision(Mesh_Hitbox* Other_Hitbox) override;
+	};
 
 	class Sphere_Hitbox : public Hitbox
 	{

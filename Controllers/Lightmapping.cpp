@@ -401,7 +401,9 @@ namespace Jaguar
 		);
 	}
 
-	const float Luxel_Scale = 50.0f; // 1 unit squared equals 5x5 pixels of area
+	// previously 50
+
+	const float Luxel_Scale = 30.0f; // 1 unit squared equals 5x5 pixels of area
 
 	void Generate_Bounced_Light_Lightsources(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data3[3], std::vector<Lightsource*>& Target_Lightsources)
 	{

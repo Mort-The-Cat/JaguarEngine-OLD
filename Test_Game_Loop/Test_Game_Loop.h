@@ -84,7 +84,7 @@ void Shoot_Physics_Object(Jaguar::Jaguar_Engine* Engine)
 		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Sphere.dae").Buffer,			// Model
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Grey.png").Texture,	// Texture
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,	// Normal map
-		Jaguar::Wrap_Sphere_Hitbox(
+		Jaguar::Wrap_AABB_Hitbox(
 			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Sphere.dae").Mesh, 0.01f
 		),
 		new Jaguar::Physics_Object_Controller(),
@@ -222,6 +222,8 @@ void Place_Animation_Objects(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_
 void Setup_New_Test_Level(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader, Jaguar::Shader Test_Skeletal_Animation_Shader);
 void Setup_Cornell_Box(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader, Jaguar::Shader Test_Skeletal_Animation_Shader);
 
+void Setup_AABB_Physics_Room(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader, Jaguar::Shader Test_Skeletal_Animation_Shader);
+
 void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 {
 	glfwInit();
@@ -274,14 +276,15 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
 	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Test_Scene_Flood_Light";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/2AABB_Room_Flood_Light";
 
 	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
-	Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	//Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	Setup_AABB_Physics_Room(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
-	if constexpr (false)
+	if constexpr (true)
 	{
 		Jaguar::Lightmap_Chart Lightmap;			// This will be generated during light-baking
 		Jaguar::Init_Lightmap_Chart(&Lightmap);

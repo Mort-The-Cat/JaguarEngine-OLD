@@ -101,7 +101,7 @@ namespace Jaguar
 			Info.B = This;
 			Info.A = Other_Hitbox;
 
-			Info.Points = std::vector<glm::vec3>{ Sphere_Axes };
+			Info.Points = std::vector<glm::vec3>{ Sphere_Axes + This->Object->Position };
 			Info.Normal = AABB_Direction_Vectors[Shortest];
 
 			Info.Delta = Deltas[Shortest];

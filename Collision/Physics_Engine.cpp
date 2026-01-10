@@ -103,7 +103,7 @@ namespace Jaguar
 
 			float Normal_Velocity = glm::dot(Relative_Velocity, -Collision.Normal);
 
-			glm::vec3 Tangential_Velocity = Relative_Velocity - Normal_Velocity * Collision.Normal;
+			glm::vec3 Tangential_Velocity = Relative_Velocity + Normal_Velocity * Collision.Normal;
 
 			if (Normal_Velocity > 0.0f)
 			{

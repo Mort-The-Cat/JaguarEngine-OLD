@@ -881,6 +881,9 @@
     <ClCompile Include="Collision\Physics_Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Collision\Separating_Axis_Theorem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Libraries\Lib\OpenGL32.Lib" />

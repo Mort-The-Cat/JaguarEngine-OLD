@@ -132,16 +132,16 @@ void Setup_AABB_Physics_Room(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_
 
 	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
 	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
-	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(0.52395f, -0.33528f, -2.0792f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(0.52395f, -0.34528f, -2.0792f);
 	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
 
 	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
-	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.25f, 0.25f, 0.35f);
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
 	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(3.961f, 3.5593f, -1.9381f);
 	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
 
 	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
-	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.25f, 0.25f, 0.35f);
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
 	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(4.008f, 2.116f, 2.6285f);
 	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
 }

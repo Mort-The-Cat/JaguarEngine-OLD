@@ -60,18 +60,38 @@ namespace Jaguar
 	class Mesh_Hitbox : public Hitbox
 	{
 	public:
+		struct SAT_Face
+		{
+			glm::vec3 Transformed_Normal;
+			glm::vec3 Normal;
+			uint16_t Point_Index;
+		};
+
 		std::vector<glm::vec3> Transformed_Points;	// These are the points that have undergone a transformation (rotation/displacement)
 
 		std::vector<glm::vec3> Points;
 
-		std::vector<uint16_t> Indices;	// Every 3 indices is a single triangle
+		std::vector<SAT_Face> Faces;
 
-										// triangles with the same normal are merged
+		struct SAT_Edge	// Oh good heavens
+		{
+			glm::vec3 Transformed_Edge;
+			glm::vec3 Edge;
+			uint16_t Point_Index;
+		};
+
+		std::vector<SAT_Edge> Edges;
+
+		// triangles with the same normal are merged
+
+
 
 		//virtual Collision_Info Test_Collision(Hitbox* Other_Hitbox) override;
 
 		//virtual Collision_Info Mesh_Collision(Mesh_Hitbox* Other_Hitbox) override;
 	};
+
+	void Create_Mesh_Hitbox(const Collada::Collada_Mesh* Model_Mesh, Mesh_Hitbox* Target_Hitbox);
 
 	class Sphere_Hitbox : public Hitbox
 	{

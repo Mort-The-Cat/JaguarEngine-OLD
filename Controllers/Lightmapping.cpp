@@ -154,6 +154,8 @@ namespace Jaguar
 
 		// Add all of the node_positions as actual lighting nodes
 
+		Target_Lighting->Lighting_Nodes.Size = Size;
+
 		Target_Lighting->Lighting_Nodes.Nodes.resize(Node_Positions.size());
 
 		for (size_t Index = 0; Index < Node_Positions.size(); Index++)
@@ -485,7 +487,7 @@ namespace Jaguar
 						Read_From_Texture<Lightmap_RGB>(Lightmap_Texture_Data3[1], Target_Chart->Sidelength, Target_Chart->Sidelength, Lightmap_Coordinate) +
 						Read_From_Texture<Lightmap_RGB>(Lightmap_Texture_Data3[2], Target_Chart->Sidelength, Target_Chart->Sidelength, Lightmap_Coordinate);
 
-					const float Reflection_Coefficient = 0.97f / (255.0f * Scale * Scale);
+					const float Reflection_Coefficient = 0.35f / (255.0f * Scale * Scale);
 
 					Target_Lightsources.back()->Colour = Lightmap_Value * Albedo_Colour * glm::vec3(Reflection_Coefficient); // This will then rewrite the lightmap accordingly
 					Target_Lightsources.back()->Bounced = true;

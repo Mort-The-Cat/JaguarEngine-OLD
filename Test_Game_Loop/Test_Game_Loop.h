@@ -243,7 +243,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 	Set_Input_Keycodes(&Engine->User_Inputs);
 
-	Jaguar::Initialise_Job_System(&Engine->Job_Handler, 2); // initialise 7 worker threads
+	Jaguar::Initialise_Job_System(&Engine->Job_Handler, 7); // initialise 7 worker threads
 
 	//
 
@@ -276,7 +276,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
 	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/2AABB_Room_Flood_Light";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/AABB_Room_Flood_Light";
 
 	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	//Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
@@ -284,7 +284,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
-	if constexpr (true)
+	if constexpr (false)
 	{
 		Jaguar::Lightmap_Chart Lightmap;			// This will be generated during light-baking
 		Jaguar::Init_Lightmap_Chart(&Lightmap);

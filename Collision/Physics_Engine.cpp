@@ -15,6 +15,8 @@ namespace Jaguar
 		Physics.Orientation = Object->Orientation;
 		Physics.Orientation_Up = Object->Orientation_Up;
 
+		Physics.Velocity = glm::vec3(1.0f) * (glm::vec3(RNG(), RNG(), RNG()) - glm::vec3(0.5f));
+
 		Engine->Physics.Physics_Objects.push_back(&Physics);
 	}
 
@@ -59,7 +61,7 @@ namespace Jaguar
 
 		// Torque is slightly trickier...
 
-		Physics->Torque += glm::cross(Force, Point - Physics->Position);
+		// Physics->Torque += glm::cross(Force, Point - Physics->Position);
 	}
 
 	void Apply_Impulses(Jaguar_Engine* Engine, const Collision_Info& Collision)
@@ -117,13 +119,15 @@ namespace Jaguar
 
 				Apply_Force_To_Physics_Object(Collision.A->Object->Control->Get_Physics_Object(), -Force, Collision.Points[Index]);
 
-				Collision.A->Object->Control->Get_Physics_Object()->Step(Engine->Time);
-
 				if (Collision.B->Object->Get_Physics_Object())
 				{
 					Apply_Force_To_Physics_Object(Collision.B->Object->Control->Get_Physics_Object(), Force, Collision.Points[Index]);
 
-					Collision.B->Object->Control->Get_Physics_Object()->Step(Engine->Time);
+					//Collision.B->Object->Control->Get_Physics_Object()->Step(Engine->Time);
+				}
+				else
+				{
+					Collision.A->Object->Control->Get_Physics_Object()->Step(Engine->Time);
 				}
 			}
 		}

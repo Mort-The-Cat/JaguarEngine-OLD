@@ -297,8 +297,10 @@ namespace Jaguar
 		for(size_t Index = 0; Index < Model_Mesh->Vertices.size(); Index++)
 			for (size_t Axis = 0; Axis < 3; Axis++)
 			{
-				Box.A[Axis] = std::fminf(Box.A[Axis], Model_Mesh->Vertices[Index].Position[Axis]);
-				Box.B[Axis] = std::fmaxf(Box.B[Axis], Model_Mesh->Vertices[Index].Position[Axis]);
+				glm::vec3 Vert = glm::vec3(-1.0f, 1.0f, 1.0f) * Model_Mesh->Vertices[Index].Position;
+
+				Box.A[Axis] = std::fminf(Box.A[Axis], Vert[Axis]);
+				Box.B[Axis] = std::fmaxf(Box.B[Axis], Vert[Axis]);
 			}
 
 		Box.A -= glm::vec3(Thickness);
@@ -320,14 +322,16 @@ namespace Jaguar
 
 			AABB_Hitbox Box;
 
-			Box.A = Vertices[0].Position;
-			Box.B = Vertices[0].Position;
+			Box.A = glm::vec3(-1.0f, 1.0f, 1.0f) * Vertices[0].Position;
+			Box.B = glm::vec3(-1.0f, 1.0f, 1.0f) * Vertices[0].Position;
 
 			for (size_t Point = 1; Point < 3; Point++)
 				for (size_t Axis = 0; Axis < 3; Axis++)
 				{
-					Box.A[Axis] = std::fminf(Box.A[Axis], Vertices[Point].Position[Axis]);
-					Box.B[Axis] = std::fmaxf(Box.B[Axis], Vertices[Point].Position[Axis]);
+					glm::vec3 Vert = glm::vec3(-1.0f, 1.0f, 1.0f) * Vertices[Point].Position;
+
+					Box.A[Axis] = std::fminf(Box.A[Axis], Vert[Axis]);
+					Box.B[Axis] = std::fmaxf(Box.B[Axis], Vert[Axis]);
 				}
 
 			Box.A -= glm::vec3(Thickness);

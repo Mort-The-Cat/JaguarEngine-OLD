@@ -276,11 +276,11 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
 	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/AABB_Room_Flood_Light";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/1AABB_Room_Flood_Light";
 
 	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
-	//Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
-	Setup_AABB_Physics_Room(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	//Setup_AABB_Physics_Room(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 

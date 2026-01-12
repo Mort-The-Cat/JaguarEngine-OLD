@@ -20,6 +20,15 @@ namespace Jaguar
 		return -1;
 	}
 
+	long Check_Existing_Vector(const std::vector<Mesh_Hitbox::SAT_Edge>& Edges, glm::vec3 Vector)	// Don't like how I'm repeating this code but it's whatever
+	{
+		for (size_t Index = 0; Index < Edges.size(); Index++)
+			if (Edges[Index].Edge == Vector)
+				return Index;
+
+		return -1;
+	}
+
 	void Create_Mesh_Hitbox(const Collada::Collada_Mesh* Model_Mesh, Mesh_Hitbox* Target_Hitbox)
 	{
 		for (size_t Index = 0; Index < Model_Mesh->Vertices.size(); Index += 3)
@@ -49,6 +58,8 @@ namespace Jaguar
 			}
 
 			// Great! Then, check edges...
+
+
 		}
 	}
 

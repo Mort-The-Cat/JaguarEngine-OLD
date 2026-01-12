@@ -5,7 +5,9 @@ namespace Collada
 {
 	void Load_Child_Joint_Name_Map(XML_Document Parent_Node, std::map<std::string, unsigned int>& Bone_Map, std::vector<glm::mat4>& Buffer)
 	{
-		Bone_Map[Parent_Node.Id] = Bone_Map.size() - 1;
+		int Index = Bone_Map.size();
+
+		Bone_Map[Parent_Node.Id] = Index;
 
 		Load_Strings_To_Matrices(Parent_Node["matrix"][0].Data_Array, Buffer); // Loads joint matrix into buffer
 
@@ -121,6 +123,8 @@ namespace Collada
 		Load_Strings_To_Matrices(Document["COLLADA"][0]["library_visual_scenes"][0]["visual_scene"][0]["node"][0]["matrix"][0].Data_Array, Bind_Poses_Array);
 
 		Target_Skeleton->Bind_Shape_Matrix = Target_Skeleton->Bind_Shape_Matrix * Bind_Poses_Array[0];
+
+		//
 
 		return 0;
 	}

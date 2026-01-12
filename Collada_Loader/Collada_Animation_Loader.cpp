@@ -2,6 +2,22 @@
 
 namespace Collada
 {
+	void Print_Matrix(glm::mat4 Matrix)
+	{
+		for (size_t Row = 0; Row < Matrix.length(); Row++)
+		{
+			printf("\t");
+
+			for (size_t Column = 0; Column < Matrix[Row].length(); Column++)
+			{
+				printf("%f ", Matrix[Row][Column]);
+			}
+
+			printf("\n");
+		}
+	}
+
+
 
 	int Load_Animation(const XML_Document& Document, Collada_Animation* Target_Animation)
 	{

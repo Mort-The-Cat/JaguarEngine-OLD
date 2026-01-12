@@ -121,6 +121,9 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 
 		Engine->Time = std::chrono::duration<float>(Current_Time - Previous_Time).count();
 
+		if (Engine->Time > 0.2f) // If it's slower than 5FPS, clamp it to zero because the game isn't running like it's supposed to (or it's somehow paused/frozen)
+			Engine->Time = 0.0f;
+
 		glClearColor(0.3, 0.3, 0.2, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

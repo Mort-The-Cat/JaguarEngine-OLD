@@ -84,8 +84,8 @@ void Shoot_Physics_Object(Jaguar::Jaguar_Engine* Engine)
 		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Cube.dae").Buffer,			// Model
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Grey.png").Texture,	// Texture
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,	// Normal map
-		Jaguar::Wrap_AABB_Hitbox(
-			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Cube.dae").Mesh, 0.01f
+		Jaguar::Wrap_Mesh_Hitbox(
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Cube.dae").Mesh
 		),
 		new Jaguar::Physics_Object_Controller(),
 		glm::vec3(0.0f, 0.8f, 0.0f)	+ glm::vec3(Jaguar::RNG(), Jaguar::RNG(), Jaguar::RNG())	// Position
@@ -279,7 +279,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
 	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Test_Scene_Flood_Light";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Test_Scene_New_Flood_Light";
 
 	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);

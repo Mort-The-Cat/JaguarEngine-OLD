@@ -42,6 +42,8 @@ namespace Jaguar
 			{
 				New_Object->Collision[Index]->Object = New_Object;
 
+				New_Object->Collision[Index]->Update_Hitbox(); // ensures the hitbox is updated before any collision checks are done against it
+
 				Engine->Physics.Hitboxes.push_back(New_Object->Collision[Index]);
 
 				if (New_Object->Flags[MF_PHYSICS_OBJECT] && Engine->Physics.Hitboxes.size() - 1 > Engine->Physics.Physics_Objects.size())

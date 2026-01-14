@@ -20,15 +20,24 @@ namespace Jaguar
 		Engine->Physics.Physics_Objects.push_back(&Physics);
 	}
 
+	void Update_Physics_Object_Collision(Controller* Control, Physics_Object* Physics)
+	{
+		Control->Object->Position = Physics->Position;
+		Control->Object->Orientation = Physics->Orientation;
+		Control->Object->Orientation_Up = Physics->Orientation_Up;
+
+		for (size_t Index = 0; Index < Control->Object->Collision.size(); Index++)
+			Control->Object->Collision[Index]->Update_Hitbox();
+	}
+
 	void Physics_Object_Controller::Control_Function(Jaguar_Engine* Engine)
 	{
 		// This will apply the new transformations to the object
 
-		Object->Position = Physics.Position;
-		Object->Orientation = Physics.Orientation;
-		Object->Orientation_Up = Physics.Orientation_Up;
+		Update_Physics_Object_Collision(this, &Physics);
 
-		Physics.Force += glm::vec3(0.0f, Engine->Time * Physics.Mass * -1.0f, 0.0f);
+		Physics.Force += glm::vec3(0.0f, Engine->Time * Physics.Mass * -4.0f, 0.0f);
+		
 		// Apply Earth's weight-force to object
 
 		// Note that we don't need to use the 'apply force' function here because it's uniform and no torque is produced from this alone
@@ -61,11 +70,15 @@ namespace Jaguar
 
 		// Torque is slightly trickier...
 
-		// Physics->Torque += glm::cross(Force, Point - Physics->Position);
+		glm::vec3 Torque_Delta = glm::cross(Force, Point - Physics->Position);
+
+		// Physics->Torque -= Torque_Delta;
 	}
 
 	void Apply_Impulses(Jaguar_Engine* Engine, const Collision_Info& Collision)
 	{
+		float Inverse_Count = 1.0f / (float)Collision.Points.size();
+
 		for (size_t Index = 0; Index < Collision.Points.size(); Index++)
 		{
 			glm::vec3 A_Velocity = Velocity_At_Point(Collision.A->Object->Control->Get_Physics_Object(), Collision.Points[Index]);
@@ -117,6 +130,8 @@ namespace Jaguar
 
 				glm::vec3 Force = Collision.Normal * Normal_Force_Magnitude + Friction * Tangential_Velocity * (1.0f - expf(Normal_Force_Magnitude));
 
+				Force *= Inverse_Count;
+
 				Apply_Force_To_Physics_Object(Collision.A->Object->Control->Get_Physics_Object(), -Force, Collision.Points[Index]);
 
 				if (Collision.B->Object->Get_Physics_Object())
@@ -127,9 +142,15 @@ namespace Jaguar
 				}
 				else
 				{
-					Collision.A->Object->Control->Get_Physics_Object()->Step(Engine->Time);
+					//Collision.A->Object->Control->Get_Physics_Object()->Step(Engine->Time);
 				}
 			}
+		}
+
+		if (Collision.B->Object->Get_Physics_Object() == nullptr)
+		{
+			Collision.A->Object->Control->Get_Physics_Object()->Step(Engine->Time);
+			Update_Physics_Object_Collision(Collision.A->Object->Control, Collision.A->Object->Get_Physics_Object());
 		}
 	}
 
@@ -151,11 +172,9 @@ namespace Jaguar
 
 				Info = Engine->Physics.Hitboxes[Index]->Test_Collision(Engine->Physics.Hitboxes[Other_Index]);
 
-				if (Info.Delta)	// If NOT zero
+				if (Info.Delta > 0.0f)	// If NOT zero
 				{
 					Engine->Physics.Collision_Info.push_back(Info);
-
-					Apply_Impulses(Engine, Engine->Physics.Collision_Info.back());
 				}
 			}
 
@@ -172,9 +191,11 @@ namespace Jaguar
 		{
 			// check if there's an object 'B' apply deltas to either one or both
 
+			Apply_Impulses(Engine, Engine->Physics.Collision_Info[Index]);
+
 			Physics_Object* B_Physics = Engine->Physics.Collision_Info[Index].B->Object->Get_Physics_Object();
 
-			glm::vec3 Delta = Engine->Physics.Collision_Info[Index].Normal * (Engine->Physics.Collision_Info[Index].Delta + 0.00001f);
+			glm::vec3 Delta = Engine->Physics.Collision_Info[Index].Normal * (Engine->Physics.Collision_Info[Index].Delta);
 
 			if (B_Physics)
 			{

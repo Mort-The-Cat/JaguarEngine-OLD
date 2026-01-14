@@ -487,7 +487,7 @@ namespace Jaguar
 						Read_From_Texture<Lightmap_RGB>(Lightmap_Texture_Data3[1], Target_Chart->Sidelength, Target_Chart->Sidelength, Lightmap_Coordinate) +
 						Read_From_Texture<Lightmap_RGB>(Lightmap_Texture_Data3[2], Target_Chart->Sidelength, Target_Chart->Sidelength, Lightmap_Coordinate);
 
-					const float Reflection_Coefficient = 0.35f / (255.0f * Scale * Scale);
+					const float Reflection_Coefficient = 0.4f / (255.0f * Scale * Scale);
 
 					Target_Lightsources.back()->Colour = Lightmap_Value * Albedo_Colour * glm::vec3(Reflection_Coefficient); // This will then rewrite the lightmap accordingly
 					Target_Lightsources.back()->Bounced = true;

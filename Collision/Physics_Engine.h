@@ -42,7 +42,63 @@ namespace Jaguar
 		glm::vec3 Force;	// Forces applied to object
 		glm::vec3 Torque;	// Moments applied to object (as an axis and magnitude of rotation)
 
+		glm::vec3 Delta_Velocity;
+		glm::vec3 Delta_Rotational_Velocity;
+
+		glm::vec3 Get_Velocity() const
+		{
+			return Velocity + Delta_Velocity;
+		}
+
+		glm::vec3 Get_Rotational_Velocity() const
+		{
+			return Rotational_Velocity + Delta_Rotational_Velocity;
+		}
+
+		void Update_Movement_Vectors()
+		{
+			float Inv_Mass = 1.0 / Mass;
+
+			Delta_Velocity += Force * Inv_Mass;
+
+			Force = glm::vec3(0.0f);		// clears force
+
+			if(!Flags[PF_LOCK_ROTATION])
+				Delta_Rotational_Velocity += Torque * Inv_Mass;
+
+			Torque = Force;					// clears torque
+		}
+
 		void Step(float Time)
+		{
+			// Update_Movement_Vectors(); will have already been called at this point
+
+			Delta_Velocity *= 0.5f;
+			Velocity += Delta_Velocity;
+			Position += Velocity * Time;
+			Velocity += Delta_Velocity;
+
+			Delta_Rotational_Velocity *= 0.5f;
+			Rotational_Velocity += Delta_Rotational_Velocity;
+
+			if (
+				(
+				Rotational_Velocity.x != 0 ||
+				Rotational_Velocity.y != 0 ||
+				Rotational_Velocity.z != 0
+				) && Time != 0 
+				)
+				Axis_Angle_Rotate_Orientation(Rotational_Velocity * Time, &Orientation, &Orientation_Up);
+
+			Rotational_Velocity += Delta_Rotational_Velocity;
+
+			Orientation = glm::normalize(Orientation);
+			Orientation_Up = glm::normalize(Orientation_Up);
+			// We just wanna make EXTRA sure that these are normalised 
+			// because otherwise it could potentially fuck up the physics and visuals after a long enough time due to floating point error
+		}
+
+		/*void Old_Step(float Time)
 		{
 			float Inv_Mass = 0.5f / Mass;
 
@@ -72,7 +128,7 @@ namespace Jaguar
 			// because otherwise it could potentially fuck up the physics and visuals after a long enough time due to floating point error
 
 			Torque = Force;							// reset torque
-		}
+		}*/
 	};
 
 	class Physics_Object_Controller : public Controller
@@ -89,6 +145,7 @@ namespace Jaguar
 
 	void Record_Collisions(Jaguar_Engine* Engine);
 	void Resolve_Collisions(Jaguar_Engine* Engine);
+	void Step_Physics(Jaguar_Engine* Engine);
 
 	struct Physics_Data
 	{

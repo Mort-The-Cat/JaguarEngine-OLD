@@ -15,7 +15,7 @@ namespace Jaguar
 		Physics.Orientation = Object->Orientation;
 		Physics.Orientation_Up = Object->Orientation_Up;
 
-		Physics.Velocity = glm::vec3(1.0f) * (glm::vec3(RNG(), RNG(), RNG()) - glm::vec3(0.5f));
+		Physics.Velocity = glm::vec3(0.5f) * (glm::vec3(RNG(), RNG(), RNG()) - glm::vec3(0.5f));
 
 		Engine->Physics.Physics_Objects.push_back(&Physics);
 	}
@@ -61,7 +61,16 @@ namespace Jaguar
 
 	glm::vec3 Velocity_At_Point(const Physics_Object* Physics, glm::vec3 Point)
 	{
-		return Physics->Velocity + glm::cross(Physics->Rotational_Velocity, Point - Physics->Position);
+		return Physics->Get_Velocity() + glm::cross(Physics->Get_Rotational_Velocity(), Point - Physics->Position);
+	}
+
+	glm::vec3 Get_Torque(Physics_Object* Physics, glm::vec3 Force, glm::vec3 Point)
+	{
+		glm::vec3 Axis = glm::normalize(glm::cross(Force, Point - Physics->Position));
+
+		glm::vec3 Tangent = (glm::cross(Axis, Point - Physics->Position));
+
+		return (glm::dot(Force, Tangent) / glm::length(Point - Physics->Position)) * Axis;
 	}
 
 	void Apply_Force_To_Physics_Object(Physics_Object* Physics, glm::vec3 Force, glm::vec3 Point)
@@ -70,14 +79,221 @@ namespace Jaguar
 
 		// Torque is slightly trickier...
 
-		glm::vec3 Torque_Delta = glm::cross(Force, Point - Physics->Position);
+		Physics->Torque += Get_Torque(Physics, Force, Point);
 
-		// Physics->Torque -= Torque_Delta;
+		//glm::vec3 Axis = glm::normalize(glm::cross(Force, Point - Physics->Position));
+
+		//glm::vec3 Tangent = (glm::cross(Axis, Point - Physics->Position));
+
+		//Physics->Torque += ( glm::dot(Force, Tangent) / glm::length(Point - Physics->Position) ) * Axis;
+
+		// glm::vec3 Torque_Delta = glm::cross(Force, Point - Physics->Position);
+
+		// Physics->Torque += Torque_Delta;
+	}
+
+	void Get_Force_And_Torque(
+		glm::vec3& Sum_Force,
+		size_t& Force_Count,
+		glm::vec3& Min_A_Torque,
+		glm::vec3& Max_A_Torque,
+
+		glm::vec3& Min_B_Torque,
+		glm::vec3& Max_B_Torque, 
+		glm::vec3 Point, const Collision_Info& Collision)
+	{
+
+
+		glm::vec3 A_Velocity = Velocity_At_Point(Collision.A->Object->Control->Get_Physics_Object(), Point);
+		glm::vec3 B_Velocity;
+
+		float A_Mass = Collision.A->Object->Control->Get_Physics_Object()->Mass, B_Mass;
+
+		float A_Inv_Mass = 1.0f / A_Mass, B_Inv_Mass;
+
+		float B_Elasticity, B_Friction;
+
+		if (Collision.B->Object->Get_Physics_Object())
+		{
+			B_Velocity = Velocity_At_Point(Collision.B->Object->Control->Get_Physics_Object(), Point);
+
+			B_Mass = Collision.B->Object->Control->Get_Physics_Object()->Mass;
+			B_Inv_Mass = 1.0f / B_Mass;
+
+			B_Elasticity = Collision.B->Object->Control->Get_Physics_Object()->Elasticity;
+			B_Friction = Collision.B->Object->Control->Get_Physics_Object()->Friction;
+		}
+		else
+		{
+			B_Velocity = glm::vec3(0.0f);
+
+			B_Elasticity = 0.15f;
+			B_Friction = 0.4f;
+
+			B_Inv_Mass = 0.0f;
+		}
+
+		//
+
+		float Inv_Combined_Mass = 0.5f / (A_Inv_Mass + B_Inv_Mass);
+
+		glm::vec3 Relative_Velocity = A_Velocity - B_Velocity;
+
+		float Normal_Velocity = glm::dot(Relative_Velocity, -Collision.Normal);
+
+		glm::vec3 Tangential_Velocity = Relative_Velocity + Normal_Velocity * Collision.Normal;
+
+		if (Normal_Velocity > 0.0f)
+		{
+			float Elasticity = Collision.A->Object->Control->Get_Physics_Object()->Elasticity * B_Elasticity;
+
+			float Friction = Collision.A->Object->Control->Get_Physics_Object()->Friction * B_Friction;
+
+			float Normal_Force_Magnitude = -(1.0f + Elasticity) * Normal_Velocity * Inv_Combined_Mass;
+
+			glm::vec3 Force = Collision.Normal * Normal_Force_Magnitude + Friction * Tangential_Velocity * (1.0f - expf(Normal_Force_Magnitude));
+
+			Sum_Force += Force;
+			Force_Count++;
+
+			// Apply_Force_To_Physics_Object(Collision.A->Object->Control->Get_Physics_Object(), -Force, Collision.Points[Index]);
+
+			glm::vec3 Torque_A = Get_Torque(Collision.A->Object->Control->Get_Physics_Object(), -Force, Point);
+
+			Min_A_Torque = glm::min(Min_A_Torque, Torque_A);
+			Max_A_Torque = glm::max(Max_A_Torque, Torque_A);
+
+			if (Collision.B->Object->Get_Physics_Object())
+			{
+				glm::vec3 Torque_B = Get_Torque(Collision.B->Object->Control->Get_Physics_Object(), Force, Point);
+
+				Min_B_Torque = glm::min(Min_B_Torque, Torque_B);
+				Max_B_Torque = glm::max(Max_B_Torque, Torque_B);
+
+				// Apply_Force_To_Physics_Object(Collision.B->Object->Control->Get_Physics_Object(), Force, Collision.Points[Index]);
+
+				//Collision.B->Object->Control->Get_Physics_Object()->Step(Engine->Time);
+			}
+		}
 	}
 
 	void Apply_Impulses(Jaguar_Engine* Engine, const Collision_Info& Collision)
 	{
-		float Inverse_Count = 1.0f / (float)Collision.Points.size();
+		// This will get the min/max torque for both objects and for both sets of points
+		// Note that we only want to check object B if it is indeed a physics object...
+
+		glm::vec3 Min_A_A_Points_Torque = glm::vec3(9999999999999.0f);
+		glm::vec3 Max_A_A_Points_Torque = -Min_A_A_Points_Torque;
+
+		glm::vec3 Min_A_B_Points_Torque = Min_A_A_Points_Torque;
+		glm::vec3 Max_A_B_Points_Torque = Max_A_A_Points_Torque;
+
+		glm::vec3 Forces[2] = { glm::vec3(0.0f), glm::vec3(0.0f) };
+
+		size_t Forces_Count[2] = { 0, 0 };
+
+
+		glm::vec3 Min_B_A_Points_Torque = Min_A_A_Points_Torque;
+		glm::vec3 Max_B_A_Points_Torque = Max_A_A_Points_Torque;
+
+		glm::vec3 Min_B_B_Points_Torque = Min_B_A_Points_Torque;
+		glm::vec3 Max_B_B_Points_Torque = Max_B_A_Points_Torque;
+
+		for (size_t A_Index = 0; A_Index < Collision.A_Points.size(); A_Index++)
+			Get_Force_And_Torque(Forces[0], Forces_Count[0], Min_A_A_Points_Torque, Max_A_A_Points_Torque, Min_B_A_Points_Torque, Max_B_A_Points_Torque, Collision.A_Points[A_Index], Collision);
+	
+		for (size_t B_Index = 0; B_Index < Collision.B_Points.size(); B_Index++)
+			Get_Force_And_Torque(Forces[1], Forces_Count[1], Min_A_B_Points_Torque, Max_A_B_Points_Torque, Min_B_B_Points_Torque, Max_B_B_Points_Torque, Collision.B_Points[B_Index], Collision);
+
+		if (!Forces_Count[0] && !Forces_Count[1])
+			return;
+
+		// Applies the correct force and the correct torque...
+
+		// apply force with *fewer* overlaps
+
+		// apply torque that is closest to -Get_Rotational_Velocity() * Mass
+
+		glm::vec3 Min_Torque;// = glm::max(Min_A_A_Points_Torque, Min_A_B_Points_Torque);
+		glm::vec3 Max_Torque;// = glm::min(Max_A_A_Points_Torque, Max_A_B_Points_Torque);
+
+		size_t Force_Index;
+
+		if (!Forces_Count[0])
+		{
+			Min_Torque = Min_A_B_Points_Torque;
+			Max_Torque = Max_A_B_Points_Torque;
+
+			Force_Index = 1;
+		}
+		else if (!Forces_Count[1])
+		{
+			Min_Torque = Min_A_A_Points_Torque;
+			Max_Torque = Max_A_A_Points_Torque;
+
+			Force_Index = 0;
+		}
+		else
+		{
+			Min_Torque = glm::max(Min_A_A_Points_Torque, Min_A_B_Points_Torque);
+			Max_Torque = glm::min(Max_A_A_Points_Torque, Max_A_B_Points_Torque);
+
+			//Forces[0] += Forces[1];
+			//Forces_Count[0] += Forces_Count[1];
+
+			//Force_Index = 0;
+
+			Force_Index = ( Forces_Count[0] * glm::length(Forces[1]) ) > ( glm::length(Forces[0]) * Forces_Count[1] );
+		}
+	
+		//size_t 
+		 
+		// Force_Index = glm::length(Forces[1]) < glm::length(Forces[0]) || !Forces_Count[0];
+
+		Forces[Force_Index] *= 1.0f / (float)Forces_Count[Force_Index];
+
+		Collision.A->Object->Get_Physics_Object()->Force -= Forces[Force_Index];
+
+		glm::vec3 Desired_Torque = -Collision.A->Object->Get_Physics_Object()->Get_Rotational_Velocity() * Collision.A->Object->Get_Physics_Object()->Mass;
+
+		Collision.A->Object->Get_Physics_Object()->Torque += glm::max(Min_Torque, glm::min(Max_Torque, Desired_Torque));
+
+		if (Collision.B->Object->Get_Physics_Object() != nullptr)
+		{
+			// apply force and torque here as well !!
+
+			if (!Forces_Count[0])
+			{
+				Min_Torque = Min_B_B_Points_Torque;
+				Max_Torque = Max_B_B_Points_Torque;
+			}
+			else if (!Forces_Count[1])
+			{
+				Min_Torque = Min_B_A_Points_Torque;
+				Max_Torque = Max_B_A_Points_Torque;
+			}
+			else
+			{
+				Min_Torque = glm::max(Min_B_A_Points_Torque, Min_B_B_Points_Torque);
+				Max_Torque = glm::min(Max_B_A_Points_Torque, Max_B_B_Points_Torque);
+			}
+
+			Collision.B->Object->Get_Physics_Object()->Force += Forces[Force_Index];
+
+			Desired_Torque = -Collision.B->Object->Get_Physics_Object()->Get_Rotational_Velocity() * Collision.B->Object->Get_Physics_Object()->Mass;
+
+			Collision.B->Object->Get_Physics_Object()->Torque += glm::max(Min_Torque, glm::min(Max_Torque, Desired_Torque));
+
+
+			//
+		}
+		else
+			Collision.A->Object->Control->Get_Physics_Object()->Update_Movement_Vectors();
+	}
+
+	/*void Old_Apply_Impulses(Jaguar_Engine* Engine, const Collision_Info& Collision)
+	{
+		float Inverse_Count = (1.0f / 1.0f) / (float)Collision.Points.size();
 
 		for (size_t Index = 0; Index < Collision.Points.size(); Index++)
 		{
@@ -104,7 +320,7 @@ namespace Jaguar
 			{
 				B_Velocity = glm::vec3(0.0f);
 
-				B_Elasticity = 0.5f;
+				B_Elasticity = 0.15f;
 				B_Friction = 0.4f;
 
 				B_Inv_Mass = 0.0f;
@@ -149,13 +365,15 @@ namespace Jaguar
 
 		if (Collision.B->Object->Get_Physics_Object() == nullptr)
 		{
-			Collision.A->Object->Control->Get_Physics_Object()->Step(Engine->Time);
-			Update_Physics_Object_Collision(Collision.A->Object->Control, Collision.A->Object->Get_Physics_Object());
+			Collision.A->Object->Control->Get_Physics_Object()->Update_Movement_Vectors();
+			// Update_Physics_Object_Collision(Collision.A->Object->Control, Collision.A->Object->Get_Physics_Object());
 		}
-	}
+	} */
 
 	void Record_Collisions(Jaguar_Engine* Engine)
 	{
+		Engine->Physics.Collision_Info.clear(); // Ensures that any previous collisions have been cleared
+
 		// This collects all of the Collision_Info objects between physics-objects and static hitboxes 
 		// as well as physics-objects and other physics-objects
 
@@ -183,6 +401,14 @@ namespace Jaguar
 		
 	}
 
+	void Step_Physics(Jaguar_Engine* Engine)
+	{
+		for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)
+		{
+			Engine->Physics.Physics_Objects[Index]->Step(Engine->Time);						// pass the 'delta time' to the step function
+		}
+	}
+
 	void Resolve_Collisions(Jaguar_Engine* Engine)
 	{
 		// Apply position deltas and then 'step' all physics objects
@@ -205,11 +431,13 @@ namespace Jaguar
 			}
 
 			Engine->Physics.Collision_Info[Index].A->Object->Get_Physics_Object()->Position += Delta;
+
+			Engine->Physics.Collision_Info[Index].Delta = 0.0f;
 		}
 
 		for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)
-			Engine->Physics.Physics_Objects[Index]->Step(Engine->Time);						// pass the 'delta time' to the step function
-
-		Engine->Physics.Collision_Info.clear();
+		{
+			Engine->Physics.Physics_Objects[Index]->Update_Movement_Vectors();
+		}
 	}
 }

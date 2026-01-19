@@ -36,7 +36,7 @@ namespace Collada
 				Collada_Vertex Vertex;
 
 				size_t Index = std::stoi(Indices[W++]);
-				Vertex.Position = Positions[Index];
+				Vertex.Position = Positions[Index]; // *glm::vec3(-1.0f, 1.0f, 1.0f);
 
 				if (Skeleton)
 				{

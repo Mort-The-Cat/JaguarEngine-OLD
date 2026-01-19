@@ -61,15 +61,15 @@ namespace Jaguar
 				New_Info.Delta = std::fmaxf(New_Info.Delta, Local_Delta);
 
 				if (Local_Delta >= 0.0f)
-					New_Info.Points.push_back(Hitbox_B->Transformed_Points[Point]);
+					New_Info.A_Points.push_back(Hitbox_B->Transformed_Points[Point] + Hitbox_B->Object->Position);
 			}
 
 			if (New_Info.Delta < Info.Delta)
 			{
 				Info.Delta = New_Info.Delta;
 				Info.Normal = Hitbox_A->Faces[Face].Transformed_Normal;
-				Info.Points.clear();
-				Info.Points = std::move(New_Info.Points);
+				Info.A_Points.clear();
+				Info.A_Points = std::move(New_Info.A_Points);
 			}
 		}
 
@@ -131,6 +131,7 @@ namespace Jaguar
 		Tests[0].A = Hitbox_B;
 		Tests[0].B = Hitbox_A;
 
+		Tests[0].B_Points = std::move(Tests[0].A_Points);
 		Tests[1].A = Hitbox_B;
 		Tests[1].B = Hitbox_A;
 
@@ -147,7 +148,15 @@ namespace Jaguar
 		{
 			// collision...
 
-			Tests[Index].Points = std::move(Tests[1].Points);
+			//bool Point_Index = Hitbox_B->Object->Get_Physics_Object() != nullptr;
+			//Point_Index ^= Hitbox_A->Object->Get_Physics_Object() != nullptr;
+
+			//Point_Index = Point_Index ? Hitbox_B->Object->Get_Physics_Object() == nullptr : Index;
+
+			//Tests[Index].A_Points//std::move(Tests[Point_Index].Points);
+
+			Tests[Index].A_Points = std::move(Tests[1].A_Points);
+			Tests[Index].B_Points = std::move(Tests[0].B_Points);
 
 			return Tests[Index];
 		}

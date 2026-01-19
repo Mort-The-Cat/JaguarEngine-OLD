@@ -207,7 +207,9 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 		Engine->Scene.Camera_Position = Player_Position;
 
 		Jaguar::Record_Collisions(Engine);
-		Jaguar::Resolve_Collisions(Engine);
+		for(size_t I = 0; I < 1; I++)
+			Jaguar::Resolve_Collisions(Engine);
+		Jaguar::Step_Physics(Engine);
 
 		Jaguar::Handle_Scene_Controllers(Engine);
 
@@ -246,7 +248,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 	Set_Input_Keycodes(&Engine->User_Inputs);
 
-	Jaguar::Initialise_Job_System(&Engine->Job_Handler, 7); // initialise 7 worker threads
+	Jaguar::Initialise_Job_System(&Engine->Job_Handler, 2); // initialise 7 worker threads
 
 	//
 

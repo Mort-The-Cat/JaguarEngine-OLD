@@ -107,7 +107,7 @@ void main()
 		Normal = Vertex[W].Normal;
 		Texture_Coordinates = Vertex[W].UV;
 		Texture_Tangent = Tangent;
-		Texture_Bitangent = -cross(Tangent, Normal);
+		Texture_Bitangent = cross(Tangent, Normal);
 
 		Geometry_Normal = Normal;
 

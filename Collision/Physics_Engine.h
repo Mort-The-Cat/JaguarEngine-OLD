@@ -73,12 +73,14 @@ namespace Jaguar
 		{
 			// Update_Movement_Vectors(); will have already been called at this point
 
-			Delta_Velocity *= 0.5f;
+			//Delta_Velocity *= 0.5f;
 			Velocity += Delta_Velocity;
 			Position += Velocity * Time;
-			Velocity += Delta_Velocity;
+			//Velocity += Delta_Velocity;
 
-			Delta_Rotational_Velocity *= 0.5f;
+			Delta_Velocity = glm::vec3(0.0f);
+
+			//Delta_Rotational_Velocity *= 0.5f;
 			Rotational_Velocity += Delta_Rotational_Velocity;
 
 			if (
@@ -90,7 +92,9 @@ namespace Jaguar
 				)
 				Axis_Angle_Rotate_Orientation(Rotational_Velocity * Time, &Orientation, &Orientation_Up);
 
-			Rotational_Velocity += Delta_Rotational_Velocity;
+			//Rotational_Velocity += Delta_Rotational_Velocity;
+
+			Delta_Rotational_Velocity = Delta_Velocity;
 
 			Orientation = glm::normalize(Orientation);
 			Orientation_Up = glm::normalize(Orientation_Up);

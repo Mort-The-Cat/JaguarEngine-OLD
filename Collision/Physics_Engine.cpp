@@ -68,7 +68,7 @@ namespace Jaguar
 	{
 		glm::vec3 Axis = glm::normalize(glm::cross(Force, Point - Physics->Position));
 
-		glm::vec3 Tangent = (glm::cross(Axis, Point - Physics->Position));
+		glm::vec3 Tangent = glm::normalize(glm::cross(Axis, Point - Physics->Position));
 
 		float Line_Length = glm::length(Point - Physics->Position);
 

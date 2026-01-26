@@ -92,7 +92,7 @@ namespace Jaguar
 			}
 		} while (Not_Completed);
 
-		printf("It's decided we've finished\n");
+		//printf("It's decided we've finished\n");
 	}
 
 	void Terminate_Job_System(Job_System* Target_System)

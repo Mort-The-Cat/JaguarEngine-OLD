@@ -63,6 +63,21 @@ void Place_Animation_Objects(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_
 		glm::vec3(0.0f, 0.8f, 0.0f)																				// Position
 	);
 
+	/*Object = new Jaguar::World_Object();
+	Object->Flags[MF_ACTIVE] = true;																		// sets active flag
+	Jaguar::Create_World_Object(Engine, Object, &Test_Skeletal_Animation_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Test_Door.dae").Buffer,			// Model
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Grey.png").Texture,	// Texture
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,	// Normal map
+		{},
+		new Jaguar::Animator_Controller(Object,
+			Jaguar::Pull_Animation(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Test_Door.dae").Animation,
+			Jaguar::Pull_Skeleton(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Test_Door.dae").Skeleton
+		),
+		glm::vec3(0.0f, 0.0f, 0.0f)																				// Position
+	);
+	Object->Orientation = glm::vec3(0.0f, 0.0f, 1.0f);*/
+
 	Object = new Jaguar::World_Object();
 	Object->Flags[MF_ACTIVE] = true;
 	Jaguar::Create_World_Object(Engine, Object, &Test_Skeletal_Animation_Shader,
@@ -82,6 +97,68 @@ void Place_Animation_Objects(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_
 
 	Object = nullptr;
 }
+
+//
+
+void Setup_Radiophobia_Level(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader, Jaguar::Shader Test_Skeletal_Animation_Shader)
+{
+	Jaguar::World_Object* Object;
+
+	Engine->Scene.Lighting.Environment_Map.A = glm::vec3(-1.207f, -1.00f, -4.832f);	// Will redo these in a moment
+	Engine->Scene.Lighting.Environment_Map.B = glm::vec3(1.02f, 1.067f, 1.0017f);
+
+	Engine->Scene.Lighting.Environment_Map.Origin = glm::vec3(0.5f) * (Engine->Scene.Lighting.Environment_Map.A + Engine->Scene.Lighting.Environment_Map.B);
+
+	Object = new Jaguar::World_Object();
+	Object->Flags[MF_SOLID] = true;
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Red_Walls.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Brick.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Brick_Normal.png").Texture,	// Normal map
+		Jaguar::Wrap_AABB_Hitboxes(
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Red_Walls.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Mesh
+		), 
+		nullptr
+	);
+
+	Object = new Jaguar::World_Object();
+	Object->Flags[MF_SOLID] = true;
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Floor_Tiles.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Floor_Tiles.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Floor_Tiles_Normal.png").Texture,	// Normal map
+		Jaguar::Wrap_AABB_Hitboxes(
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Floor_Tiles.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Mesh
+		),
+		nullptr
+	);
+
+	Object = new Jaguar::World_Object();
+	Object->Flags[MF_SOLID] = true;
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Ceiling.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Rubble.jpg").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Rubble_Normal.png").Texture,	// Normal map
+		Jaguar::Wrap_AABB_Hitboxes(
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Ceiling.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Mesh
+		),
+		nullptr
+	);
+
+	Object = new Jaguar::World_Object();
+	Object->Flags[MF_SOLID] = true;
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Vents.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Grey.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,	// Normal map
+		Jaguar::Wrap_AABB_Hitboxes(
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Vents.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Mesh
+		),
+		nullptr
+	);
+}
+
+//
 
 void Setup_AABB_Physics_Room(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader, Jaguar::Shader Test_Skeletal_Animation_Shader)
 {
@@ -167,7 +244,7 @@ void Setup_Cornell_Box(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Cornell_Box.png").Texture,
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,
 		Jaguar::Wrap_AABB_Hitboxes(
-			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Nice_Cornell_Box.dae").Mesh),
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Nice_Cornell_Box.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Mesh),
 		nullptr);
 
 	/*Object = new Jaguar::World_Object();

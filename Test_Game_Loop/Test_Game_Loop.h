@@ -207,9 +207,9 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 		Engine->Scene.Camera_Position = Player_Position;
 
 		Jaguar::Record_Collisions(Engine);
-		for(size_t I = 0; I < 1; I++)
+		//for(size_t I = 0; I < 1; I++)
 			Jaguar::Resolve_Collisions(Engine);
-		Jaguar::Step_Physics(Engine);
+		//Jaguar::Step_Physics(Engine);
 
 		Jaguar::Handle_Scene_Controllers(Engine);
 
@@ -226,6 +226,7 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 void Place_Animation_Objects(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader, Jaguar::Shader Test_Skeletal_Animation_Shader);
 void Setup_New_Test_Level(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader, Jaguar::Shader Test_Skeletal_Animation_Shader);
 void Setup_Cornell_Box(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader, Jaguar::Shader Test_Skeletal_Animation_Shader);
+void Setup_Radiophobia_Level(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader, Jaguar::Shader Test_Skeletal_Animation_Shader);
 
 void Setup_AABB_Physics_Room(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader, Jaguar::Shader Test_Skeletal_Animation_Shader);
 
@@ -286,6 +287,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	//Setup_AABB_Physics_Room(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	//Setup_Radiophobia_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 

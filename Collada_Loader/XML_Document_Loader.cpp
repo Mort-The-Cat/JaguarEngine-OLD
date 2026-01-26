@@ -12,6 +12,8 @@ std::string Load_File_Contents(const char* Filename)
 	if (!File.is_open())
 	{
 		Throw_Error(" >> Fatal error! Unable to load file contents: %s\n");
+
+		return ""; // nothing to return...
 	}
 
 	// Otherwise, we can continue
@@ -92,9 +94,13 @@ namespace Collada
 
 		std::string ID = "";
 		std::string Target = "";
+		std::string URL = "";
 
 		Get_XML_Properties(Contents, Index, ID, "id=\"");
 		Get_XML_Properties(Contents, Index, Target, "target=\"");
+		Get_XML_Properties(Contents, Index, URL, "url=\"");
+		if (URL.length() == 0)										// if we haven't found a URL ?
+			Get_XML_Properties(Contents, Index, URL, "source=\"");	// grab the 'source' instead as they're analogous
 
 		Index += 1 + Search_String_Contents(Contents.data() + Index, ">"); // Passes node
 
@@ -104,6 +110,7 @@ namespace Collada
 
 		Current_Node->Id = ID;
 		Current_Node->Target = Target;
+		Current_Node->URL = URL;
 
 		if (Contents.data()[Index - 2] == '/') // If doesn't have </type> terminator
 			return;

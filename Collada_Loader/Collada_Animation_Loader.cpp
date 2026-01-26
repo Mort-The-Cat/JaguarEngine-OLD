@@ -42,31 +42,37 @@ namespace Collada
 
 		Target_Animation->Keyframes.resize(Joint_Index_Map.size()); // Creates indices for every joint
 
-		const XML_Document Animations = Document["COLLADA"][0]["library_animations"][0]["animation"][0];
-
-		for (size_t W = 0; W < Animations["animation"].size(); W++)
+		if (Document["COLLADA"][0].Nodes.count("library_animations"))
 		{
-			std::vector<glm::mat4> Transformations;
-			std::vector<glm::vec1> Times;
 
-			Load_Strings_To_Matrices(Animations["animation"][W]["source"][1]["float_array"][0].Data_Array, Transformations);
-			Load_Strings_To_Vectors(Animations["animation"][W]["source"][0]["float_array"][0].Data_Array, Times);
+			const XML_Document Animations = Document["COLLADA"][0]["library_animations"][0]["animation"][0];
 
-			size_t Index = Joint_Index_Map[Animations["animation"][W]["channel"][0].Target];
-
-			//float Cumulative_Time = 0.0f;
-
-			for (size_t V = 0; V < Times.size(); V++)
+			for (size_t W = 0; W < Animations["animation"].size(); W++)
 			{
-				Collada::Collada_Keyframe Keyframe;
-				//Cumulative_Time += Times[V].x;
-				Keyframe.Time = Times[V].x;// Cumulative_Time;
-				Keyframe.Transformation_Matrix = Transformations[V];
+				std::vector<glm::mat4> Transformations;
+				std::vector<glm::vec1> Times;
 
-				if(Index < Target_Animation->Keyframes.size())
-					Target_Animation->Keyframes[Index].push_back(Keyframe);
+				Load_Strings_To_Matrices(Animations["animation"][W]["source"][1]["float_array"][0].Data_Array, Transformations);
+				Load_Strings_To_Vectors(Animations["animation"][W]["source"][0]["float_array"][0].Data_Array, Times);
+
+				size_t Index = Joint_Index_Map[Animations["animation"][W]["channel"][0].Target];
+
+				//float Cumulative_Time = 0.0f;
+
+				for (size_t V = 0; V < Times.size(); V++)
+				{
+					Collada::Collada_Keyframe Keyframe;
+					//Cumulative_Time += Times[V].x;
+					Keyframe.Time = Times[V].x;// Cumulative_Time;
+					Keyframe.Transformation_Matrix = Transformations[V];
+
+					if (Index < Target_Animation->Keyframes.size())
+						Target_Animation->Keyframes[Index].push_back(Keyframe);
+				}
 			}
 		}
+		else
+			Target_Animation->Keyframes.resize(Joint_Matrix_Buffer.size());
 
 		for (size_t W = 0; W < Target_Animation->Keyframes.size(); W++)
 		{
@@ -76,7 +82,7 @@ namespace Collada
 
 				Collada::Collada_Keyframe Keyframe;
 				Keyframe.Time = 0.0f;
-				Keyframe.Transformation_Matrix = Joint_Matrix_Buffer[W]; //glm::inverse(Joint_Matrix_Buffer[W]);
+				Keyframe.Transformation_Matrix = (Joint_Matrix_Buffer[W]); //glm::inverse(Joint_Matrix_Buffer[W]);
 				Target_Animation->Keyframes[W].push_back(Keyframe);
 			}
 		}

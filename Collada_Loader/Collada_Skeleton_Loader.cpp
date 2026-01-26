@@ -35,7 +35,9 @@ namespace Collada
 
 			for (size_t W = 0; W < Parent_Node.Nodes["node"].size(); W++)
 			{
-				Target_Skeleton->Joints[Current_Joint_Index].Child_Joints.push_back(Target_Skeleton->Joints.size()); // Adds child node index to the node
+				size_t Child_Index = Target_Skeleton->Joints.size();// -1;
+
+				Target_Skeleton->Joints[Current_Joint_Index].Child_Joints.push_back(Child_Index); // Adds child node index to the node
 				
 				Load_Child_Joints(Current_Joint_Index, Parent_Node.Nodes["node"][W], Target_Skeleton);
 			}
@@ -122,7 +124,11 @@ namespace Collada
 
 		Load_Strings_To_Matrices(Document["COLLADA"][0]["library_visual_scenes"][0]["visual_scene"][0]["node"][0]["matrix"][0].Data_Array, Bind_Poses_Array);
 
-		Target_Skeleton->Bind_Shape_Matrix = Target_Skeleton->Bind_Shape_Matrix * Bind_Poses_Array[0];
+		//Target_Skeleton->Bind_Shape_Matrix = (Target_Skeleton->Bind_Shape_Matrix);
+
+		Target_Skeleton->Bind_Shape_Matrix = (Target_Skeleton->Bind_Shape_Matrix) * Bind_Poses_Array[0];
+
+		//Target_Skeleton->Bind_Shape_Matrix[0][3] *= -1;
 
 		//
 

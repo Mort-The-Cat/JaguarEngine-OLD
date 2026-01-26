@@ -171,6 +171,7 @@ namespace Collada
 	public:
 		std::string Id; // 'id' field of node
 		std::string Target;
+		std::string URL;
 
 				// Node type, data
 		std::map<std::string, std::vector<XML_Document>> Nodes; // How to handle float/int arrays?
@@ -179,7 +180,59 @@ namespace Collada
 
 		std::vector<std::string> Data_Array; // Can have 0 elements without issue
 
-		std::vector<XML_Document> operator[](const char* Key) const
+		const XML_Document* Search_ID(const char* Target_Id) const
+		{
+			if (strcmp(Id.c_str(), Target_Id))
+			{
+				// check children
+
+				for (const auto& Iterator : Nodes)
+				{
+					const XML_Document* Found_Doc = nullptr;
+
+					for (size_t Index = 0; Index < Iterator.second.size(); Index++)
+					{
+						Found_Doc = Iterator.second[Index].Search_ID(Target_Id);
+
+						if (Found_Doc)
+							return Found_Doc;
+					}
+				}
+
+				return nullptr; // nothing...
+			}
+			else
+				return this;
+		}
+
+		std::vector<XML_Document> Search_Children(const char* Node) const /* This will recursively search through *all* descendent nodes of this node and returns those that have a child node with a key equal to parameter Node */
+		{
+			if (Nodes.count(Node))
+			{
+				return std::vector<XML_Document> { *this };
+			}
+			else
+			{
+				std::vector<XML_Document> Return;
+
+				for (const auto& Iterator : Nodes)
+				{
+					for (size_t Index = 0; Index < Iterator.second.size(); Index++)
+					{
+						std::vector<XML_Document> Returned_Nodes;
+
+						Returned_Nodes = Iterator.second[Index].Search_Children(Node);
+
+						for (size_t W = 0; W < Returned_Nodes.size(); W++)
+							Return.push_back(Returned_Nodes[W]);
+					}
+				}
+
+				return Return;
+			}
+		}
+
+		const std::vector<XML_Document>& operator[](const char* Key) const
 		{
 			return Nodes.at(Key);
 		}

@@ -85,6 +85,13 @@ namespace Jaguar
 
 		if (!File.is_open())
 		{
+			glm::vec3 Data[16 * 16];
+			for (size_t Index = 0; Index < 16 * 16; Index++)
+				Data[Index] = glm::vec3(1.0f);
+
+			for(size_t Axis = 0; Axis < 3; Axis++)
+				Create_Texture_Buffer(&Target_Lighting->Lightmap_Textures[Axis], GL_RGB32F, 16, 16, GL_RGB, GL_FLOAT, Data, true);
+
 			printf(" >> ERROR reading lightmap file!\n");
 
 			return;
@@ -274,6 +281,11 @@ namespace Jaguar
 			printf("ERROR reading from lighting node file! %s\n", Filename);
 
 			Node_Data.Nodes.push_back(Lighting_Node(glm::vec3(0.f, 0.8f, -0.4f)));	// Eh we just want a random node (at least one)
+
+			for (size_t Index = 0; Index < 6; Index++)
+				Node_Data.Nodes.back().Illumination[Index] = glm::vec3(1.0f);
+
+			memset(Node_Data.Nodes.back().Adjacent_Indices, 0, sizeof(Lighting_Node::Adjacent_Indices));
 
 			return;
 		}

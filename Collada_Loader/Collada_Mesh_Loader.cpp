@@ -155,7 +155,7 @@ namespace Collada
 						Target_Mesh->Vertices.back().Normal
 					);
 
-				if ((V - 2) % 3 == 0 && Flipped_Faces)	// If we need to flip the faces, swap the 3rd and 2nd vertices of every triangle!
+				if ((V + 2) % 3 == 0 && Flipped_Faces)	// If we need to flip the faces, swap the 3rd and 2nd vertices of every triangle!
 				{
 					std::swap(Target_Mesh->Vertices[V], Target_Mesh->Vertices[V - 1]);
 				}

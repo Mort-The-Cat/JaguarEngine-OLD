@@ -593,7 +593,7 @@ namespace Jaguar
 		Wait_For_Job_System_Completion(&Engine->Job_Handler);
 	}
 
-	void Handle_Bounce_Lighting(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data[3], int Bounces = 4)
+	void Handle_Bounce_Lighting(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data[3], int Bounces = 4) // Was 4
 	{
 		// This will modify the values in Lightmap_Texture_Data according to the bounce lighting
 
@@ -663,7 +663,7 @@ namespace Jaguar
 
 		Rasterise_Lightmap3_Job(Engine, Target_Chart, Lightmap_Texture_Data, Engine->Scene.Lighting.Lightsources);
 
-		Handle_Bounce_Lighting(Engine, Target_Chart, Lightmap_Texture_Data);
+		// Handle_Bounce_Lighting(Engine, Target_Chart, Lightmap_Texture_Data);
 
 		Write_Lightmap3_To_File(Filename, Lightmap_Texture_Data, Target_Chart->Sidelength);
 

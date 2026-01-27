@@ -137,8 +137,8 @@ void Setup_Radiophobia_Level(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_
 	Object->Flags[MF_SOLID] = true;
 	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
 		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Ceiling.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
-		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Rubble.jpg").Texture,
-		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Rubble_Normal.png").Texture,	// Normal map
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Ceiling_Texture.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Ceiling_Normal.png").Texture,	// Normal map
 		Jaguar::Wrap_AABB_Hitboxes(
 			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Ceiling.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Mesh
 		),
@@ -146,16 +146,189 @@ void Setup_Radiophobia_Level(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_
 	);
 
 	Object = new Jaguar::World_Object();
-	Object->Flags[MF_SOLID] = true;
+	// Object->Flags[MF_SOLID] = true;
 	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
 		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Vents.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
-		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Grey.png").Texture,
-		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,	// Normal map
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Metal.jpg").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Metal_Normal_Texture.png").Texture,	// Normal map
+		std::vector<Jaguar::Hitbox*>{},
+		nullptr
+	);
+
+	Object = new Jaguar::World_Object();
+	Object->Flags[MF_SOLID] = true;
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Vent_Duct.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Vent_Duct.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Vent_Normal.png").Texture,	// Normal map
 		Jaguar::Wrap_AABB_Hitboxes(
-			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Vents.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Mesh
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Vent_Duct.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Mesh
 		),
 		nullptr
 	);
+
+	Object = new Jaguar::World_Object();
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Pipes.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Rust_Texture.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Rust_Normal.png").Texture,
+		std::vector<Jaguar::Hitbox*>{},
+		nullptr
+	);
+
+	Object = new Jaguar::World_Object();
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Rubble.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Rubble.jpg").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Rubble_Normal.png").Texture,
+		std::vector<Jaguar::Hitbox*>{},
+		nullptr
+	);
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(2.2065f, 1.2379f, -8.2745f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(0.079379f, 1.2379f, -7.7279f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(-3.4216f, 1.2379f, -7.7722f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(-3.2443f, 1.2379f, -5.3644f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(2.2065f, 1.2379f, -4.4131f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(0.46227f, 1.2379f, -2.6585f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(8.6766f, 1.2379f, -2.9271f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.7f, 0.4f, 0.4f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(6.4428f, 1.2987f, 2.2042f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.6f, 0.6f, 0.7f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(8.4532f, 1.4234f, 0.7256f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.6f, 0.6f, 0.7f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(10.083f, 1.4234f, 0.7256f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	//
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.4f, 0.3f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(8.6766f, 1.2379f, -2.9271f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.4f, 0.3f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(3.9671f, 1.75352f, 1.2634f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.4f, 0.3f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(2.3377f, 1.75352f, 1.2397f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.4f, 0.3f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(0.65372f, 1.7352f, 1.2397f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.4f, 0.3f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(0.65372f, 1.7352f, 3.0654f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.4f, 0.3f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(2.3377f, 1.7352f, 3.0654f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.4f, 0.3f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(3.9671f, 1.7352f, 3.0654f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	//
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.6f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(1.1312f, 1.3523f, 7.5782f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.6f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(-0.54336f, 1.2184f, 10.531f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.6f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(-3.2601f, 1.5461f, 15.883f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.6f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(-0.54536f, 1.5019f, 15.793f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.6f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(2.1539f, 1.5741f, 15.808f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.6f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(5.1035f, 1.5589f, 15.808f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.6f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(5.3649f, 2.0938f, 19.494f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.6f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(8.1276f, 1.3849f, 21.05f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.6f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(5.3647f, 2.0938f, 21.536f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	//
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.4f, 0.4f, 0.6f);
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(-2.259f, 1.2184f, 12.509f);
+	Engine->Scene.Lighting.Lightsources.back()->Radius = 0.3f;
+
+	// I fucking hate this
+	// I'll come up with a better way of adding lightsources to a scene 
+	// (that isn't just hard-coding all of the push calls)
 }
 
 //

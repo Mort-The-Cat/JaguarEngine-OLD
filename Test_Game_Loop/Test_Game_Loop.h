@@ -61,7 +61,7 @@ void Place_Lighting_Node_Visuals(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader N
 {
 	Jaguar::World_Object* Object;
 
-	Object = new Jaguar::World_Object();
+	/*Object = new Jaguar::World_Object();
 	Jaguar::Create_World_Object(Engine, Object, &Node_Shader,
 		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Light_Source.dae").Buffer,			// Doesn't matter what mesh hint we give
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Grey.png").Texture,
@@ -69,7 +69,20 @@ void Place_Lighting_Node_Visuals(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader N
 		{},
 		nullptr,
 		Engine->Scene.Lighting.Lighting_Nodes.Nodes.back().Position
-	);
+	);*/
+
+	for (size_t Light = 0; Light < Engine->Scene.Lighting.Lightsources.size(); Light++)
+	{
+		Object = new Jaguar::World_Object();
+		Jaguar::Create_World_Object(Engine, Object, &Node_Shader,
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Sphere_Simple.dae").Buffer,			// Doesn't matter what mesh hint we give
+			Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Grey.png").Texture,
+			Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,	// Normal map
+			{},
+			nullptr,
+			Engine->Scene.Lighting.Lightsources[Light]->Position
+		);
+	}
 }
 
 void Shoot_Physics_Object(Jaguar::Jaguar_Engine* Engine)
@@ -279,19 +292,19 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Test_Physics_Object_Shader,
 		Jaguar::Default_Shader_Init_Function, Jaguar::Lighting_Node_Uniform_Assign_Function);
 
-	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
-	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
+	Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
+		Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Test_Scene_Flood_Light";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Test_Radiophobia_Flood_Light";
 
 	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
-	Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	//Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	//Setup_AABB_Physics_Room(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
-	//Setup_Radiophobia_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	Setup_Radiophobia_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
-	if constexpr (false)
+	if constexpr (true)
 	{
 		Jaguar::Lightmap_Chart Lightmap;			// This will be generated during light-baking
 		Jaguar::Init_Lightmap_Chart(&Lightmap);
@@ -321,7 +334,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 		Jaguar::Generate_Cubemap(Engine, &Engine->Scene.Lighting.Environment_Map);
 
-		// Place_Lighting_Node_Visuals(Engine, Lighting_Node_Shader);
+		Place_Lighting_Node_Visuals(Engine, Lighting_Node_Shader);
 
 		Test_Engine_Loop(Engine);
 

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <asset>
+    <contributor>
+      <author>Blender User</author>
+      <authoring_tool>Blender 3.3.1 commit date:2022-10-04, commit time:18:35, hash:b292cfe5a936</authoring_tool>
+    </contributor>
+    <created>2026-01-29T02:00:21</created>
+    <modified>2026-01-29T02:00:21</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_effects>
+    <effect id="Table-effect">
+      <profile_COMMON>
+        <newparam sid="Table1_png-surface">
+          <surface type="2D">
+            <init_from>Table1_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Table1_png-sampler">
+          <sampler2D>
+            <source>Table1_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Table1_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Ceiling-effect">
+      <profile_COMMON>
+        <newparam sid="Ceiling_Texture_png-surface">
+          <surface type="2D">
+            <init_from>Ceiling_Texture_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Ceiling_Texture_png-sampler">
+          <sampler2D>
+            <source>Ceiling_Texture_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Ceiling_Texture_png-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Ceiling_001-effect">
+      <profile_COMMON>
+        <newparam sid="Ceiling_Texture_jpg_001-surface">
+          <surface type="2D">
+            <init_from>Ceiling_Texture_jpg_001</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="Ceiling_Texture_jpg_001-sampler">
+          <sampler2D>
+            <source>Ceiling_Texture_jpg_001-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <texture texture="Ceiling_Texture_jpg_001-sampler" texcoord="UVMap"/>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_images>
+    <image id="Ceiling_Texture_png" name="Ceiling_Texture_png">
+      <init_from>/C:/Radiophobia/Radiophobia-main/Assets/Textures/Ceiling_Texture.png</init_from>
+    </image>
+    <image id="Table1_png" name="Table1_png">
+      <init_from>/C:/Radiophobia/Radiophobia-main/Assets/Textures/Table1.png</init_from>
+    </image>
+  </library_images>
+  <library_materials>
+    <material id="Table-material" name="Table">
+      <instance_effect url="#Table-effect"/>
+    </material>
+    <material id="Ceiling-material" name="Ceiling">
+      <instance_effect url="#Ceiling-effect"/>
+    </material>
+    <material id="Ceiling_001-material" name="Ceiling.001">
+      <instance_effect url="#Ceiling_001-effect"/>
+    </material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="Cube_032-mesh" name="Cube.032">
+      <mesh>
+        <source id="Cube_032-mesh-positions">
+          <float_array id="Cube_032-mesh-positions-array" count="30">-0.6297151 1.168647 12.7282 -0.08200883 1.168647 12.7282 -0.08200883 1.168647 15.03095 0.1448091 1.168647 15.03095 0.1448091 1.168647 12.7282 -0.6297151 1.168647 15.03095 1.192993 0.8966925 16.861 -0.1470917 0.8966925 16.861 1.18526 0.8966925 18.75277 -0.1505929 0.8966925 18.75277</float_array>
+          <technique_common>
+            <accessor source="#Cube_032-mesh-positions-array" count="10" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Cube_032-mesh-normals">
+          <float_array id="Cube_032-mesh-normals-array" count="3">0 -1 0</float_array>
+          <technique_common>
+            <accessor source="#Cube_032-mesh-normals-array" count="1" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Cube_032-mesh-map-0">
+          <float_array id="Cube_032-mesh-map-0-array" count="36">0.3348371 0.08050352 0.2162943 0.8809045 0.3348371 0.8809045 0.2162943 0.08050352 0.1672031 0.8809045 0.2162943 0.8809045 0.4169599 0.01175105 0.008533 0.9887972 0.418068 0.988797 0.3348371 0.08050352 0.2162943 0.08050352 0.2162943 0.8809045 0.2162943 0.08050352 0.1672031 0.08050352 0.1672031 0.8809045 0.4169599 0.01175105 0.006085574 0.01175111 0.008533 0.9887972</float_array>
+          <technique_common>
+            <accessor source="#Cube_032-mesh-map-0-array" count="18" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="Cube_032-mesh-vertices">
+          <input semantic="POSITION" source="#Cube_032-mesh-positions"/>
+        </vertices>
+        <triangles material="Table-material" count="6">
+          <input semantic="VERTEX" source="#Cube_032-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Cube_032-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Cube_032-mesh-map-0" offset="2" set="0"/>
+          <p>0 0 0 2 0 1 5 0 2 1 0 3 3 0 4 2 0 5 7 0 6 8 0 7 9 0 8 0 0 9 1 0 10 2 0 11 1 0 12 4 0 13 3 0 14 7 0 15 6 0 16 8 0 17</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="Ceiling_Board" name="Ceiling_Board" type="NODE">
+        <matrix sid="transform">1 0 0 -2.39226e-16 0 1 0 1.077379 0 0 1 -10.44491 0 0 0 1</matrix>
+        <instance_geometry url="#Cube_032-mesh" name="Ceiling_Board">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Table-material" target="#Table-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Ceiling-material" target="#Ceiling-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+              <instance_material symbol="Ceiling_001-material" target="#Ceiling_001-material">
+                <bind_vertex_input semantic="UVMap" input_semantic="TEXCOORD" input_set="0"/>
+              </instance_material>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene"/>
+  </scene>
+</COLLADA>

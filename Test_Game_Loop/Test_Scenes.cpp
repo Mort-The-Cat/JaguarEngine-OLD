@@ -185,6 +185,51 @@ void Setup_Radiophobia_Level(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_
 		nullptr
 	);
 
+	Object = new Jaguar::World_Object();
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Wall.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Wall_3.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,
+		std::vector<Jaguar::Hitbox*>{},
+		nullptr
+	);
+
+	Object = new Jaguar::World_Object();
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Toilet_Wall.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Toilet_Texture.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,
+		std::vector<Jaguar::Hitbox*>{},
+		nullptr
+	);
+
+	Object = new Jaguar::World_Object();
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Lift.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Ceiling_Texture.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Ceiling_Normal.png").Texture,
+		std::vector<Jaguar::Hitbox*>{},
+		nullptr
+	);
+
+	Object = new Jaguar::World_Object();
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Lift_Metal.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Metal.jpg").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Metal_Normal_Texture.png").Texture,
+		std::vector<Jaguar::Hitbox*>{},
+		nullptr
+	);
+
+	Object = new Jaguar::World_Object();
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Level_0/Plank.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Table1.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,
+		std::vector<Jaguar::Hitbox*>{},
+		nullptr
+	);
+
 	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
 	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
 	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(2.2065f, 1.2379f, -8.2745f);

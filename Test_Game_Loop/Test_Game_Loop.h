@@ -292,8 +292,8 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Test_Physics_Object_Shader,
 		Jaguar::Default_Shader_Init_Function, Jaguar::Lighting_Node_Uniform_Assign_Function);
 
-	Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
-		Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
+	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
+	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
 	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Test_Radiophobia_Flood_Light";
 
@@ -304,7 +304,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
-	if constexpr (true)
+	if constexpr (false)
 	{
 		Jaguar::Lightmap_Chart Lightmap;			// This will be generated during light-baking
 		Jaguar::Init_Lightmap_Chart(&Lightmap);
@@ -334,7 +334,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 		Jaguar::Generate_Cubemap(Engine, &Engine->Scene.Lighting.Environment_Map);
 
-		Place_Lighting_Node_Visuals(Engine, Lighting_Node_Shader);
+		// Place_Lighting_Node_Visuals(Engine, Lighting_Node_Shader);
 
 		Test_Engine_Loop(Engine);
 

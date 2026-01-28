@@ -266,7 +266,7 @@ namespace Jaguar
 
 		float Factor = T_Position.z / T_To_Light_Vector.z;
 
-		if (Factor > 0 || Factor < -1)
+		if (Factor > 0 || Factor < -1)										// if outside of bounds of the ray, it doesn't intersect either
 			return false;
 
 		// Use the area-method to check if the point lies within the triangle
@@ -300,7 +300,11 @@ namespace Jaguar
 			bool Intersect_Found = false;
 
 			for (size_t Tri = 0; Tri < Target_Chart->Pushed_Tris.size() && !Intersect_Found; Tri++)
-				Intersect_Found |= Line_Intersects_Tri(Target_Chart, Position, To_Light_Vector, Tri);
+				if (Line_Intersects_Tri(Target_Chart, Position, To_Light_Vector, Tri))
+				{
+					Intersect_Found = true;
+					break;
+				}
 
 			if (!Intersect_Found)
 			{
@@ -405,7 +409,9 @@ namespace Jaguar
 
 	// previously 50
 
-	const float Luxel_Scale = 30.0f; // 1 unit squared equals 5x5 pixels of area
+	// const float Luxel_Scale = 30.0f; // 1 unit squared equals 5x5 pixels of area
+
+	const float Luxel_Scale = 15.0f;
 
 	void Generate_Bounced_Light_Lightsources(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data3[3], std::vector<Lightsource*>& Target_Lightsources)
 	{
@@ -683,7 +689,7 @@ namespace Jaguar
 
 	void Upsize_Chart(Lightmap_Chart* Target_Chart)
 	{
-		Target_Chart->Sidelength += 8; // Doubles sidelength
+		Target_Chart->Sidelength += 8; //  increases sidelength
 		Target_Chart->Occupied.resize(Target_Chart->Sidelength);
 
 		for (size_t W = 0; W < Target_Chart->Sidelength; W++)
@@ -723,24 +729,35 @@ namespace Jaguar
 			*X = Begin_X;
 			*Y = Begin_Y;
 
-			while (*X >= LIGHTMAP_CHART_PADDING && *Y < Max)
+			//while (*X >= LIGHTMAP_CHART_PADDING && *Y < Max)
+
+			while(*X < Max)
 			{
+				/*if (Lightmap_Chart_Rasterise_Function<false, int, Perpixel_Rasterise_Check>(
+					Projected_Points[0] + glm::vec2(*X, *Y),
+					Projected_Points[1] + glm::vec2(*X, *Y),
+					Projected_Points[2] + glm::vec2(*X, *Y),
+					0, 0, 0, Target_Chart->Sidelength, (void*)Target_Chart
+				))*/
+
 				if (Lightmap_Chart_Rasterise_Function<false, int, Perpixel_Rasterise_Check>(
 					Projected_Points[0] + glm::vec2(*X, *Y),
 					Projected_Points[1] + glm::vec2(*X, *Y),
 					Projected_Points[2] + glm::vec2(*X, *Y),
 					0, 0, 0, Target_Chart->Sidelength, (void*)Target_Chart
-				))
+					))
+
 					//if (Check_Chart_Square_Area(Area, *X, *Y, Target_Chart))
 					return true;
 
-				(*X)--;
-				(*Y)++;
+				//(*X)--;
+				//(*Y)++;
+				(*X) += 2;
 			}
 
 			bool Condition = Begin_X < Max;
-			Begin_X += Condition;
-			Begin_Y += !Condition;
+			// Begin_X += Condition;
+			Begin_Y += 2; //!Condition;
 		}
 
 		return false;
@@ -824,6 +841,15 @@ namespace Jaguar
 				Target_Chart->Sidelength,
 				Target_Chart
 			);
+
+			/*Lightmap_Chart_Rasterise_Function<false, int, Perpixel_Rasterise_Fill>(
+				glm::vec2(0.125f) * (Projected_Points[0] + glm::vec2(X, Y)) + glm::vec2(0.125f * LIGHTMAP_CHART_PADDING),
+				glm::vec2(0.125f) * (Projected_Points[1] + glm::vec2(X, Y)) + glm::vec2(0.125f * LIGHTMAP_CHART_PADDING),
+				glm::vec2(0.125f) * (Projected_Points[2] + glm::vec2(X, Y)) + glm::vec2(0.125f * LIGHTMAP_CHART_PADDING),
+				0, 0, 0,
+				Target_Chart->Sidelength * 0.125,
+				Target_Chart
+			);*/
 
 			Chart_Tri_Init_Points(Target_Chart, Tri);
 

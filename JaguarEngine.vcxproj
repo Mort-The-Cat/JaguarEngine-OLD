@@ -122,6 +122,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,6 +140,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -413,6 +415,7 @@
     <ClInclude Include="OpenGL_Handling\Scene.h" />
     <ClInclude Include="OpenGL_Handling\Texture_Uniform_Buffer.h" />
     <ClInclude Include="Test_Game_Loop\Test_Game_Loop.h" />
+    <ClInclude Include="UI_Handling\UI_Elements.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Collada_Loader\Collada_Animation_Loader.cpp" />

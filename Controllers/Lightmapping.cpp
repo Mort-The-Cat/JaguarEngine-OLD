@@ -100,6 +100,9 @@ namespace Jaguar
 
 	bool Flood_Fill_Lighting_Nodes_Check_Node(Lightmap_Chart* Target_Chart, glm::ivec3 Origin, glm::ivec3 Position, float Size, std::map<int, std::map<int, std::map<int, bool>>>& Grid, std::vector<glm::ivec3>& Node_Positions)
 	{
+		if (glm::length(glm::vec3(Origin) * Size) > 100.0f)	// Just a little precaution to stop infinite leaking...
+			return 0;
+
 		if (Grid[Position.x][Position.y].find(Position.z) == Grid[Position.x][Position.y].end())
 		{
 			// CHECK if there's any intersection...
@@ -190,6 +193,8 @@ namespace Jaguar
 		glm::vec3* Triple_Vectors;
 		Jaguar_Engine* Engine;
 		Lightmap_Chart* Target_Chart;
+
+		size_t Tri;
 	};
 
 	float Sawtooth(float Value)
@@ -284,7 +289,27 @@ namespace Jaguar
 		return Area[1] + Area[2] + Area[3] <= Area[0] + 0.002f;
 	}
 
-	void Get_Lights_Visibility(Lightmap_Chart* Target_Chart, glm::vec3 Position, glm::vec3* Colours, const std::vector<Lightsource*>& Lightsources, glm::vec3* Vector_Components)
+	void Get_Lightmap_Tris_From_Vector(Lightmap_Chart* Target_Chart, glm::vec3 Origin, glm::vec3 End, std::set<size_t>& Tri_Indices)
+	{
+		glm::uvec3 A, B;
+
+		Origin -= Target_Chart->Blockmap_Origin;
+		End -= Target_Chart->Blockmap_Origin;
+
+		A = glm::min(Origin, End);
+		B = glm::max(Origin, End);
+
+		for(size_t X = A.x; X <= B.x; X++)
+			for(size_t Y = A.y; Y <= B.y; Y++)
+				for (size_t Z = A.z; Z <= B.z; Z++)
+					for (const size_t& Index : Target_Chart->Tri_Broadphase_Blockmap[X][Y][Z])
+						Tri_Indices.insert(Index);
+
+		// Awful in terms of memory bandwidth and iterations
+		// but this will reduce the workload of testing tris during lightmapping
+	}
+
+	void Get_Lights_Visibility(Lightmap_Chart* Target_Chart, glm::vec3 Position, glm::vec3* Colours, const std::vector<Lightsource*>& Lightsources, glm::vec3* Vector_Components, long Tri_Target)
 	{
 		for (size_t W = 0; W < Lightsources.size(); W++)
 		{
@@ -299,8 +324,19 @@ namespace Jaguar
 
 			bool Intersect_Found = false;
 
-			for (size_t Tri = 0; Tri < Target_Chart->Pushed_Tris.size() && !Intersect_Found; Tri++)
+			/*for (size_t Tri = 0; Tri < Target_Chart->Pushed_Tris.size() && !Intersect_Found; Tri++)
 				if (Line_Intersects_Tri(Target_Chart, Position, To_Light_Vector, Tri))
+				{
+					Intersect_Found = true;
+					break;
+				}*/
+
+			std::set<size_t> Tri_Indices;
+
+			Get_Lightmap_Tris_From_Vector(Target_Chart, Position, Lightsources[W]->Position, Tri_Indices);
+
+			for(const size_t& Index : Tri_Indices)
+				if (Line_Intersects_Tri(Target_Chart, Position, To_Light_Vector, Index))
 				{
 					Intersect_Found = true;
 					break;
@@ -310,7 +346,7 @@ namespace Jaguar
 			{
 				// Add colours!
 
-				if(Lightsources[W]->Bounced)
+				if(Target_Chart->Bounced_Lighting)
 					To_Light_Vector -= glm::vec3(0.006f) * Lightsources[W]->Direction;	// Offset back to original position
 
 				float To_Light_Vector_Length = glm::inversesqrt(glm::dot(To_Light_Vector, To_Light_Vector));
@@ -343,7 +379,7 @@ namespace Jaguar
 
 		// For each light in the scene
 
-		Get_Lights_Visibility(Data->Target_Chart, Position, Colours, *Data->Lightsources, Data->Triple_Vectors);
+		Get_Lights_Visibility(Data->Target_Chart, Position, Colours, *Data->Lightsources, Data->Triple_Vectors, Data->Tri);
 
 		// Then, we write the colours to the lightmaps
 
@@ -380,6 +416,8 @@ namespace Jaguar
 		// First, we wanna calculate the normals etc of this tri
 
 		Rasterise_Tri_Lightmap_Data Data;
+
+		Data.Tri = Tri;
 
 		Data.Normal = Target_Chart->Pushed_Tris[Tri].TBN[2];
 		Data.Tangent = Target_Chart->Pushed_Tris[Tri].TBN[0];
@@ -496,13 +534,13 @@ namespace Jaguar
 					const float Reflection_Coefficient = 0.4f / (255.0f * Scale * Scale);
 
 					Target_Lightsources.back()->Colour = Lightmap_Value * Albedo_Colour * glm::vec3(Reflection_Coefficient); // This will then rewrite the lightmap accordingly
-					Target_Lightsources.back()->Bounced = true;
+					//Target_Lightsources.back()->Bounced = true;
 
-					if (glm::length(Lightmap_Value) == 0.0f)
-					{
-						delete Target_Lightsources.back();	// This light has ZERO contribution, deallocate it
-						Target_Lightsources.pop_back();		// remove it from list of lightsources
-					}
+					//if (glm::length(Lightmap_Value) == 0.0f)
+					//{
+					//	delete Target_Lightsources.back();	// This light has ZERO contribution, deallocate it
+					//	Target_Lightsources.pop_back();		// remove it from list of lightsources
+					//}
 				}
 		}
 	}
@@ -546,7 +584,7 @@ namespace Jaguar
 			{ 0, 0, -1 }
 		};
 
-		Get_Lights_Visibility(Target_Chart, Node->Position, Colours, Lightsources, Vector_Components);
+		Get_Lights_Visibility(Target_Chart, Node->Position, Colours, Lightsources, Vector_Components, -1);
 
 		for (size_t W = 0; W < 3; W++)
 		{
@@ -554,7 +592,7 @@ namespace Jaguar
 			Colours[W] = glm::vec3(0);
 		}
 
-		Get_Lights_Visibility(Target_Chart, Node->Position, Colours, Lightsources, Vector_Components + 3);
+		Get_Lights_Visibility(Target_Chart, Node->Position, Colours, Lightsources, Vector_Components + 3, -1);
 
 		for (size_t W = 0; W < 3; W++)
 		{
@@ -599,7 +637,7 @@ namespace Jaguar
 		Wait_For_Job_System_Completion(&Engine->Job_Handler);
 	}
 
-	void Handle_Bounce_Lighting(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data[3], int Bounces = 4) // Was 4
+	void Handle_Bounce_Lighting(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data[3], int Bounces = 6) // Was 4
 	{
 		// This will modify the values in Lightmap_Texture_Data according to the bounce lighting
 
@@ -619,6 +657,8 @@ namespace Jaguar
 
 		Rasterise_Lightmap3_Job(Engine, Target_Chart, Lightmap_Bounce_Data, Bounce_Lightsources);
 
+		Target_Chart->Bounced_Lighting = 2;
+
 		if ((--Bounces) > 0)
 			Handle_Bounce_Lighting(Engine, Target_Chart, Lightmap_Bounce_Data, Bounces);
 
@@ -636,6 +676,66 @@ namespace Jaguar
 		// remember to deallocate these lightsources at the end of the function
 	}
 
+	void Generate_Lightmap_Tri_Blockmap(Lightmap_Chart* Target_Chart, float Size)
+	{
+		glm::vec3 A = glm::vec3(99999.0f), B;
+		B = -A;
+		for (size_t Index = 0; Index < Target_Chart->Pushed_Tris.size(); Index++)
+			for (size_t Point = 0; Point < 3; Point++)
+			{
+				A = glm::min(A, Target_Chart->Pushed_Tris[Index].Points[Point]);
+				B = glm::max(B, Target_Chart->Pushed_Tris[Index].Points[Point]);
+			}
+
+		Target_Chart->Blockmap_Origin = A;
+
+		B -= A;
+		B /= Size;
+		size_t Dimensions[3] =
+		{
+			std::ceil(B[0]),
+			std::ceil(B[1]),
+			std::ceil(B[2])
+		};
+
+		Target_Chart->Tri_Broadphase_Blockmap.resize(Dimensions[0]);
+
+		for (size_t X = 0; X < Dimensions[0]; X++)
+		{
+			Target_Chart->Tri_Broadphase_Blockmap[X].resize(Dimensions[1]);
+			for (size_t Y = 0; Y < Dimensions[1]; Y++)
+				Target_Chart->Tri_Broadphase_Blockmap[X][Y].resize(Dimensions[2]);
+		}
+
+		for (size_t Index = 0; Index < Target_Chart->Pushed_Tris.size(); Index++)
+		{
+			glm::vec3 A = glm::vec3(9999999.0f), B;
+			B = -A;
+
+			for (size_t Point = 0; Point < 3; Point++)
+			{
+				A = glm::min(A, Target_Chart->Pushed_Tris[Index].Points[Point]);
+				B = glm::max(B, Target_Chart->Pushed_Tris[Index].Points[Point]);
+			}
+
+			glm::uvec3 Int_A, Int_B;
+
+			B -= Target_Chart->Blockmap_Origin;
+			A -= Target_Chart->Blockmap_Origin;
+
+			B /= Size;
+			A /= Size;
+
+			Int_A = A;
+			Int_B = glm::ceil(B);
+
+			for (size_t X = Int_A.x; X < Int_B.x; X++)
+				for (size_t Y = Int_A.y; Y < Int_B.y; Y++)
+					for (size_t Z = Int_A.z; Z < Int_B.z; Z++)
+						Target_Chart->Tri_Broadphase_Blockmap[X][Y][Z].insert(Index);
+		}
+	}
+
 	void Create_Lightmap3_From_Chart(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, const char* Filename)
 	{
 		// This will rasterise each tri to the lightmap texture, applying the according normals and raycast equation to determine if the line intersects something else
@@ -647,6 +747,8 @@ namespace Jaguar
 			for (size_t V = 0; V < Target_Chart->Sidelength * Target_Chart->Sidelength; V++)
 				Lightmap_Texture_Data[W][V] = glm::vec3(0.0f);
 		}
+
+		Generate_Lightmap_Tri_Blockmap(Target_Chart, 0.5f);
 
 		// We'll generate and rasterise the stuff here
 
@@ -669,7 +771,11 @@ namespace Jaguar
 
 		Rasterise_Lightmap3_Job(Engine, Target_Chart, Lightmap_Texture_Data, Engine->Scene.Lighting.Lightsources);
 
-		// Handle_Bounce_Lighting(Engine, Target_Chart, Lightmap_Texture_Data);
+		Target_Chart->Bounced_Lighting = 1;
+
+		// Target_Chart->Tri_Visible_Lightsource_Indices.resize(Target_Chart->Pushed_Tris.size());
+
+		Handle_Bounce_Lighting(Engine, Target_Chart, Lightmap_Texture_Data);
 
 		Write_Lightmap3_To_File(Filename, Lightmap_Texture_Data, Target_Chart->Sidelength);
 

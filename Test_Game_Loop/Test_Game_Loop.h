@@ -109,7 +109,7 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 {
 	float Camera_X_Direction = 0;
 	float Camera_Y_Direction = 0;
-	glm::vec3 Player_Position = glm::vec3(0.0f, 0.8f, 0.0f);
+	glm::vec3 Player_Position = glm::vec3(1.0f, 0.8f, 1.0f);
 
 	auto Previous_Time = std::chrono::high_resolution_clock::now();
 
@@ -262,7 +262,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 	Set_Input_Keycodes(&Engine->User_Inputs);
 
-	Jaguar::Initialise_Job_System(&Engine->Job_Handler, 2); // initialise 7 worker threads
+	Jaguar::Initialise_Job_System(&Engine->Job_Handler, 7); // initialise 7 worker threads
 
 	//
 
@@ -304,7 +304,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
-	if constexpr (false)
+	if constexpr (true)
 	{
 		Jaguar::Lightmap_Chart Lightmap;			// This will be generated during light-baking
 		Jaguar::Init_Lightmap_Chart(&Lightmap);
@@ -314,7 +314,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 		// Jaguar::Get_Lighting_Nodes_From_File((Lightmap_Directory + ".ln").c_str(), Engine->Scene.Lighting.Lighting_Nodes);
 
-		Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, glm::vec3(0.0f), 0.5f, &Engine->Scene.Lighting);
+		Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, glm::vec3(1.0f, 0.8f, 1.0f), 0.5f, &Engine->Scene.Lighting);
 
 		//Engine->Scene.Lighting.Lighting_Nodes.Nodes.push_back(Jaguar::Lighting_Node(glm::vec3(0.0f, 0.8f, -0.8f)));
 
@@ -331,6 +331,8 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 		Jaguar::Get_Lighting_Nodes_From_File((Lightmap_Directory + ".ln").c_str(), Engine->Scene.Lighting.Lighting_Nodes);
 			//glm::vec3(-0.006598f, 1.049228f, 3.835901f);
+
+		// Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, glm::vec3(1.0f, 0.0f, 1.0f), 0.5f, &Engine->Scene.Lighting);
 
 		Jaguar::Generate_Cubemap(Engine, &Engine->Scene.Lighting.Environment_Map);
 

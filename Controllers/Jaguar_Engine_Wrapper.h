@@ -27,6 +27,7 @@ namespace Jaguar
 	{
 		float Time;					// This is the engine's delta-time
 
+		float Window_Width = 800.0f, Window_Height = 800.0f; // aspect ratio is width/height
 		GLFWwindow* Window;			// OpenGL window object
 
 		Input_Data User_Inputs;

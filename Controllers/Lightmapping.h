@@ -5,6 +5,9 @@
 #include "../Collada_Loader/Collada_Loader.h"
 #include "../Controllers/Asset_Cache.h"
 
+#include<mutex>
+#include<set>
+
 namespace Jaguar
 {
 	class Lighting_Node	// This is used for applying approximate baked lighting to dynamic objects
@@ -33,7 +36,7 @@ namespace Jaguar
 		glm::vec3 Direction = glm::vec3(0.0f, 0.0f, 1.0f);	// This is a direction vector
 		float Radius = 1.0f;	// Physical radius of this light
 
-		bool Bounced = false;
+		// bool Bounced = false;
 
 		// I'll implement FOV and other things later
 
@@ -77,11 +80,27 @@ namespace Jaguar
 		std::vector<std::vector<unsigned char>> Occupied; // Sidelength x sidelength long
 
 		std::vector<Lightmap_Tri> Pushed_Tris;
+		//
+		//std::vector<std::set<size_t>> Tri_Visible_Lightsource_Indices;	// This is done using a C++ set
+		//std::mutex Tri_Visible_Lightsource_Mutex;
+		//
+
+		glm::vec3 Blockmap_Origin;
+		std::vector<std::vector<std::vector<std::set<size_t>>>> Tri_Broadphase_Blockmap; 
+							// 3d blockmap, each contains set of indices, 
+							// corresponding to the tris present in that grid section
+							// This will use a LOT of memory and bandwidth,
+							// but it should speed up lightmap generation massively
+
+		//std::map<long, std::map<long, std::map<long, std::set<size_t>>>> Tri_Broadphase_Blockmap;
+
 		std::vector<World_Object*> Pushed_Objects;
 
 		// 0 = not occupied, 1 = occupied
 
 		unsigned int Sidelength;
+
+		unsigned char Bounced_Lighting = false;	// This tells us if we've begun work on bounced-lighting yet
 		// Lightmap charts are always squares so sidelength is all that's necessary
 	};
 

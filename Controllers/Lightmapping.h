@@ -85,6 +85,7 @@ namespace Jaguar
 		//std::mutex Tri_Visible_Lightsource_Mutex;
 		//
 
+		float Blockmap_Size;
 		glm::vec3 Blockmap_Origin;
 		std::vector<std::vector<std::vector<std::set<size_t>>>> Tri_Broadphase_Blockmap; 
 							// 3d blockmap, each contains set of indices, 

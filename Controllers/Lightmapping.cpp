@@ -296,8 +296,11 @@ namespace Jaguar
 		Origin -= Target_Chart->Blockmap_Origin;
 		End -= Target_Chart->Blockmap_Origin;
 
+		Origin /= Target_Chart->Blockmap_Size;
+		End /= Target_Chart->Blockmap_Size;
+
 		A = glm::min(Origin, End);
-		B = glm::max(Origin, End);
+		B = glm::ceil( glm::max(Origin, End) );
 
 		for(size_t X = A.x; X <= B.x; X++)
 			for(size_t Y = A.y; Y <= B.y; Y++)
@@ -320,7 +323,7 @@ namespace Jaguar
 
 			float To_Vector_Length_Squared = 1.0f / glm::dot(To_Light_Vector, To_Light_Vector);
 
-			if (glm::length(Lightsources[W]->Colour) * To_Vector_Length_Squared < 0.03)
+			if (glm::length(Lightsources[W]->Colour) * To_Vector_Length_Squared < 0.001)
 				continue;
 
 			// This will not be a normalized vector because we need this as a line-segment vector
@@ -454,7 +457,7 @@ namespace Jaguar
 
 	// const float Luxel_Scale = 30.0f; // 1 unit squared equals 5x5 pixels of area
 
-	const float Luxel_Scale = 15.0f;
+	const float Luxel_Scale = 40.0f;
 
 	void Generate_Bounced_Light_Lightsources(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data3[3], std::vector<Lightsource*>& Target_Lightsources)
 	{
@@ -694,6 +697,8 @@ namespace Jaguar
 
 		Target_Chart->Blockmap_Origin = A;
 
+		Target_Chart->Blockmap_Size = Size;
+
 		B -= A;
 		B /= Size;
 		size_t Dimensions[3] =
@@ -734,9 +739,9 @@ namespace Jaguar
 			Int_A = A;
 			Int_B = glm::ceil(B);
 
-			for (size_t X = Int_A.x; X < Int_B.x; X++)
-				for (size_t Y = Int_A.y; Y < Int_B.y; Y++)
-					for (size_t Z = Int_A.z; Z < Int_B.z; Z++)
+			for (size_t X = Int_A.x; X <= Int_B.x; X++)
+				for (size_t Y = Int_A.y; Y <= Int_B.y; Y++)
+					for (size_t Z = Int_A.z; Z <= Int_B.z; Z++)
 						Target_Chart->Tri_Broadphase_Blockmap[X][Y][Z].insert(Index);
 		}
 	}

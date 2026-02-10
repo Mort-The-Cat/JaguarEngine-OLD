@@ -300,7 +300,7 @@ namespace Jaguar
 		End /= Target_Chart->Blockmap_Size;
 
 		A = glm::min(Origin, End);
-		B = glm::ceil( glm::max(Origin, End) );
+		B = ( glm::max(Origin, End) );
 
 		for(size_t X = A.x; X <= B.x; X++)
 			for(size_t Y = A.y; Y <= B.y; Y++)
@@ -463,7 +463,7 @@ namespace Jaguar
 	{
 		// we want a specific value for the resolution of the lights generated i.e. how many lights per face
 
-		const float Scale = 4.0f;
+		const float Scale = 6.0f;
 
 		for (size_t W = 0; W < Target_Chart->Pushed_Tris.size(); W++)
 		{
@@ -703,9 +703,9 @@ namespace Jaguar
 		B /= Size;
 		size_t Dimensions[3] =
 		{
-			std::ceil(B[0]),
-			std::ceil(B[1]),
-			std::ceil(B[2])
+			std::ceil(B[0]) + 1,
+			std::ceil(B[1]) + 1,
+			std::ceil(B[2]) + 1
 		};
 
 		Target_Chart->Tri_Broadphase_Blockmap.resize(Dimensions[0]);
@@ -737,7 +737,7 @@ namespace Jaguar
 			A /= Size;
 
 			Int_A = A;
-			Int_B = glm::ceil(B);
+			Int_B = B;
 
 			for (size_t X = Int_A.x; X <= Int_B.x; X++)
 				for (size_t Y = Int_A.y; Y <= Int_B.y; Y++)

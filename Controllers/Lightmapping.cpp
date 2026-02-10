@@ -318,6 +318,11 @@ namespace Jaguar
 			if (cosf(Lightsources[W]->FOV * 3.14159f / 360.0f) > glm::dot(Lightsources[W]->Direction, glm::normalize(-To_Light_Vector)))
 				continue;	// We're not within this light's FOV
 
+			float To_Vector_Length_Squared = 1.0f / glm::dot(To_Light_Vector, To_Light_Vector);
+
+			if (glm::length(Lightsources[W]->Colour) * To_Vector_Length_Squared < 0.03)
+				continue;
+
 			// This will not be a normalized vector because we need this as a line-segment vector
 			// Iterate through every tri and test for intersection
 			// (slow process but shouldn't be too bad)
@@ -349,12 +354,12 @@ namespace Jaguar
 				if(Target_Chart->Bounced_Lighting)
 					To_Light_Vector -= glm::vec3(0.006f) * Lightsources[W]->Direction;	// Offset back to original position
 
-				float To_Light_Vector_Length = glm::inversesqrt(glm::dot(To_Light_Vector, To_Light_Vector));
-				To_Light_Vector_Length *= To_Light_Vector_Length;	// Apply basic distance fall-off
+				//float To_Light_Vector_Length = glm::inversesqrt(glm::dot(To_Light_Vector, To_Light_Vector));
+				//To_Light_Vector_Length *= To_Light_Vector_Length;	// Apply basic distance fall-off
 
 				for (size_t V = 0; V < 3; V++)
 				{
-					Colours[V] += Lightsources[W]->Colour * (To_Light_Vector_Length * glm::max(0.0f, glm::dot(To_Light_Vector, Vector_Components[V])));
+					Colours[V] += Lightsources[W]->Colour * (To_Vector_Length_Squared * glm::max(0.0f, glm::dot(To_Light_Vector, Vector_Components[V])));
 				}
 			}
 			//else
@@ -455,7 +460,7 @@ namespace Jaguar
 	{
 		// we want a specific value for the resolution of the lights generated i.e. how many lights per face
 
-		const float Scale = 10.0f;
+		const float Scale = 4.0f;
 
 		for (size_t W = 0; W < Target_Chart->Pushed_Tris.size(); W++)
 		{
@@ -536,11 +541,11 @@ namespace Jaguar
 					Target_Lightsources.back()->Colour = Lightmap_Value * Albedo_Colour * glm::vec3(Reflection_Coefficient); // This will then rewrite the lightmap accordingly
 					//Target_Lightsources.back()->Bounced = true;
 
-					//if (glm::length(Lightmap_Value) == 0.0f)
-					//{
-					//	delete Target_Lightsources.back();	// This light has ZERO contribution, deallocate it
-					//	Target_Lightsources.pop_back();		// remove it from list of lightsources
-					//}
+					if (glm::length(Lightmap_Value) == 0.0f)
+					{
+						delete Target_Lightsources.back();	// This light has ZERO contribution, deallocate it
+						Target_Lightsources.pop_back();		// remove it from list of lightsources
+					}
 				}
 		}
 	}

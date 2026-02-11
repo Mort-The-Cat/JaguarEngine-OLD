@@ -457,13 +457,13 @@ namespace Jaguar
 
 	// const float Luxel_Scale = 30.0f; // 1 unit squared equals 5x5 pixels of area
 
-	const float Luxel_Scale = 40.0f;
+	const float Luxel_Scale = 25.0f;
 
 	void Generate_Bounced_Light_Lightsources(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data3[3], std::vector<Lightsource*>& Target_Lightsources)
 	{
 		// we want a specific value for the resolution of the lights generated i.e. how many lights per face
 
-		const float Scale = 6.0f;
+		const float Scale = 5.0f;
 
 		for (size_t W = 0; W < Target_Chart->Pushed_Tris.size(); W++)
 		{

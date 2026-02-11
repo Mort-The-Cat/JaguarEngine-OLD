@@ -869,9 +869,6 @@
     <ClCompile Include="Test_Game_Loop\Test_Scenes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Controllers\Lightmapping.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Controllers\Job_System.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -885,6 +882,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Collision\Separating_Axis_Theorem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Controllers\GPU_Lightmapping.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

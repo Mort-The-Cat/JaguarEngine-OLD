@@ -459,7 +459,7 @@ namespace Jaguar
 
 		// we can run this again (using the previous lightmap during the render process) to generate one with an additional bounced-lighting pass.
 
-		const unsigned int Incident_Texture_Width = 1024; // renders at 1024x1024 when collecting incident pixel data
+		const unsigned int Incident_Texture_Width = 512; // renders at 1024x1024 when collecting incident pixel data
 
 		glm::vec3* Lightmap_Texture_Data[3];
 		glm::vec3* Pixel_Data[3];
@@ -548,7 +548,7 @@ namespace Jaguar
 			glBindTexture(GL_TEXTURE_2D, Lightmap_Textures_ID[Face]);
 			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, Lightmap_Texture_Data[Face]);
 
-			delete Lightmap_Texture_Data[Face];
+			delete Pixel_Data[Face];
 		}
 
 		glDeleteFramebuffers(1, &Framebuffer);
@@ -568,7 +568,7 @@ namespace Jaguar
 
 	//
 
-	const float Luxel_Scale = 30.0f;
+	const float Luxel_Scale = 20.0f;
 
 	void Init_Lightmap_Chart(Lightmap_Chart* Target_Chart)
 	{

@@ -459,7 +459,7 @@ namespace Jaguar
 
 		// we can run this again (using the previous lightmap during the render process) to generate one with an additional bounced-lighting pass.
 
-		const unsigned int Incident_Texture_Width = 512; // renders at 1024x1024 when collecting incident pixel data
+		const unsigned int Incident_Texture_Width = 256; // renders at 1024x1024 when collecting incident pixel data
 
 		glm::vec3* Lightmap_Texture_Data[3];
 		glm::vec3* Pixel_Data[3];
@@ -568,7 +568,7 @@ namespace Jaguar
 
 	//
 
-	const float Luxel_Scale = 20.0f;
+	const float Luxel_Scale = 10.0f;
 
 	void Init_Lightmap_Chart(Lightmap_Chart* Target_Chart)
 	{

@@ -884,7 +884,7 @@
     <ClCompile Include="Collision\Separating_Axis_Theorem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Controllers\GPU_Lightmapping.cpp">
+    <ClCompile Include="Controllers\Lightmapping.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

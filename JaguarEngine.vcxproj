@@ -429,9 +429,9 @@
     <ClCompile Include="Controllers\Controller_Handling.cpp" />
     <ClCompile Include="Controllers\Cubemap_Reflection_Generation.cpp" />
     <ClCompile Include="Controllers\Deletion_Handler.cpp" />
-    <ClCompile Include="Controllers\GPU_Lightmapping.cpp" />
     <ClCompile Include="Controllers\Job_System.cpp" />
     <ClCompile Include="Controllers\Lightmapper_Write_File.cpp" />
+    <ClCompile Include="Controllers\Lightmapping.cpp" />
     <ClCompile Include="Controllers\Skeletal_Animation_Handling.cpp" />
     <ClCompile Include="Controllers\Skeletal_Animation_Handling.h" />
     <ClCompile Include="Libraries\Include\glad\glad.c" />

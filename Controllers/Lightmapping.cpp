@@ -463,7 +463,7 @@ namespace Jaguar
 	{
 		// we want a specific value for the resolution of the lights generated i.e. how many lights per face
 
-		const float Scale = 5.0f;
+		const float Scale = 6.0f;
 
 		for (size_t W = 0; W < Target_Chart->Pushed_Tris.size(); W++)
 		{
@@ -645,7 +645,7 @@ namespace Jaguar
 		Wait_For_Job_System_Completion(&Engine->Job_Handler);
 	}
 
-	void Handle_Bounce_Lighting(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data[3], int Bounces = 6) // Was 4
+	void Handle_Bounce_Lighting(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data[3], int Bounces = 2) // Was 4
 	{
 		// This will modify the values in Lightmap_Texture_Data according to the bounce lighting
 

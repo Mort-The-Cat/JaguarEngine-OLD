@@ -339,9 +339,6 @@ namespace Jaguar
 			glUniform2f(glGetUniformLocation(Write_Lightmap_Shader->Program_ID, "Pixel"), ((0.5f + (float)X) / (float)Target_Chart->Sidelength), ((0.5f + (float)Y) / (float)Target_Chart->Sidelength));
 
 			glDrawArrays(GL_POINTS, 0, 1);
-
-			glfwSwapBuffers(Engine->Window);
-			glfwPollEvents();
 		}
 	}
 
@@ -444,6 +441,11 @@ namespace Jaguar
 			Target_Chart->Sidelength,
 			&Data
 		);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, Lightmap_Framebuffer);
+
+		glfwSwapBuffers(Engine->Window);
+		glfwPollEvents();
 	}
 
 	void Create_Lightmap3_From_Chart(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, const char* Filename)

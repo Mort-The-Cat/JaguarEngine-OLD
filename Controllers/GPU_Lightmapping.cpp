@@ -9,6 +9,26 @@
 
 namespace Jaguar
 {
+	void Chart_Tri_Init_Points(Lightmap_Chart* Target_Chart, size_t Tri)
+	{
+		glm::vec2 Texture_Coordinates[3];
+
+		for (size_t Point = 0; Point < 3; Point++)
+		{
+			Target_Chart->Pushed_Tris[Tri].Points[Point] = Get_Model_Matrix(Target_Chart->Pushed_Objects[Target_Chart->Pushed_Tris[Tri].Model_Index]) * glm::vec4(Target_Chart->Pushed_Tris[Tri].Mesh.Mesh->Vertices[Target_Chart->Pushed_Tris[Tri].Index + Point].Position, 1);
+
+			Texture_Coordinates[Point] = Target_Chart->Pushed_Tris[Tri].Mesh.Mesh->Vertices[Target_Chart->Pushed_Tris[Tri].Index + Point].Texture_Coordinates;
+		}
+
+		Target_Chart->Pushed_Tris[Tri].TBN[0] = Target_Chart->Pushed_Tris[Tri].Points[1] - Target_Chart->Pushed_Tris[Tri].Points[0];
+		Target_Chart->Pushed_Tris[Tri].TBN[1] = Target_Chart->Pushed_Tris[Tri].Points[2] - Target_Chart->Pushed_Tris[Tri].Points[0];
+		Target_Chart->Pushed_Tris[Tri].TBN[2] = glm::normalize(glm::cross(Target_Chart->Pushed_Tris[Tri].TBN[1], Target_Chart->Pushed_Tris[Tri].TBN[0]));
+
+		Jaguar::Get_UV_Tangent_Bitangent_Vectors(Target_Chart->Pushed_Tris[Tri].Points, Texture_Coordinates, Target_Chart->Pushed_Tris[Tri].TBN[2], &Target_Chart->Pushed_Tris[Tri].TBN[0], &Target_Chart->Pushed_Tris[Tri].TBN[1]);
+
+		Jaguar::Get_Triple_Lightmap_Vectors(Target_Chart->Pushed_Tris[Tri].TBN[2], Target_Chart->Pushed_Tris[Tri].TBN[0], Target_Chart->Pushed_Tris[Tri].TBN[1], Target_Chart->Pushed_Tris[Tri].Triple_Vectors); // gets 3 components necessary for normal mapping
+	}
+
 	float Lightmap_Simple_Area_Of_Triangle(glm::vec3 A, glm::vec3 B, glm::vec3 C)
 	{
 		glm::vec3 A_B = B - A;
@@ -156,7 +176,7 @@ namespace Jaguar
 
 	bool Flood_Fill_Lighting_Nodes_Check_Node(Lightmap_Chart* Target_Chart, glm::ivec3 Origin, glm::ivec3 Position, float Size, std::map<int, std::map<int, std::map<int, bool>>>& Grid, std::vector<glm::ivec3>& Node_Positions)
 	{
-		if (glm::length(glm::vec3(Origin) * Size) > 100.0f)	// Just a little precaution to stop infinite leaking...
+		if (glm::length(glm::vec3(Origin) * Size) > 60.0f)	// Just a little precaution to stop infinite leaking...
 			return 0;
 
 		if (Grid[Position.x][Position.y].find(Position.z) == Grid[Position.x][Position.y].end())
@@ -251,6 +271,11 @@ namespace Jaguar
 
 	// then, per draw call, it'll draw to these 3 buffers and accumulate the lighting there
 
+	float Area(float Radius)
+	{
+		return Radius * Radius * 3.14159f;
+	}
+
 	void Render_Scene_To_Lightmap_Pixel(Jaguar_Engine* Engine, const Lightmap_Chart* Target_Chart, int Framebuffer, int Depth_Renderbuffer, int Lightmap_Framebuffer, unsigned int Lightmap_Textures[3], unsigned int Incident_Textures[3], const Vertex_Buffer& Light_Model, glm::mat4 Projection_Matrices[6], glm::vec3 Position, glm::vec3 Normal, glm::vec3 Tangent, glm::vec3 Bitangent, Shader* Lightmap_Shader, Shader* Write_Lightmap_Shader, unsigned int Incident_Texture_Width, glm::vec3* Pixel_Data[3], size_t X, size_t Y)
 	{
 		glm::vec3 Pixel_Colour = glm::vec3(0.0f);
@@ -295,9 +320,9 @@ namespace Jaguar
 
 				glUniformMatrix4fv(glGetUniformLocation(Lightmap_Shader->Program_ID, "Model_Matrix"), 1, GL_FALSE, glm::value_ptr(Model_Matrix));
 				glUniform3f(glGetUniformLocation(Lightmap_Shader->Program_ID, "Light_Colour"),
-					Engine->Scene.Lighting.Lightsources[Light]->Colour[0],
-					Engine->Scene.Lighting.Lightsources[Light]->Colour[1],
-					Engine->Scene.Lighting.Lightsources[Light]->Colour[2]
+					Engine->Scene.Lighting.Lightsources[Light]->Colour[0] / Area(Engine->Scene.Lighting.Lightsources[Light]->Radius),
+					Engine->Scene.Lighting.Lightsources[Light]->Colour[1] / Area(Engine->Scene.Lighting.Lightsources[Light]->Radius),
+					Engine->Scene.Lighting.Lightsources[Light]->Colour[2] / Area(Engine->Scene.Lighting.Lightsources[Light]->Radius)
 				);
 
 				glDrawArrays(GL_TRIANGLES, 0, Light_Model.Vertex_Count);
@@ -315,6 +340,9 @@ namespace Jaguar
 
 				glDrawArrays(GL_TRIANGLES, 0, Target_Chart->Pushed_Objects[Object]->Mesh.Vertex_Count);
 			}
+
+			//glfwSwapBuffers(Engine->Window);
+			//glfwPollEvents();
 
 			glBindFramebuffer(GL_FRAMEBUFFER, Lightmap_Framebuffer);
 			Use_Shader(*Write_Lightmap_Shader);
@@ -390,6 +418,8 @@ namespace Jaguar
 		{
 			Points[Point] = Get_Model_Matrix(Target_Chart->Pushed_Objects[Target_Chart->Pushed_Tris[Tri].Model_Index]) * glm::vec4(Target_Chart->Pushed_Tris[Tri].Mesh.Mesh->Vertices[Target_Chart->Pushed_Tris[Tri].Index + Point].Position, 1.0f);
 
+			Target_Chart->Pushed_Tris[Tri].Points[Point] = Points[Point];
+
 			Texture_Coordinates[Point] = Target_Chart->Pushed_Tris[Tri].Mesh.Mesh->Vertices[Target_Chart->Pushed_Tris[Tri].Index + Point].Texture_Coordinates;
 		}
 
@@ -397,6 +427,10 @@ namespace Jaguar
 		glm::vec3 Bitangent = Points[2] - Points[0];
 		glm::vec3 Normal = glm::normalize(glm::cross(Bitangent, Tangent));
 		Jaguar::Get_UV_Tangent_Bitangent_Vectors(Points, Texture_Coordinates, Normal, &Tangent, &Bitangent);
+
+		Target_Chart->Pushed_Tris[Tri].TBN[0] = Tangent;
+		Target_Chart->Pushed_Tris[Tri].TBN[1] = Bitangent;
+		Target_Chart->Pushed_Tris[Tri].TBN[2] = Normal;
 
 		glm::mat4 Projection_Matrices[6];
 
@@ -442,10 +476,11 @@ namespace Jaguar
 			&Data
 		);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, Lightmap_Framebuffer);
-
 		glfwSwapBuffers(Engine->Window);
 		glfwPollEvents();
+
+		// glBindFramebuffer(GL_FRAMEBUFFER, Lightmap_Framebuffer);
+
 	}
 
 	void Create_Lightmap3_From_Chart(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, const char* Filename)
@@ -461,7 +496,7 @@ namespace Jaguar
 
 		// we can run this again (using the previous lightmap during the render process) to generate one with an additional bounced-lighting pass.
 
-		const unsigned int Incident_Texture_Width = 256; // renders at 1024x1024 when collecting incident pixel data
+		const unsigned int Incident_Texture_Width = 1024; // renders at 1024x1024 when collecting incident pixel data
 
 		glm::vec3* Lightmap_Texture_Data[3];
 		glm::vec3* Pixel_Data[3];
@@ -570,7 +605,7 @@ namespace Jaguar
 
 	//
 
-	const float Luxel_Scale = 10.0f;
+	const float Luxel_Scale = 30.0f;
 
 	void Init_Lightmap_Chart(Lightmap_Chart* Target_Chart)
 	{
@@ -743,7 +778,7 @@ namespace Jaguar
 				Target_Chart
 			);*/
 
-			// Chart_Tri_Init_Points(Target_Chart, Tri);
+			Chart_Tri_Init_Points(Target_Chart, Tri);
 
 			for (size_t Point = 0; Point < 3; Point++)
 				Mesh_Info.Mesh->Vertices[Triangle++].Lightmap_UV = glm::vec2(X, Y) + Projected_Points[Point];
@@ -757,6 +792,8 @@ namespace Jaguar
 			Bind_Vertex_Buffer(Mesh.Buffer);
 			Update_Vertex_Buffer_Data(Mesh.Mesh, &Mesh.Buffer);
 		}
+
+		// Chart_Tri_Init_Points(Target_Chart, Tri);
 	}
 
 	void Push_Queue_Lightmap_Chart(Jaguar_Engine* Engine, const Render_Queue* Queue, Lightmap_Chart* Target_Chart)

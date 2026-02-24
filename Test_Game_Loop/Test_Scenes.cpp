@@ -100,6 +100,64 @@ void Place_Animation_Objects(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_
 
 //
 
+void Setup_Pipe_Vent_Scene(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader, Jaguar::Shader Test_SkeletaL_Animation_Shader)
+{
+	Jaguar::World_Object* Object;
+
+	Engine->Scene.Lighting.Environment_Map.A = glm::vec3(-1.207f, -1.00f, -4.832f);	// Will redo these in a moment
+	Engine->Scene.Lighting.Environment_Map.B = glm::vec3(1.02f, 1.067f, 1.0017f);
+
+	Engine->Scene.Lighting.Environment_Map.Origin = glm::vec3(0.5f) * (Engine->Scene.Lighting.Environment_Map.A + Engine->Scene.Lighting.Environment_Map.B);
+
+	Object = new Jaguar::World_Object();
+	Object->Flags[MF_SOLID] = true;
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Pipe_Vent_Scene/Walls.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Brick.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Brick_Normal.png").Texture,	// Normal map
+		Jaguar::Wrap_AABB_Hitboxes(
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Pipe_Vent_Scene/Walls.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Mesh
+		),
+		nullptr
+	);
+
+	Object = new Jaguar::World_Object();
+	Object->Flags[MF_SOLID] = true;
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Pipe_Vent_Scene/Floor.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Floor_Tiles.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Floor_Tiles_Normal.png").Texture,	// Normal map
+		Jaguar::Wrap_AABB_Hitboxes(
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Pipe_Vent_Scene/Floor.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Mesh
+		),
+		nullptr
+	);
+
+	Object = new Jaguar::World_Object();
+	Object->Flags[MF_SOLID] = true;
+	Jaguar::Create_World_Object(Engine, Object, &Test_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Pipe_Vent_Scene/Metal.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Metal.jpg").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Metal_Normal_Texture.png").Texture,	// Normal map
+		Jaguar::Wrap_AABB_Hitboxes(
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Pipe_Vent_Scene/Metal.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Mesh
+		),
+		nullptr
+	);
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(0.5f, 0.501f, 0.587f);
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.75f);
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(-5.77f, 1.796f, 4.547f);
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.75f);
+
+	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
+	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(0.0184f, 1.852f, -1.707f);
+	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.75f);
+}
+
 void Setup_Radiophobia_Level(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader, Jaguar::Shader Test_Skeletal_Animation_Shader)
 {
 	Jaguar::World_Object* Object;

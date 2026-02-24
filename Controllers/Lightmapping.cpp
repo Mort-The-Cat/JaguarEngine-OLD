@@ -96,7 +96,7 @@ namespace Jaguar
 			Target_Nodes[Index] = &Node_Data->Nodes[List.Shortest_Index[Index]];
 	}
 
-	bool Line_Intersects_Tri(Lightmap_Chart* Target_Chart, glm::vec3 Position, glm::vec3 To_Light_Vector, size_t Tri);
+	bool Line_Intersects_Tri(Lightmap_Chart* Target_Chart, glm::vec3 Position, glm::vec3 To_Light_Vector, size_t Tri, float Epsilon = 0.0f);
 
 	bool Flood_Fill_Lighting_Nodes_Check_Node(Lightmap_Chart* Target_Chart, glm::ivec3 Origin, glm::ivec3 Position, float Size, std::map<int, std::map<int, std::map<int, bool>>>& Grid, std::vector<glm::ivec3>& Node_Positions)
 	{
@@ -110,7 +110,7 @@ namespace Jaguar
 			bool Intersection = false;
 
 			for (size_t Index = 0; Index < Target_Chart->Pushed_Tris.size() && !Intersection; Index++)
-				Intersection = Line_Intersects_Tri(Target_Chart, glm::vec3(Origin) * Size, glm::vec3(Position - Origin) * Size, Index);
+				Intersection = Line_Intersects_Tri(Target_Chart, glm::vec3(Origin) * Size, glm::vec3(Position - Origin) * Size, Index, 0.02f);
 
 			if (Intersection)
 				return 0;
@@ -236,7 +236,7 @@ namespace Jaguar
 		return glm::length(glm::cross(A_B, A_C));
 	}
 
-	bool Line_Intersects_Tri(Lightmap_Chart* Target_Chart, glm::vec3 Position, glm::vec3 To_Light_Vector, size_t Tri)
+	bool Line_Intersects_Tri(Lightmap_Chart* Target_Chart, glm::vec3 Position, glm::vec3 To_Light_Vector, size_t Tri, float Epsilon)
 	{
 		// Get tri transformed points
 		// Get tri normal
@@ -286,12 +286,12 @@ namespace Jaguar
 			Lightmap_Simple_Area_Of_Triangle(T_Position, A_B, glm::vec3(0.0f))
 		};
 
-		return Area[1] + Area[2] + Area[3] <= Area[0] + 0.002f;
+		return Area[1] + Area[2] + Area[3] <= Area[0] + Epsilon;// +0.002f;
 	}
 
 	void Get_Lightmap_Tris_From_Vector(Lightmap_Chart* Target_Chart, glm::vec3 Origin, glm::vec3 End, std::set<size_t>& Tri_Indices)
 	{
-		glm::uvec3 A, B;
+		glm::ivec3 A, B;
 
 		Origin -= Target_Chart->Blockmap_Origin;
 		End -= Target_Chart->Blockmap_Origin;
@@ -302,9 +302,9 @@ namespace Jaguar
 		A = glm::min(Origin, End);
 		B = ( glm::max(Origin, End) );
 
-		for(size_t X = A.x; X <= B.x; X++)
-			for(size_t Y = A.y; Y <= B.y; Y++)
-				for (size_t Z = A.z; Z <= B.z; Z++)
+		for(int X = A.x; X <= B.x; X++)
+			for(int Y = A.y; Y <= B.y; Y++)
+				for (int Z = A.z; Z <= B.z; Z++)
 					for (const size_t& Index : Target_Chart->Tri_Broadphase_Blockmap[X][Y][Z])
 						Tri_Indices.insert(Index);
 
@@ -332,23 +332,23 @@ namespace Jaguar
 
 			bool Intersect_Found = false;
 
-			/*for (size_t Tri = 0; Tri < Target_Chart->Pushed_Tris.size() && !Intersect_Found; Tri++)
-				if (Line_Intersects_Tri(Target_Chart, Position, To_Light_Vector, Tri))
-				{
-					Intersect_Found = true;
-					break;
-				}*/
-
-			std::set<size_t> Tri_Indices;
-
-			Get_Lightmap_Tris_From_Vector(Target_Chart, Position, Lightsources[W]->Position, Tri_Indices);
-
-			for(const size_t& Index : Tri_Indices)
-				if (Line_Intersects_Tri(Target_Chart, Position, To_Light_Vector, Index))
+			for (size_t Tri = 0; Tri < Target_Chart->Pushed_Tris.size(); Tri++)
+				if (Line_Intersects_Tri(Target_Chart, Position, To_Light_Vector, Tri, 0.0001))
 				{
 					Intersect_Found = true;
 					break;
 				}
+
+			std::set<size_t> Tri_Indices;
+
+			//Get_Lightmap_Tris_From_Vector(Target_Chart, Position, Lightsources[W]->Position, Tri_Indices);
+
+			/*for (const size_t& Index : Tri_Indices)
+				if (Line_Intersects_Tri(Target_Chart, Position, To_Light_Vector, Index))
+				{
+					Intersect_Found = true;
+					break;
+				}*/
 
 			if (!Intersect_Found)
 			{
@@ -695,6 +695,9 @@ namespace Jaguar
 				B = glm::max(B, Target_Chart->Pushed_Tris[Index].Points[Point]);
 			}
 
+		A -= glm::vec3(0.5f);
+		B += glm::vec3(0.5f);
+
 		Target_Chart->Blockmap_Origin = A;
 
 		Target_Chart->Blockmap_Size = Size;
@@ -728,7 +731,7 @@ namespace Jaguar
 				B = glm::max(B, Target_Chart->Pushed_Tris[Index].Points[Point]);
 			}
 
-			glm::uvec3 Int_A, Int_B;
+			glm::ivec3 Int_A, Int_B;
 
 			B -= Target_Chart->Blockmap_Origin;
 			A -= Target_Chart->Blockmap_Origin;
@@ -737,11 +740,11 @@ namespace Jaguar
 			A /= Size;
 
 			Int_A = A;
-			Int_B = B;
+			Int_B = glm::ceil(B);
 
-			for (size_t X = Int_A.x; X <= Int_B.x; X++)
-				for (size_t Y = Int_A.y; Y <= Int_B.y; Y++)
-					for (size_t Z = Int_A.z; Z <= Int_B.z; Z++)
+			for (int X = Int_A.x; X <= Int_B.x; X++)
+				for (int Y = Int_A.y; Y <= Int_B.y; Y++)
+					for (int Z = Int_A.z; Z <= Int_B.z; Z++)
 						Target_Chart->Tri_Broadphase_Blockmap[X][Y][Z].insert(Index);
 		}
 	}

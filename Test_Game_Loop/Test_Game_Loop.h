@@ -296,17 +296,17 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
 		Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Pipe_Vent_Scene";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Radiophobia_Level";
 
 	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	//Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	//Setup_AABB_Physics_Room(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
-	//Setup_Radiophobia_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
-	Setup_Pipe_Vent_Scene(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	Setup_Radiophobia_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	//Setup_Pipe_Vent_Scene(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
-	if constexpr (false)
+	if constexpr (true)
 	{
 		Jaguar::Lightmap_Chart Lightmap;			// This will be generated during light-baking
 		Jaguar::Init_Lightmap_Chart(&Lightmap);

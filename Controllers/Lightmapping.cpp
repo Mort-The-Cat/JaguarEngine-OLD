@@ -333,7 +333,7 @@ namespace Jaguar
 			bool Intersect_Found = false;
 
 			for (size_t Tri = 0; Tri < Target_Chart->Pushed_Tris.size(); Tri++)
-				if (Line_Intersects_Tri(Target_Chart, Position, To_Light_Vector, Tri, 0.0001))
+				if (Line_Intersects_Tri(Target_Chart, Position, To_Light_Vector, Tri, 0.000115))
 				{
 					Intersect_Found = true;
 					break;
@@ -457,13 +457,13 @@ namespace Jaguar
 
 	// const float Luxel_Scale = 30.0f; // 1 unit squared equals 5x5 pixels of area
 
-	const float Luxel_Scale = 25.0f;
+	const float Luxel_Scale = 35.0f;
 
 	void Generate_Bounced_Light_Lightsources(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data3[3], std::vector<Lightsource*>& Target_Lightsources)
 	{
 		// we want a specific value for the resolution of the lights generated i.e. how many lights per face
 
-		const float Scale = 6.0f;
+		const float Scale = 10.0f;
 
 		for (size_t W = 0; W < Target_Chart->Pushed_Tris.size(); W++)
 		{

@@ -807,6 +807,9 @@
     <ClInclude Include="UI_Handling\UI_Elements.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UI_Handling\UI_Render_Queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Collada_Loader\XML_Document_Loader.cpp">

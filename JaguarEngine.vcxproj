@@ -416,6 +416,7 @@
     <ClInclude Include="OpenGL_Handling\Texture_Uniform_Buffer.h" />
     <ClInclude Include="Test_Game_Loop\Test_Game_Loop.h" />
     <ClInclude Include="UI_Handling\UI_Elements.h" />
+    <ClInclude Include="UI_Handling\UI_Render_Queue.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Collada_Loader\Collada_Animation_Loader.cpp" />

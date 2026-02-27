@@ -45,16 +45,18 @@ namespace Jaguar
 		// Handle attribute buffer
 	}
 
-	void Update_Vertex_Buffer_Data(const Collada::Collada_Mesh* Mesh, Vertex_Buffer* Target_Buffer)
+	template<typename Mesh_Type>
+	void Update_Vertex_Buffer_Data(const Mesh_Type* Mesh, Vertex_Buffer* Target_Buffer)
 	{
 		const void* Data = Mesh->Vertices.data();
-		size_t Size = Mesh->Vertices.size() * sizeof(Collada::Collada_Vertex);
+		size_t Size = Mesh->Vertices.size() * sizeof(Mesh_Type);
 
 		glBindBuffer(GL_ARRAY_BUFFER, Target_Buffer->Vertex_Buffer_ID);
 		glBufferData(GL_ARRAY_BUFFER, Size, Data, GL_STATIC_DRAW); // The vertex buffer won't be updated once we've fully generated it
 	}
 
-	void Create_Vertex_Buffer(const Collada::Collada_Mesh* Mesh, Vertex_Buffer* Target_Buffer)
+	template<typename Mesh_Type>
+	void Create_Vertex_Buffer(const Mesh_Type* Mesh, Vertex_Buffer* Target_Buffer)
 	{
 		//Target_Buffer->Data = Mesh.Vertices.data();
 		//Target_Buffer->Size = Mesh.Vertices.size() * sizeof(Collada::Collada_Vertex);

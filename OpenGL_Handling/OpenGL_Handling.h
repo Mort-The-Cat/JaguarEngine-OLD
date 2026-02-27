@@ -43,8 +43,10 @@ namespace Jaguar
 		size_t Vertex_Count;
 	};
 
-	void Update_Vertex_Buffer_Data(const Collada::Collada_Mesh* Mesh, Vertex_Buffer* Target_Buffer);
-	void Create_Vertex_Buffer(const Collada::Collada_Mesh* Mesh, Vertex_Buffer* Target_Buffer);
+	template<typename Mesh_Type>
+	void Update_Vertex_Buffer_Data(const Mesh_Type* Mesh, Vertex_Buffer* Target_Buffer);
+	template<typename Mesh_Type>
+	void Create_Vertex_Buffer(const Mesh_Type* Mesh, Vertex_Buffer* Target_Buffer);
 	void Bind_Vertex_Buffer(const Vertex_Buffer& Buffer);
 	void Destroy_Vertex_Buffer(Vertex_Buffer* Target_Buffer);
 

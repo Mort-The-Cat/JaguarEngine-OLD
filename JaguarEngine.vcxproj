@@ -161,6 +161,7 @@
     <ClInclude Include="Controllers\Job_System.h" />
     <ClInclude Include="Controllers\Lightmapping.h" />
     <ClInclude Include="Controllers\Lightmap_Chart_Rasteriser.h" />
+    <ClInclude Include="Jaguar_Compression\Compression.h" />
     <ClInclude Include="Libraries\Include\glad\glad.h" />
     <ClInclude Include="Libraries\Include\GLFW\glfw3.h" />
     <ClInclude Include="Libraries\Include\GLFW\glfw3native.h" />

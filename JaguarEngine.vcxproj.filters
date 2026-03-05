@@ -810,6 +810,9 @@
     <ClInclude Include="UI_Handling\UI_Render_Queue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Jaguar_Compression\Compression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Collada_Loader\XML_Document_Loader.cpp">

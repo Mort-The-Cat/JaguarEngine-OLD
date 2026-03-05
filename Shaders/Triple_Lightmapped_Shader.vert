@@ -27,6 +27,8 @@ void main()
 		Model_Matrix * vec4(In_Position, 1.0f)		// 4d vector is required to apply translation to position
 	);
 
+	//Vertex.Position = vec3(In_Lightmap_Coordinates, )
+
 	Vertex.Normal = mat3(Model_Matrix) * normalize(In_Normal); // This provides only the ROTATION to the normals (which is what we want)
 
 	vec4 Screenspace_Position = Projection_Matrix * vec4(Vertex.Position, 1);

@@ -138,8 +138,10 @@ namespace Jaguar
 
 	// Regular lightmap has been deprecated in favour of 3-vector lightmap
 
-	void Get_Lightmap3_From_File(const char* Filename, Lighting_Data* Target_Lighting);
-	void Write_Lightmap3_To_File(const char* Filename, glm::vec3* Data[3], unsigned int Texture_Dimensions);
+	struct Job_System;
+
+	void Get_Lightmap3_From_File(const char* Filename, Lighting_Data* Target_Lighting, bool Compress = false);
+	void Write_Lightmap3_To_File(Job_System* System, const char* Filename, glm::vec3* Data[3], unsigned int Texture_Dimensions, bool Compress = false);
 
 	//
 

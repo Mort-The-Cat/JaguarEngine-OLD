@@ -2,24 +2,49 @@
 #include "../OpenGL_Handling/Scene.h"
 #include "../Collada_Loader/Collada_Loader.h"
 
+#include "../Jaguar_Compression/Compression.h"
+
 #include<set>
 
 namespace Jaguar
 {
-	void Write_Lightmap3_To_File(const char* Filename, glm::vec3* Data[3], unsigned int Texture_Dimensions)
+
+
+	void Write_Lightmap3_To_File(Job_System* System, const char* Filename, glm::vec3* Data[3], unsigned int Texture_Dimensions, bool Compress)
 	{
+		size_t Texture_Size = Texture_Dimensions;
+		Texture_Size *= Texture_Size * sizeof(glm::vec3);
+
+		Openzip::Compressor_Data Compressor;
+
+		if (Compress)
+		{
+			Compressor.Raw_Data.resize(Texture_Dimensions * Texture_Dimensions * 3);
+
+			for (size_t W = 0; W < 3; W++)
+				memcpy(Compressor.Raw_Data.data() + (Texture_Dimensions * Texture_Dimensions * W), Data[W], Texture_Size);
+
+			Openzip::Compress_Raw_Data(System, Compressor);
+		}
+
 		std::ofstream File(Filename, std::ios::binary);
 
 		if (!File.is_open())
 			printf(" >> ERROR opening output lightmap file!\n");
 
-		size_t Texture_Size = Texture_Dimensions;
-		Texture_Size *= Texture_Size * sizeof(glm::vec3);
-
 		File.write((const char*)&Texture_Dimensions, sizeof(Texture_Dimensions));
 
-		for (size_t W = 0; W < 3; W++)
-			File.write((const char*)Data[W], Texture_Size);
+		if (Compress)
+		{
+			File.write((const char*)Compressor.Instructions.data(), Compressor.Instructions.size());
+		}
+		else
+		{
+
+			for (size_t W = 0; W < 3; W++)
+				File.write((const char*)Data[W], Texture_Size);
+
+		}
 
 		File.close();
 	}
@@ -79,8 +104,10 @@ namespace Jaguar
 		delete[] Data;
 	}
 
-	void Get_Lightmap3_From_File(const char* Filename, Lighting_Data* Target_Lighting)
+	void Get_Lightmap3_From_File(const char* Filename, Lighting_Data* Target_Lighting, bool Compress)
 	{
+		Openzip::Compressor_Data Compressor;
+
 		std::ifstream File(Filename, std::ios::binary);
 
 		if (!File.is_open())
@@ -97,6 +124,11 @@ namespace Jaguar
 			return;
 		}
 
+		File.seekg(0, std::ios::end);
+		std::streamsize Instructions_Count = File.tellg();
+		Instructions_Count -= sizeof(unsigned int);
+		File.seekg(0, std::ios::beg);
+
 		unsigned int Texture_Dimensions;
 		File.read((char*)&Texture_Dimensions, sizeof(Texture_Dimensions));
 
@@ -104,18 +136,34 @@ namespace Jaguar
 
 		Target_Lighting->Inverse_Lightmap_Scale = 1.0f / (float)Texture_Dimensions;
 
+		if (Compress)
+		{
+			Compressor.Instructions.resize(Instructions_Count);
+			File.read((char*)Compressor.Instructions.data(), Instructions_Count);
+
+			File.close();
+
+			Openzip::Decompress_Raw_Data(Compressor);
+		}
+
 		glm::vec3* Data = new glm::vec3[Texture_Size];
 
 		for (size_t W = 0; W < 3; W++)
 		{
-			File.read((char*)Data, Texture_Size * sizeof(glm::vec3));
+			if (Compress)
+			{
+				memcpy(Data, Compressor.Raw_Data.data() + Texture_Size * 3 * W, Texture_Size * sizeof(glm::vec3));
+			}
+			else
+				File.read((char*)Data, Texture_Size * sizeof(glm::vec3));
 
 #if TRIPLE_LIGHTMAPPING
 			Create_Texture_Buffer(&Target_Lighting->Lightmap_Textures[W], GL_RGB32F, Texture_Dimensions, Texture_Dimensions, GL_RGB, GL_FLOAT, Data, true);
 #endif
 		}
 
-		File.close();
+		if(!Compress)
+			File.close();
 
 		delete[] Data;
 	}

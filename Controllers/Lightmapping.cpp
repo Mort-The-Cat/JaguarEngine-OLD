@@ -323,8 +323,8 @@ namespace Jaguar
 
 			float To_Vector_Length_Squared = 1.0f / glm::dot(To_Light_Vector, To_Light_Vector);
 
-			if (glm::length(Lightsources[W]->Colour) * To_Vector_Length_Squared < 0.001)
-				continue;
+			//if (glm::length(Lightsources[W]->Colour) * To_Vector_Length_Squared < 0.001)
+			//	continue;
 
 			// This will not be a normalized vector because we need this as a line-segment vector
 			// Iterate through every tri and test for intersection
@@ -339,7 +339,7 @@ namespace Jaguar
 					break;
 				}
 
-			std::set<size_t> Tri_Indices;
+			// std::set<size_t> Tri_Indices;
 
 			//Get_Lightmap_Tris_From_Vector(Target_Chart, Position, Lightsources[W]->Position, Tri_Indices);
 
@@ -455,9 +455,9 @@ namespace Jaguar
 
 	// previously 50
 
-	// const float Luxel_Scale = 30.0f; // 1 unit squared equals 5x5 pixels of area
+	// const float Luxel_Scale = 35.0f; // 1 unit squared equals 5x5 pixels of area
 
-	const float Luxel_Scale = 35.0f;
+	const float Luxel_Scale = 25.0f;
 
 	void Generate_Bounced_Light_Lightsources(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data3[3], std::vector<Lightsource*>& Target_Lightsources)
 	{
@@ -788,9 +788,9 @@ namespace Jaguar
 
 		// Target_Chart->Tri_Visible_Lightsource_Indices.resize(Target_Chart->Pushed_Tris.size());
 
-		Handle_Bounce_Lighting(Engine, Target_Chart, Lightmap_Texture_Data);
+		// Handle_Bounce_Lighting(Engine, Target_Chart, Lightmap_Texture_Data);
 
-		Write_Lightmap3_To_File(Filename, Lightmap_Texture_Data, Target_Chart->Sidelength);
+		Write_Lightmap3_To_File(&Engine->Job_Handler, (std::string(Filename) + ".opz").c_str(), Lightmap_Texture_Data, Target_Chart->Sidelength, true);
 
 		delete Lightmap_Texture_Data[0];
 		delete Lightmap_Texture_Data[1];

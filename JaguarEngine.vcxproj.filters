@@ -813,6 +813,9 @@
     <ClInclude Include="Jaguar_Compression\Compression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Collision\Static_Blockmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Collada_Loader\XML_Document_Loader.cpp">
@@ -891,6 +894,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Controllers\Lightmapping.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision\Static_Blockmap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

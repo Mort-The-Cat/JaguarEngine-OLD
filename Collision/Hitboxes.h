@@ -43,6 +43,8 @@ namespace Jaguar
 
 		World_Object* Object = nullptr;
 
+		virtual void Get_Bounds(glm::vec3* A, glm::vec3* B) { return; }
+
 		virtual void Update_Hitbox()
 		{
 			return;	// This won't do anything for the default hitbox
@@ -100,6 +102,8 @@ namespace Jaguar
 
 		// triangles with the same normal are merged
 
+		virtual void Get_Bounds(glm::vec3* A, glm::vec3* B) override;
+
 		virtual void Update_Hitbox() override;
 
 		virtual Collision_Info Test_Collision(Hitbox* Other_Hitbox) override;
@@ -116,6 +120,8 @@ namespace Jaguar
 	public:
 		float Radius;
 
+		virtual void Get_Bounds(glm::vec3* A, glm::vec3* B) override;
+
 		virtual Collision_Info Test_Collision(Hitbox* Other_Hitbox) override;
 		virtual Collision_Info AABB_Collision(AABB_Hitbox* Other_Hitbox) override;
 		virtual Collision_Info Sphere_Collision(Sphere_Hitbox* Other_Hitbox) override;
@@ -125,6 +131,8 @@ namespace Jaguar
 	{
 	public:
 		glm::vec3 A, B;					// Must remember to offset this by the position of the world-object
+
+		virtual void Get_Bounds(glm::vec3* A, glm::vec3* B) override;
 
 		virtual Collision_Info Test_Collision(Hitbox* Other_Hitbox) override;
 		virtual Collision_Info AABB_Collision(AABB_Hitbox* Other_Hitbox) override;

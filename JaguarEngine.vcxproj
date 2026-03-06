@@ -155,6 +155,7 @@
     <ClInclude Include="Collada_Loader\Collada_Loader.h" />
     <ClInclude Include="Collision\Hitboxes.h" />
     <ClInclude Include="Collision\Physics_Engine.h" />
+    <ClInclude Include="Collision\Static_Blockmap.h" />
     <ClInclude Include="Controllers\Asset_Cache.h" />
     <ClInclude Include="Controllers\Cubemap_Reflection_Generation.h" />
     <ClInclude Include="Controllers\Jaguar_Engine_Wrapper.h" />
@@ -427,6 +428,7 @@
     <ClCompile Include="Collision\Hitboxes.cpp" />
     <ClCompile Include="Collision\Physics_Engine.cpp" />
     <ClCompile Include="Collision\Separating_Axis_Theorem.cpp" />
+    <ClCompile Include="Collision\Static_Blockmap.cpp" />
     <ClCompile Include="Controllers\Asset_Cache.cpp" />
     <ClCompile Include="Controllers\Controller_Handling.cpp" />
     <ClCompile Include="Controllers\Cubemap_Reflection_Generation.cpp" />

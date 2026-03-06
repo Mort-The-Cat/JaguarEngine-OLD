@@ -5,6 +5,51 @@
 
 namespace Jaguar
 {
+	void AABB_Hitbox::Get_Bounds(glm::vec3* A_Out, glm::vec3* B_Out)
+	{
+		*A_Out = A;
+		*B_Out = B;
+		if (Object)
+		{
+			*A_Out += Object->Position;
+			*B_Out += Object->Position;
+		}
+	}
+
+	void Sphere_Hitbox::Get_Bounds(glm::vec3* A_Out, glm::vec3* B_Out)
+	{
+		*A_Out = glm::vec3(-Radius);
+		*B_Out = glm::vec3(-Radius);
+		if (Object)
+		{
+			*A_Out += Object->Position;
+			*B_Out += Object->Position;
+		}
+	}
+
+	void Mesh_Hitbox::Get_Bounds(glm::vec3* A_Out, glm::vec3* B_Out)
+	{
+		glm::vec3 A = glm::vec3(999999999.0f);
+		glm::vec3 B = -A;
+
+		for (size_t Point = 0; Point < Transformed_Points.size(); Point++)
+		{
+			A = glm::min(A, Transformed_Points[Point]);
+			B = glm::max(B, Transformed_Points[Point]);
+		}
+
+		if (Object)
+		{
+			A += Object->Position;
+			B += Object->Position;
+		}
+
+		*A_Out = A;
+		*B_Out = B;
+	}
+
+	//
+
 	const glm::vec3 AABB_Direction_Vectors[6] =
 	{
 		glm::vec3(1, 0, 0),

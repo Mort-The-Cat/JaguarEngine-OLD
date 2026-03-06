@@ -5,6 +5,8 @@
 
 #include "../Controllers/Job_System.h"
 
+// IMPORTANT: This compression only works on L-Endian systems !!!!
+
 namespace Openzip
 {
 
@@ -25,7 +27,7 @@ namespace Openzip
 		uint32_t Word = 0;
 		size_t Byte = 0;
 
-		while(Byte < Bytes)
+		while (Byte < Bytes)
 			Word |= Raw_Data[Index++] << (8 * Byte++);
 
 		//while (Bytes--)
@@ -50,11 +52,11 @@ namespace Openzip
 	// LSB set?
 	//	copy instruction
 	//	15-bit value (how many 32-bit words *backwards* we source the copy from
-	//	32-bit value length
+	//	16-bit value length
 
 	//	LSB cleared?
 	//	literal instruction
-	//	31-bit value length
+	//	15-bit value length
 	//	*literals*
 
 	void Decompress_Raw_Data(Compressor_Data& Compressor)
@@ -75,8 +77,8 @@ namespace Openzip
 
 				int Offset = Get_Value<2>(Compressor.Instructions, Index) >> 1;
 				Index += 2;
-				size_t Length = Get_Value<4>(Compressor.Instructions, Index);
-				Index += 4;
+				size_t Length = Get_Value<2>(Compressor.Instructions, Index);
+				Index += 2;
 
 				size_t Start = Write - Offset;
 
@@ -138,8 +140,8 @@ namespace Openzip
 
 			bool Location_Found = false;
 
-			for (size_t Source = 
-				Index + Int_Literals > 32766 ? Int_Literals + Index - 32767 : 0; 
+			for (size_t Source =
+				Index + Int_Literals > 32766 ? Int_Literals + Index - 32767 : 0;
 				Source < Index + Int_Literals; Source++)
 			{
 				size_t Length = 0;
@@ -177,7 +179,7 @@ namespace Openzip
 
 					Int_Literals = 0;
 				}
-				if (Longest_Length > 2147483647)
+				if (Longest_Length > 32767u * 2u)
 					printf(" >> Potential overflow error of length! %u\n", Longest_Length);
 
 				// Then!! we want to copy the memory we're copying
@@ -190,7 +192,7 @@ namespace Openzip
 
 					Push_Bytes(Instructions_Out, 0x01u | ((Index - Location) << 1), 2); // 16-bit value
 
-					Push_Bytes(Instructions_Out, Longest_Length, 4);		// 4-bytes, is a 32-bit word
+					Push_Bytes(Instructions_Out, Longest_Length, 2);		// 2-bytes, is a 16-bit word
 
 					// That's all!
 
@@ -250,7 +252,7 @@ namespace Openzip
 		Push_Bytes(Compressor.Instructions, Compressor.Raw_Data.size(), 8);
 
 		Compress_Chunk(Compressor, Compressor.Instructions, 0u,
-			std::min<size_t>(Chunk_Size, Compressor.Raw_Data.size()) );
+			std::min<size_t>(Chunk_Size, Compressor.Raw_Data.size()));
 
 		Jaguar::Wait_For_Job_System_Completion(System);
 

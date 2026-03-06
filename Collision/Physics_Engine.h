@@ -4,6 +4,8 @@
 #include "Hitboxes.h"
 #include "../OpenGL_Handling/Scene.h"
 
+#include "Static_Blockmap.h"
+
 namespace Jaguar
 {
 	// In this, I'll make some controllers that do basic collision detection for some simple physics
@@ -156,6 +158,8 @@ namespace Jaguar
 		std::vector<Hitbox*> Hitboxes; // These are all of the hitboxes in the scene. The Scene_Data structure handles the deallocation of these
 
 		std::vector<Collision_Info> Collision_Info;
+
+		Blockmap_Data Blockmap;
 		
 		// The tricky thing here is that physics objects may be comprised of multiple hitboxes
 		// To facilitate this, perhaps we can handle them as multiple physics objects (joined by rigid connectors or otherwise)

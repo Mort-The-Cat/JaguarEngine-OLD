@@ -100,7 +100,7 @@ namespace Jaguar
 
 	bool Flood_Fill_Lighting_Nodes_Check_Node(Lightmap_Chart* Target_Chart, glm::ivec3 Origin, glm::ivec3 Position, float Size, std::map<int, std::map<int, std::map<int, bool>>>& Grid, std::vector<glm::ivec3>& Node_Positions)
 	{
-		if (glm::length(glm::vec3(Origin) * Size) > 100.0f)	// Just a little precaution to stop infinite leaking...
+		if (glm::length(glm::vec3(Origin) * Size) > 1000.0f)	// Just a little precaution to stop infinite leaking...
 			return 0;
 
 		if (Grid[Position.x][Position.y].find(Position.z) == Grid[Position.x][Position.y].end())

@@ -12,7 +12,8 @@
 
 #include "../Controllers/Asset_Cache.h"
 
-#include "../Controllers/Lightmapping.h"
+// #include "../Controllers/Lightmapping.h"
+#include "../Lightmapping/Shadow_Map_Lightmapping.h"
 
 #include "../Collision/Hitboxes.h"
 #include "../Collision/Physics_Engine.h"

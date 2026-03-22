@@ -1,4 +1,7 @@
-#include "Lightmapping.h"
+//#include "Lightmapping.h"
+
+#include "../Lightmapping/Shadow_Map_Lightmapping.h"
+
 #include "../OpenGL_Handling/Scene.h"
 #include "../Collada_Loader/Collada_Loader.h"
 
@@ -19,10 +22,10 @@ namespace Jaguar
 
 		if (Compress)
 		{
-			Compressor.Raw_Data.resize(Texture_Dimensions * Texture_Dimensions * 3);
+			Compressor.Raw_Data.resize(Texture_Dimensions * Texture_Dimensions * 3 * 3);
 
 			for (size_t W = 0; W < 3; W++)
-				memcpy(Compressor.Raw_Data.data() + (Texture_Dimensions * Texture_Dimensions * W), Data[W], Texture_Size);
+				memcpy(Compressor.Raw_Data.data() + (Texture_Dimensions * Texture_Dimensions * W * 3), Data[W], Texture_Size);
 
 			Openzip::Compress_Raw_Data(System, Compressor);
 		}

@@ -69,7 +69,7 @@ namespace Jaguar
 		}
 	};
 
-	struct World_Object;
+	class World_Object;
 
 	class Lightmap_Chart
 	{

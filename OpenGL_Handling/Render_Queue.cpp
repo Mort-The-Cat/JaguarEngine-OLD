@@ -8,7 +8,9 @@
 
 #include "../Controllers/Skeletal_Animation_Handling.h"
 
-#include "../Controllers/Lightmapping.h"
+//#include "../Controllers/Lightmapping.h"
+
+#include "../Lightmapping/Shadow_Map_Lightmapping.h"
 
 template<size_t Axes>
 glm::vec<Axes, bool, glm::packed_highp> operator>(const glm::vec<Axes, float, glm::packed_highp>& Left, const glm::vec<Axes, float, glm::packed_highp>& Right)

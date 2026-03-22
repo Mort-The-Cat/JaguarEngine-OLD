@@ -5,7 +5,9 @@
 #include "Render_Queue.h"
 #include "Texture_Uniform_Buffer.h"
 
-#include "../Controllers/Lightmapping.h"
+#include "../Lightmapping/Shadow_Map_Lightmapping.h"
+
+//#include "../Controllers/Lightmapping.h"
 
 #include "../Controllers/Cubemap_Reflection_Generation.h"
 

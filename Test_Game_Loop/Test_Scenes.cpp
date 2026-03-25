@@ -115,6 +115,7 @@ void Setup_Pipe_Vent_Scene(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Sh
 		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Pipe_Vent_Scene/Walls.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Buffer,
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Brick.png").Texture,
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Brick_Normal.png").Texture,	// Normal map
+		//Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Default_Normal.png").Texture,	// Normal map
 		Jaguar::Wrap_AABB_Hitboxes(
 			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Pipe_Vent_Scene/Walls.dae", LOAD_MESH_HINT_LIGHTMAP_STATIC).Mesh
 		),

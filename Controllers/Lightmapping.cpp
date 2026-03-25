@@ -788,7 +788,7 @@ namespace Jaguar
 
 		// Target_Chart->Tri_Visible_Lightsource_Indices.resize(Target_Chart->Pushed_Tris.size());
 
-		Handle_Bounce_Lighting(Engine, Target_Chart, Lightmap_Texture_Data);
+		//Handle_Bounce_Lighting(Engine, Target_Chart, Lightmap_Texture_Data);
 
 		Write_Lightmap3_To_File(&Engine->Job_Handler, (std::string(Filename) + ".opz").c_str(), Lightmap_Texture_Data, Target_Chart->Sidelength, true);
 

@@ -177,10 +177,14 @@ namespace Jaguar
 	{
 		// "Components" is the return array
 
-		const float Sqrt_Sixth = sqrtf(1.0f / 6);
+		const float Sqrt_Sixth = sqrtf(1.0f / 6.0f);
 		const float Sqrt_Half = sqrtf(0.5f);
 		const float Sqrt_Third = sqrtf(1.0f / 3.0f);
-		const float Sqrt_Three_Halves = sqrtf(1.5f);
+		const float Sqrt_Three_Halves = sqrtf(2.0f / 3.0f);
+
+		//Normal = glm::normalize(Normal);
+		//Tangent = glm::normalize(Tangent);
+		//Bitangent = glm::normalize(Bitangent);
 
 		Normal *= Sqrt_Third;
 

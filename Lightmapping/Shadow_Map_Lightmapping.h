@@ -1,6 +1,12 @@
 #ifndef JAGUAR_GPU_LIGHTMAPPING
 #define JAGUAR_GPU_LIGHTMAPPING
 
+//#include "../Controllers/Lightmapping.h"
+
+//#endif
+
+//#if false
+
 #include "../OpenGL_Handling/OpenGL_Handling.h"
 #include "../Collada_Loader/Collada_Loader.h"
 #include "../Controllers/Asset_Cache.h"

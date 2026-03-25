@@ -21,10 +21,10 @@ out vec3 Lightmap_Vector_2;
 
 void Output_Lightmap_Vectors(vec3 Tangent, vec3 Normal, vec3 Bitangent)
 {
-	const float Sqrt_Sixth = sqrt(1.0f / 6);
+	const float Sqrt_Sixth = sqrt(1.0f / 6.0f);
 	const float Sqrt_Half = sqrt(0.5f);
 	const float Sqrt_Third = sqrt(1.0f / 3.0f);
-	const float Sqrt_Three_Halves = sqrt(1.5f);
+	const float Sqrt_Three_Halves = sqrt(2.0f / 3.0f);
 
 	Normal *= Sqrt_Third;
 	Bitangent *= Sqrt_Half;

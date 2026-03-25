@@ -1323,5 +1323,7 @@
     <None Include="Lightmapping\Generate_Shadowmap_Cubemap.vert" />
     <None Include="Lightmapping\Generate_Shadowmap_Cubemap.geom" />
     <None Include="Lightmapping\Generate_Shadowmap_Cubemap.frag" />
+    <None Include="Lightmapping\Write_Lightmap.frag" />
+    <None Include="Lightmapping\Write_Lightmap.vert" />
   </ItemGroup>
 </Project>

@@ -121,6 +121,10 @@ void main()
 				1) +
 				vec4(Reflection, 1.0f);
 
+	Out_Colour = vec4(Sum_Lighting, 1);
+
+	// Out_Colour = vec4(Final_Normal * vec3(2) + vec3(1), 1.0f);
+
 	//gl_FragColor = texture(Lightmap_Texture, LM_Coordinates);
 
 	//vec4(Normal * 0.5 + 0.5, 1);

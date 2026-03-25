@@ -181,6 +181,37 @@ namespace Jaguar
 #endif
 	}
 
+	float Sawtooth(float Value)
+	{
+		Value = std::fmodf(Value, 1.0f);
+		if (Value < 0.0f)
+			Value += 1.0f;
+		return Value;
+	}
+
+	template<typename Format>
+	glm::vec3 Read_From_Texture(const void* Pixel_Data, size_t Texture_Width, size_t Texture_Height, glm::vec2 UV)
+	{
+		// Don't bother with interpolation or mipmaps
+
+		UV.x = Sawtooth(UV.x);
+		UV.y = Sawtooth(UV.y);
+
+		size_t X = UV.x * Texture_Width;
+		size_t Y = UV.y * Texture_Height;
+
+		/*struct RGBA
+		{
+			unsigned R, G, B, A;
+		};*/
+
+		Format* Pixels = (Format*)Pixel_Data;
+
+		Format Pixel = Pixels[X + Y * Texture_Width];
+
+		return glm::vec3(Pixel.X, Pixel.Y, Pixel.Z);
+	}
+
 	float Lightmap_Simple_Area_Of_Triangle(glm::vec3 A, glm::vec3 B, glm::vec3 C)
 	{
 		glm::vec3 A_B = B - A;
@@ -244,7 +275,178 @@ namespace Jaguar
 
 	//
 
+	void Get_Lights_Visibility(Lightmap_Chart* Target_Chart, glm::vec3 Position, glm::vec3* Colours, const std::vector<Lightsource*>& Lightsources, glm::vec3* Vector_Components, long Tri_Target)
+	{
+		for (size_t W = 0; W < Lightsources.size(); W++)
+		{
+			glm::vec3 To_Light_Vector = Lightsources[W]->Position - Position;
+
+			if (cosf(Lightsources[W]->FOV * 3.14159f / 360.0f) > glm::dot(Lightsources[W]->Direction, glm::normalize(-To_Light_Vector)))
+				continue;	// We're not within this light's FOV
+
+			float To_Vector_Length_Squared = 1.0f / glm::dot(To_Light_Vector, To_Light_Vector);
+
+			bool Intersect_Found = false;
+
+			for (size_t Tri = 0; Tri < Target_Chart->Pushed_Tris.size(); Tri++)
+				if (Line_Intersects_Tri(Target_Chart, Position, To_Light_Vector, Tri, 0.000115))
+				{
+					Intersect_Found = true;
+					break;
+				}
+
+			if (!Intersect_Found)
+			{
+				// Add colours!
+
+				if (Target_Chart->Bounced_Lighting)
+					To_Light_Vector -= glm::vec3(0.006f) * Lightsources[W]->Direction;	// Offset back to original position
+
+				for (size_t V = 0; V < 3; V++)
+				{
+					Colours[V] += Lightsources[W]->Colour * (To_Vector_Length_Squared * glm::max(0.0f, glm::dot(To_Light_Vector, Vector_Components[V])));
+				}
+			}
+		}
+	}
+
+	void Accumulate_Lighting_Node_Lights(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, const std::vector<Lightsource*>& Lightsources, Lighting_Node* Node)
+	{
+		// This'll just add all of the lighting to the light node (note we're ADDING instead of setting because we want to accumulate bounced lighting)
+
+		// call function twice for positive and negative direction
+
+		glm::vec3 Colours[3] = { glm::vec3(0), glm::vec3(0), glm::vec3(0) };
+
+		glm::vec3 Vector_Components[6] =
+		{
+			{ 1, 0, 0 },
+			{ 0, 1, 0 },
+			{ 0, 0, 1 },
+
+			{ -1, 0, 0 },
+			{ 0, -1, 0 },
+			{ 0, 0, -1 }
+		};
+
+		Get_Lights_Visibility(Target_Chart, Node->Position, Colours, Lightsources, Vector_Components, -1);
+
+		for (size_t W = 0; W < 3; W++)
+		{
+			Node->Illumination[W] += Colours[W];
+			Colours[W] = glm::vec3(0);
+		}
+
+		Get_Lights_Visibility(Target_Chart, Node->Position, Colours, Lightsources, Vector_Components + 3, -1);
+
+		for (size_t W = 0; W < 3; W++)
+		{
+			Node->Illumination[3 + W] += Colours[W];
+		}
+	}
+
+	//
+
 	const float Luxel_Scale = 35.0f;
+
+	void Generate_Bounced_Light_Lightsources(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data3[3], std::vector<Lightsource*>& Target_Lightsources)
+	{
+		// we want a specific value for the resolution of the lights generated i.e. how many lights per face
+
+		const float Scale = 4.0f;
+
+		for (size_t W = 0; W < Target_Chart->Pushed_Tris.size(); W++)
+		{
+			float Iterator = Luxel_Scale / (float)(Scale * (float)Target_Chart->Pushed_Tris[W].Size);
+
+			for (float R0 = 0.5f * Iterator; R0 < 1.0f; R0 += Iterator)
+				for (float R1 = 0.5f * Iterator; R1 < 1.0f; R1 += Iterator)
+				{
+					Target_Lightsources.push_back(new Lightsource());
+
+					glm::vec3* Points = Target_Chart->Pushed_Tris[W].Points;
+
+					glm::vec2 Texture_Coordinates[3];
+
+					glm::vec2 Lightmap_UV[3];
+
+					for (size_t Point = 0; Point < 3; Point++)
+					{
+						Texture_Coordinates[Point] = Target_Chart->Pushed_Tris[W].Mesh.Mesh->Vertices[Target_Chart->Pushed_Tris[W].Index + Point].Texture_Coordinates;
+
+						Lightmap_UV[Point] = Target_Chart->Pushed_Tris[W].Mesh.Mesh->Vertices[Target_Chart->Pushed_Tris[W].Index + Point].Lightmap_UV;
+					}
+
+					glm::vec3 Normal = Target_Chart->Pushed_Tris[W].TBN[2];
+
+					glm::vec3 Position;
+					glm::vec2 Texture_Coordinate;
+					glm::vec2 Lightmap_Coordinate;
+
+					Position =
+						(1.0f - sqrtf(R0)) * Points[0] +
+						sqrtf(R0) * R1 * Points[1] +
+						sqrtf(R0) * (1 - R1) * Points[2];
+
+					Texture_Coordinate =
+						(1.0f - sqrtf(R0)) * Texture_Coordinates[0] +
+						sqrtf(R0) * R1 * Texture_Coordinates[1] +
+						sqrtf(R0) * (1 - R1) * Texture_Coordinates[2];
+
+					// Texture_Coordinate.y *= -1;
+
+					Lightmap_Coordinate =
+						(1.0f - sqrtf(R0)) * Lightmap_UV[0] +
+						sqrtf(R0) * R1 * Lightmap_UV[1] +
+						sqrtf(R0) * (1 - R1) * Lightmap_UV[2];
+
+					Lightmap_Coordinate /= glm::vec2(Target_Chart->Sidelength);
+
+					Target_Lightsources.back()->Position = Position + 0.005f * Normal;
+
+					Target_Lightsources.back()->Direction = Normal;
+					Target_Lightsources.back()->FOV = 179.0f;
+
+					Jaguar::Texture_Cache_Info Texture_Info = Jaguar::Get_Texture_From_Buffer_ID(&Engine->Asset_Cache, Target_Chart->Pushed_Objects[Target_Chart->Pushed_Tris[W].Model_Index]->Albedo.Texture_Buffer_ID);
+
+					glm::vec3 Albedo_Colour;
+					glm::vec3 Lightmap_Value;
+
+					struct RGB
+					{
+						uint8_t X, Y, Z, A;	// Typical textures are 4-channel images
+					};
+
+					struct Lightmap_RGB		// The lightmap is only 3 channel but they're 32-bit floats each
+					{
+						float X, Y, Z;
+					};
+
+					Albedo_Colour = Read_From_Texture<RGB>(Texture_Info.Pixel_Data, Texture_Info.Width, Texture_Info.Height, Texture_Coordinate);
+
+					Lightmap_Value =
+						Read_From_Texture<Lightmap_RGB>(Lightmap_Texture_Data3[0], Target_Chart->Sidelength, Target_Chart->Sidelength, Lightmap_Coordinate) +
+						Read_From_Texture<Lightmap_RGB>(Lightmap_Texture_Data3[1], Target_Chart->Sidelength, Target_Chart->Sidelength, Lightmap_Coordinate) +
+						Read_From_Texture<Lightmap_RGB>(Lightmap_Texture_Data3[2], Target_Chart->Sidelength, Target_Chart->Sidelength, Lightmap_Coordinate);
+
+					const float Reflection_Coefficient = 0.4f / (255.0f * Scale * Scale);
+
+					Target_Lightsources.back()->Colour = Lightmap_Value * Albedo_Colour * glm::vec3(Reflection_Coefficient); // This will then rewrite the lightmap accordingly
+					//Target_Lightsources.back()->Bounced = true;
+
+					if (glm::length(Lightmap_Value) == 0.0f)
+					{
+						delete Target_Lightsources.back();	// This light has ZERO contribution, deallocate it
+						Target_Lightsources.pop_back();		// remove it from list of lightsources
+					}
+				}
+		}
+	}
+
+	//
+
+
+
 	void Init_Lightmap_Chart(Lightmap_Chart* Target_Chart)
 	{
 		Target_Chart->Sidelength = 1u;

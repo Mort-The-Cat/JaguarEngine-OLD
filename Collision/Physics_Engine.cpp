@@ -360,6 +360,7 @@ namespace Jaguar
 	{
 		for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)
 		{
+			Engine->Physics.Physics_Objects[Index]->Update_Movement_Vectors(); 
 			Engine->Physics.Physics_Objects[Index]->Step(Engine->Time);						// pass the 'delta time' to the step function
 		}
 	}

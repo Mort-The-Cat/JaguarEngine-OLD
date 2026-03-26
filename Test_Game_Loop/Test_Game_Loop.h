@@ -232,9 +232,13 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 
 		Engine->Scene.Camera_Position = Player_Position;
 
+		//for (size_t I = 0; I < 4; I++)
+		//{
 		Jaguar::Record_Collisions(Engine);
-		//for(size_t I = 0; I < 1; I++)
-			Jaguar::Resolve_Collisions(Engine);
+			//for(size_t I = 0; I < 1; I++)
+		Jaguar::Resolve_Collisions(Engine);
+		//}
+		
 		//Jaguar::Step_Physics(Engine);
 
 		Jaguar::Handle_Scene_Controllers(Engine);
@@ -322,7 +326,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
-	if constexpr (true)
+	if constexpr (false)
 	{
 		Jaguar::Lightmap_Chart Lightmap;			// This will be generated during light-baking
 		Jaguar::Init_Lightmap_Chart(&Lightmap);

@@ -312,17 +312,17 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
 	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Pipe_Vent";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/New_Radiophobia_Level";
 
 	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	//Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	//Setup_AABB_Physics_Room(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
-	//Setup_Radiophobia_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
-	Setup_Pipe_Vent_Scene(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	Setup_Radiophobia_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
+	//Setup_Pipe_Vent_Scene(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
-	//if constexpr (false)
+	if constexpr (true)
 	{
 		Jaguar::Lightmap_Chart Lightmap;			// This will be generated during light-baking
 		Jaguar::Init_Lightmap_Chart(&Lightmap);
@@ -341,7 +341,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 		Jaguar::Write_Lighting_Nodes_To_File((Lightmap_Directory + ".ln").c_str(), Engine->Scene.Lighting.Lighting_Nodes);
 	}
-	//else
+	else
 	{
 		std::vector<Jaguar::Baked_Lightmap_Chart> Lightmap_Charts;	// This is used when we want to load the lightmap chart instead of generating it
 		Jaguar::Get_Lightmap_Chart_From_File((Lightmap_Directory + ".lmc").c_str(), Lightmap_Charts, &Engine->Asset_Cache);

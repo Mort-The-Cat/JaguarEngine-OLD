@@ -110,7 +110,7 @@ void main()
 						Reflection_Vector
 					).xyz;
 
-	Reflection *= sqrt(1 - square(dot(Camera_To_Pixel, Final_Normal))) * 0.05f;
+	Reflection *= sqrt(1 - square(dot(Camera_To_Pixel, Final_Normal))) * 0.25f;
 
 	Out_Colour = 
 				vec4(
@@ -121,7 +121,7 @@ void main()
 				1) +
 				vec4(Reflection, 1.0f);
 
-	Out_Colour = vec4(Sum_Lighting, 1);
+	// Out_Colour = vec4(Sum_Lighting, 1);
 
 	// Out_Colour = vec4(Final_Normal * vec3(2) + vec3(1), 1.0f);
 

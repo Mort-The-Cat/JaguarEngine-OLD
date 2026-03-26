@@ -353,7 +353,7 @@ namespace Jaguar
 	{
 		// we want a specific value for the resolution of the lights generated i.e. how many lights per face
 
-		const float Scale = 4.0f;
+		const float Scale = 16.0f;
 
 		for (size_t W = 0; W < Target_Chart->Pushed_Tris.size(); W++)
 		{

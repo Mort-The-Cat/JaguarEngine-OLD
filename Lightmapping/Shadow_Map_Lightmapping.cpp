@@ -31,6 +31,9 @@ namespace Jaguar
 	struct Lightmap_Buffer_Data
 	{
 		glm::vec3* Pixel_Data[3];
+
+		glm::vec3* Previous_Pixel_Data[3];
+	
 		unsigned int Lightmap_Buffer[3];
 		Shader Lightmap_Write_Shader;
 
@@ -50,9 +53,12 @@ namespace Jaguar
 			glBindFramebuffer(GL_FRAMEBUFFER, Lightmap.Lightmap_Framebuffer[Map]);
 
 			Lightmap.Pixel_Data[Map] = new glm::vec3[Pixel_Count];
+			Lightmap.Previous_Pixel_Data[Map] = new glm::vec3[Pixel_Count];
 
 			for (size_t Pixel = 0; Pixel < Pixel_Count; Pixel++)
 				Lightmap.Pixel_Data[Map][Pixel] = glm::vec3(0.0f);		// Is full-black by default
+
+			memcpy(Lightmap.Previous_Pixel_Data[Map], Lightmap.Pixel_Data[Map], Pixel_Count * sizeof(glm::vec3));
 
 			glBindTexture(GL_TEXTURE_2D, Lightmap.Lightmap_Buffer[Map]);
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, Target_Chart->Sidelength, Target_Chart->Sidelength, 0, GL_RGB, GL_FLOAT, Lightmap.Pixel_Data[Map]);
@@ -173,8 +179,8 @@ namespace Jaguar
 			glDrawArrays(GL_TRIANGLES, 0, Target_Chart->Pushed_Objects[Object]->Mesh.Vertex_Count);
 		}
 
-		glfwSwapBuffers(Engine->Window);
-		glfwPollEvents();
+		//glfwSwapBuffers(Engine->Window);
+		//glfwPollEvents();
 
 		// Shadowmap rendered! Now render each tri to the lightmap texture
 
@@ -190,6 +196,10 @@ namespace Jaguar
 
 		glUniform3f(glGetUniformLocation(Lightmap.Lightmap_Write_Shader.Program_ID, "Light_Position"), Light.Position.x, Light.Position.y, Light.Position.z);
 		glUniform3f(glGetUniformLocation(Lightmap.Lightmap_Write_Shader.Program_ID, "Colour"), Light.Colour.x, Light.Colour.y, Light.Colour.z);
+
+		glUniform3f(glGetUniformLocation(Lightmap.Lightmap_Write_Shader.Program_ID, "Light_Direction"), Light.Direction.x, Light.Direction.y, Light.Direction.z);
+		glUniform1f(glGetUniformLocation(Lightmap.Lightmap_Write_Shader.Program_ID, "Light_Angle"), Light.FOV * 3.14159f / 360.0f);
+		glUniform1f(glGetUniformLocation(Lightmap.Lightmap_Write_Shader.Program_ID, "Fade_Angle"), 0.001f);
 
 		glUniform1i(glGetUniformLocation(Lightmap.Lightmap_Write_Shader.Program_ID, "Shadow_Map"), 0);
 		glActiveTexture(GL_TEXTURE0);
@@ -238,8 +248,8 @@ namespace Jaguar
 				if(glm::dot(Light.Position - Target_Chart->Pushed_Tris[Tri].Points[0], Target_Chart->Pushed_Tris[Tri].TBN[2]) >= 0.0f)
 					glDrawArrays(GL_TRIANGLES, 0, 3); // It doesn't matter what vertex buffer is bound
 			}
-			glfwSwapBuffers(Engine->Window);
-			glfwPollEvents();
+			//glfwSwapBuffers(Engine->Window);
+			//glfwPollEvents();
 		}
 
 		glDisable(GL_BLEND);
@@ -270,7 +280,59 @@ namespace Jaguar
 			Lightmap_Cast_Light(Engine, Target_Chart, *Lightsources[Light], Caster, Lightmap, Cubemap);
 		}
 
+		for (size_t Node = 0; Node < Engine->Scene.Lighting.Lighting_Nodes.Nodes.size(); Node++)
+			Accumulate_Lighting_Node_Lights(Engine, Target_Chart, Lightsources, &Engine->Scene.Lighting.Lighting_Nodes.Nodes[Node]);
+
 		glDeleteTextures(1, &Cubemap.Shadow_Cubemap);
+	}
+
+	void Lightmap_Bounced_Lighting_Pass(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, Shadow_Caster& Caster, Lightmap_Buffer_Data& Lightmap, int Bounces = 7, bool Generate_Bounced_Light = false)
+	{
+		size_t Pixel_Count = Target_Chart->Sidelength * Target_Chart->Sidelength;
+
+		if (Generate_Bounced_Light)
+		{
+			std::vector<Lightsource*> Lightsources;
+			
+			glm::vec3* New_Data[3] = {
+				new glm::vec3[Pixel_Count],
+				new glm::vec3[Pixel_Count],
+				new glm::vec3[Pixel_Count]
+			};
+
+			for (size_t Pixel = 0; Pixel < Pixel_Count; Pixel++)
+			{
+				New_Data[0][Pixel] = Lightmap.Pixel_Data[0][Pixel] - Lightmap.Previous_Pixel_Data[0][Pixel];
+				New_Data[1][Pixel] = Lightmap.Pixel_Data[1][Pixel] - Lightmap.Previous_Pixel_Data[1][Pixel];
+				New_Data[2][Pixel] = Lightmap.Pixel_Data[2][Pixel] - Lightmap.Previous_Pixel_Data[2][Pixel];
+			}
+
+			Generate_Bounced_Light_Lightsources(Engine, Target_Chart, New_Data, Lightsources);
+
+			delete New_Data[0];
+			delete New_Data[1];
+			delete New_Data[2];
+
+			Lightmap_Lighting_Pass(Engine, Target_Chart, Lightsources, Caster, Lightmap);
+
+			for (auto& Light : Lightsources)		// This just deletes all the unnecessary lights that were just created
+				delete Light;
+		}
+		else
+			Lightmap_Lighting_Pass(Engine, Target_Chart, Engine->Scene.Lighting.Lightsources, Caster, Lightmap);
+
+		for (size_t Face = 0; Face < 3; Face++)
+		{
+			memcpy(Lightmap.Previous_Pixel_Data[Face], Lightmap.Pixel_Data[Face], Pixel_Count * sizeof(glm::vec3));
+
+			glBindTexture(GL_TEXTURE_2D, Lightmap.Lightmap_Buffer[Face]);
+			glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, Lightmap.Pixel_Data[Face]);
+
+			// delete Pixel_Data[Face];
+		}
+
+		if (--Bounces)
+			Lightmap_Bounced_Lighting_Pass(Engine, Target_Chart, Caster, Lightmap, Bounces, true);
 	}
 
 	void Create_Lightmap3_From_Chart(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, const char* Filename)
@@ -290,32 +352,23 @@ namespace Jaguar
 		//while (true)
 		//{
 
-			Init_Shadow_Caster(Caster);
+		Init_Shadow_Caster(Caster);
 
-			Init_Lightmap_Buffer_Data(Lightmap, Target_Chart);
+		Init_Lightmap_Buffer_Data(Lightmap, Target_Chart);
 
-			Lightmap_Lighting_Pass(Engine, Target_Chart, Engine->Scene.Lighting.Lightsources, Caster, Lightmap);
+		Lightmap_Bounced_Lighting_Pass(Engine, Target_Chart, Caster, Lightmap);
 
-			for (size_t Node = 0; Node < Engine->Scene.Lighting.Lighting_Nodes.Nodes.size(); Node++)
-				Accumulate_Lighting_Node_Lights(Engine, Target_Chart, Engine->Scene.Lighting.Lightsources, &Engine->Scene.Lighting.Lighting_Nodes.Nodes[Node]);
+		//Lightmap_Lighting_Pass(Engine, Target_Chart, Engine->Scene.Lighting.Lightsources, Caster, Lightmap);
 
-			// This will get the pixel data back from the texture gl object
+		// This will get the pixel data back from the texture gl object
 
-			// Then, it'll write the compressed data to the file and return
+		// Then, it'll write the compressed data to the file and return
 
-			for (size_t Face = 0; Face < 3; Face++)
-			{
-				glBindTexture(GL_TEXTURE_2D, Lightmap.Lightmap_Buffer[Face]);
-				glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, Lightmap.Pixel_Data[Face]);
+		if (Filename)
+			Write_Lightmap3_To_File(&Engine->Job_Handler, (std::string(Filename) + ".opz").c_str(), Lightmap.Pixel_Data, Target_Chart->Sidelength, true);
 
-				// delete Pixel_Data[Face];
-			}
-
-			if (Filename)
-				Write_Lightmap3_To_File(&Engine->Job_Handler, (std::string(Filename) + ".opz").c_str(), Lightmap.Pixel_Data, Target_Chart->Sidelength, true);
-
-			Destroy_Shadow_Caster(Caster);
-			Destroy_Lightmap_Buffer_Data(Lightmap);
+		Destroy_Shadow_Caster(Caster);
+		Destroy_Lightmap_Buffer_Data(Lightmap);
 
 		//}
 

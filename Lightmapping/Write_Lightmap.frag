@@ -23,6 +23,17 @@ float Vector_To_Depth(vec3 Vec, float Length)
     return (Norm_Z + 1.0) * 0.5;
 }
 
+uniform vec3 Light_Direction;
+uniform float Fade_Angle;
+uniform float Light_Angle;
+
+float Light_Direction_Scalar(vec3 Light_To_Pixel)
+{
+    float Angle = acos( dot(Light_To_Pixel, Light_Direction) );
+
+    return min(1, max(0, 1 - (Fade_Angle + Angle - Light_Angle) / Fade_Angle )  );
+}
+
 void main()
 {
     vec3 Light_To_Pixel = Position - Light_Position;
@@ -31,7 +42,7 @@ void main()
 
     Light_To_Pixel /= Length;
 
-	float Exposed = texture(Shadow_Map, vec4(Light_To_Pixel, Vector_To_Depth(Light_To_Pixel, Length + 0.0f) ));
+	float Exposed = Light_Direction_Scalar(Light_To_Pixel) * texture(Shadow_Map, vec4(Light_To_Pixel, Vector_To_Depth(Light_To_Pixel, Length + 0.0f) ));
 
     Exposed = Exposed * max(0, dot(Light_To_Pixel, -Normal)) / (Length);       // This will account for normals
 

@@ -31,7 +31,7 @@ void main()
 
     Light_To_Pixel /= Length;
 
-	float Exposed = texture(Shadow_Map, vec4(Light_To_Pixel, Vector_To_Depth(Light_To_Pixel, Length - 0.00f) ));
+	float Exposed = texture(Shadow_Map, vec4(Light_To_Pixel, Vector_To_Depth(Light_To_Pixel, Length + 0.0f) ));
 
     Exposed = Exposed * max(0, dot(Light_To_Pixel, -Normal)) / (Length);       // This will account for normals
 

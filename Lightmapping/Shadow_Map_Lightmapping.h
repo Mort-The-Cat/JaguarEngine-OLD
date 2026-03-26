@@ -161,7 +161,7 @@ namespace Jaguar
 	void Write_Lighting_Nodes_To_File(const char* Filename, const Lighting_Node_Data& Node_Data);
 	void Get_Lighting_Nodes_From_File(const char* Filename, Lighting_Node_Data& Node_Data);
 
-	class Shader;
+	struct Shader;
 	struct Scene_Data;
 
 	void Lightmapped_Shader_Init_Function(const Shader* Target_Shader, const Scene_Data* Scene);

@@ -312,7 +312,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
 	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/New_Radiophobia_Level";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Pipe_Vent";
 
 	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	//Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
@@ -333,7 +333,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 		// Jaguar::Get_Lighting_Nodes_From_File((Lightmap_Directory + ".ln").c_str(), Engine->Scene.Lighting.Lighting_Nodes);
 
-		Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, Engine->Scene.Lighting.Lightsources[0]->Position - glm::vec3(0.005f), 0.125f, &Engine->Scene.Lighting);
+		Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, Engine->Scene.Lighting.Lightsources[0]->Position, 0.125f, &Engine->Scene.Lighting);
 
 		//Engine->Scene.Lighting.Lighting_Nodes.Nodes.push_back(Jaguar::Lighting_Node(glm::vec3(0.0f, 0.8f, -0.8f)));
 

@@ -185,6 +185,7 @@
     <ClInclude Include="Controllers\Cubemap_Reflection_Generation.h" />
     <ClInclude Include="Controllers\Jaguar_Engine_Wrapper.h" />
     <ClInclude Include="Controllers\Job_System.h" />
+    <ClInclude Include="Controllers\Lightmapping.h" />
     <ClInclude Include="Controllers\Lightmap_Chart_Rasteriser.h" />
     <ClInclude Include="Lightmapping\Shadow_Map_Lightmapping.h" />
     <ClInclude Include="Jaguar_Compression\Compression.h" />

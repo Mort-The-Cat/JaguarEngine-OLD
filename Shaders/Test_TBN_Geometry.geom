@@ -53,18 +53,20 @@ in DATA
 
 void main()
 {
-	vec2 UV_A = Vertex[1].UV - Vertex[0].UV;
-	vec2 UV_B = Vertex[2].UV - Vertex[0].UV;
+	vec2 UV_A = Vertex[2].UV - Vertex[0].UV;
+	vec2 UV_B = Vertex[1].UV - Vertex[0].UV;
 
 	vec3 Edge_A;
 	vec3 Edge_B;
 
-	Edge_A = Vertex[1].Position.xyz - Vertex[0].Position.xyz;
-	Edge_B = Vertex[2].Position.xyz - Vertex[0].Position.xyz;
+	Edge_A = Vertex[2].Position.xyz - Vertex[0].Position.xyz;
+	Edge_B = Vertex[1].Position.xyz - Vertex[0].Position.xyz;
 
 	float Inv = 1.0f / (UV_A.x * UV_B.y - UV_B.x * UV_A.y);
 
 	vec3 Tangent = -normalize(Inv * (UV_B.y * Edge_A - UV_A.y * Edge_B));
+
+	Texture_Bitangent = -normalize(Inv * (UV_A.x * Edge_B - UV_B.x * Edge_A));
 
 	//
 
@@ -75,7 +77,7 @@ void main()
 		Normal = Vertex[W].Normal;
 		Texture_Coordinates = Vertex[W].UV;
 		Texture_Tangent = Tangent;
-		Texture_Bitangent = cross(Tangent, Normal);
+		//Texture_Bitangent = cross(Tangent, Normal);
 
 		Geometry_Normal = Normal;
 

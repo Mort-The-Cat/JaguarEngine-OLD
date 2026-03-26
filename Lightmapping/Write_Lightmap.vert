@@ -21,5 +21,5 @@ void main()
 
 	Position = Positions[gl_VertexID % 3];
 	Normal = Triple_Vector;
-	gl_Position = vec4(Lightmap_UVs[gl_VertexID % 3], 1.0, 1);
+	gl_Position = vec4(Lightmap_UVs[gl_VertexID % 3], 0.0, 1);
 }

@@ -15,7 +15,7 @@ void main()
 
 		for(int Vertex = 0; Vertex < 3; Vertex++)
 		{
-			gl_Position = (Projection_Matrix[Face] * gl_in[Vertex].gl_Position);
+			gl_Position = Projection_Matrix[Face] * vec4(gl_in[Vertex].gl_Position.xyz, 1);
 
 			EmitVertex();
 		}

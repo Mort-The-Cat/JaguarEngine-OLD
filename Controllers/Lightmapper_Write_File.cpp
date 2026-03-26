@@ -214,16 +214,28 @@ namespace Jaguar
 
 		float Inv;
 
-		UV_A = Texture_Coordinates[1] - Texture_Coordinates[0];
-		UV_B = Texture_Coordinates[2] - Texture_Coordinates[0];
+		UV_A = Texture_Coordinates[2] - Texture_Coordinates[0];
+		UV_B = Texture_Coordinates[1] - Texture_Coordinates[0];
 
-		Edge_A = Positions[1] - Positions[0];
-		Edge_B = Positions[2] - Positions[0];
+		Edge_A = Positions[2] - Positions[0];
+		Edge_B = Positions[1] - Positions[0];
 
-		Inv = 1.0f / (UV_A.x * UV_B.y - UV_B.x * UV_A.y);
+		Inv = (UV_A.x * UV_B.y - UV_B.x * UV_A.y);
+
+		if (Inv == 0)
+		{
+			std::swap(UV_A, UV_B);
+			std::swap(Edge_A, Edge_B);
+
+			Inv = (UV_A.x * UV_B.y - UV_B.x * UV_A.y);
+		}
+
+		Inv = 1.0f / Inv;
 
 		*Tangent = -glm::normalize(Inv * (Edge_A * UV_B.y - Edge_B * UV_A.y));
-		*Bitangent = glm::normalize(glm::cross(*Tangent, Normal));
+		*Bitangent = -glm::normalize(Inv * (Edge_B * UV_A.x - Edge_A * UV_B.x));
+		
+		//*Bitangent = glm::normalize(glm::cross(*Tangent, Normal));
 	}
 
 	//

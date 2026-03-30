@@ -1,5 +1,7 @@
 #include "../Controllers/Jaguar_Engine_Wrapper.h"
 
+#include "../Controllers/Lightmap_Chart_Rasteriser.h"
+
 #include "Shadow_Map_Lightmapping.h"
 
 namespace Jaguar
@@ -19,7 +21,7 @@ namespace Jaguar
 
 		unsigned int Shadow_Framebuffer;
 
-		const unsigned int Shadow_Map_Width = 2048u, Shadow_Map_Height = 2048u;		// I'll use 1024 because 256 is too low-res
+		const unsigned int Shadow_Map_Width = 8192u, Shadow_Map_Height = 8192u;		// I'll use 1024 because 256 is too low-res
 
 		Shader Shadow_Object_Shader;
 
@@ -38,6 +40,8 @@ namespace Jaguar
 		Shader Lightmap_Write_Shader;
 
 		unsigned int Lightmap_Framebuffer[3];
+
+		unsigned int Stencil_Buffer;			// This is used to fix texture bleeding at the edge of triangles in the texture atlas (we will flood-fill the empty black space to smoothen the edges)
 	};
 
 	void Init_Lightmap_Buffer_Data(Lightmap_Buffer_Data& Lightmap, const Lightmap_Chart* Target_Chart)
@@ -45,6 +49,8 @@ namespace Jaguar
 		size_t Pixel_Count = Target_Chart->Sidelength * Target_Chart->Sidelength;
 
 		glGenTextures(3, Lightmap.Lightmap_Buffer);
+
+		glGenTextures(1, &Lightmap.Stencil_Buffer);
 
 		glGenFramebuffers(3, Lightmap.Lightmap_Framebuffer);
 
@@ -78,6 +84,21 @@ namespace Jaguar
 			}
 		}
 
+		glBindTexture(GL_TEXTURE_2D, Lightmap.Stencil_Buffer);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_STENCIL, Target_Chart->Sidelength, Target_Chart->Sidelength, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, Lightmap.Stencil_Buffer, 0);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			std::cout << " >> Framebuffer is not complete!" << std::endl;
+		}
+
 		Create_Shader("Lightmapping/Write_Lightmap.frag", "Lightmapping/Write_Lightmap.vert", &Lightmap.Lightmap_Write_Shader, nullptr);
 	}
 
@@ -89,6 +110,7 @@ namespace Jaguar
 		delete Lightmap.Pixel_Data[2];
 
 		glDeleteTextures(3, Lightmap.Lightmap_Buffer);
+		glDeleteTextures(1, &Lightmap.Stencil_Buffer);
 		glDeleteFramebuffers(3, Lightmap.Lightmap_Framebuffer);
 	}
 
@@ -205,6 +227,11 @@ namespace Jaguar
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, Cubemap.Shadow_Cubemap);
 
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);
+		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+		glStencilMask(0xFF);			// Masks the pixels that we're writing to
+
 		glViewport(0, 0, Target_Chart->Sidelength, Target_Chart->Sidelength);
 
 		for (size_t Map = 0; Map < 3; Map++)									// NOTE that there are 3 lightmap textures for each vector
@@ -214,6 +241,8 @@ namespace Jaguar
 			glBindTexture(GL_TEXTURE_2D, Lightmap.Lightmap_Buffer[Map]);
 			glDrawBuffer(GL_COLOR_ATTACHMENT0);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, Lightmap.Lightmap_Buffer[Map], 0);
+			glBindTexture(GL_TEXTURE_2D, Lightmap.Stencil_Buffer);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, Lightmap.Stencil_Buffer, 0);
 
 			for (size_t Tri = 0; Tri < Target_Chart->Pushed_Tris.size(); Tri++)
 			{
@@ -335,6 +364,160 @@ namespace Jaguar
 			Lightmap_Bounced_Lighting_Pass(Engine, Target_Chart, Caster, Lightmap, Bounces, true);
 	}
 
+	struct Lightmap_Pixel
+	{
+		float X, Y;
+
+		Lightmap_Pixel operator*(float Factor)
+		{
+			return Lightmap_Pixel(X * Factor, Y * Factor);
+		}
+
+		Lightmap_Pixel operator+(const Lightmap_Pixel& Other)
+		{
+			return Lightmap_Pixel(X + Other.X, Y + Other.Y);
+		}
+	};
+
+	struct Fill_Lightmap_Padding_Data
+	{
+		Lightmap_Chart* Target_Chart;
+		glm::vec3** Pixel_Data;
+	};
+
+	bool Fill_Lightmap_Padding_Perpixel_Function(size_t X, size_t Y, Lightmap_Pixel Point, void* Datap)
+	{
+		Fill_Lightmap_Padding_Data* Data = (Fill_Lightmap_Padding_Data*)Datap;
+		
+		size_t Index = X + Y * Data->Target_Chart->Sidelength;
+
+		size_t Read_Index = Point.X + ((size_t)Point.Y) * Data->Target_Chart->Sidelength;
+
+		for (size_t Vector = 0; Vector < 3; Vector++)
+			Data->Pixel_Data[Vector][Index] = Data->Pixel_Data[Vector][Read_Index];
+
+		return false;
+	}
+	void Fill_Lightmap_Padding(Lightmap_Chart* Target_Chart, Lightmap_Buffer_Data& Lightmap)
+	{
+		for (size_t Tri = 0; Tri < Target_Chart->Pushed_Tris.size(); Tri++)
+		{
+			// Lightmap_Chart_Rasterise_Function<true, >(glm::vec2 A, glm::vec2 B, glm::vec2 C, Point A_Value, Point B_Value, Point C_Value, int Canvas_Size, void* Data)
+
+			glm::vec2 UVs[3] = 
+			{
+				Target_Chart->Pushed_Tris[Tri].Mesh.Mesh->Vertices[Target_Chart->Pushed_Tris[Tri].Index].Lightmap_UV,
+				Target_Chart->Pushed_Tris[Tri].Mesh.Mesh->Vertices[Target_Chart->Pushed_Tris[Tri].Index + 1].Lightmap_UV,
+				Target_Chart->Pushed_Tris[Tri].Mesh.Mesh->Vertices[Target_Chart->Pushed_Tris[Tri].Index + 2].Lightmap_UV
+			};
+
+			Fill_Lightmap_Padding_Data Data = Fill_Lightmap_Padding_Data(Target_Chart, Lightmap.Pixel_Data);
+
+			Lightmap_Chart_Rasterise_Function<true, Lightmap_Pixel, Fill_Lightmap_Padding_Perpixel_Function>(
+				UVs[0],
+				UVs[1],
+				UVs[2],
+				Lightmap_Pixel(UVs[0].x, UVs[0].y),
+				Lightmap_Pixel(UVs[1].x, UVs[1].y),
+				Lightmap_Pixel(UVs[2].x, UVs[2].y),
+				Target_Chart->Sidelength,
+				&Data
+			);
+		}
+	}
+
+	bool Check_Stencil(long X, long Y, size_t Pixel_Count, size_t Sidelength, uint32_t* Stencil_Data)
+	{
+		if (
+			X < 0 || X >= Sidelength ||
+			Y < 0 || Y >= Pixel_Count
+			)
+			return false;
+
+		return Stencil_Data[X + Y];
+	}
+
+	class Pixel
+	{
+	public:
+		size_t X, Y;
+	};
+
+	void Flood_Fill_Lightmap_Padding(Lightmap_Chart* Target_Chart, Lightmap_Buffer_Data& Lightmap)
+	{
+		// This will repeat until whole texture is filled
+
+		size_t Pixel_Count = Target_Chart->Sidelength * Target_Chart->Sidelength;
+		uint32_t* Stencil_Data = new uint32_t[Pixel_Count];
+
+		glBindTexture(GL_TEXTURE_2D, Lightmap.Stencil_Buffer);
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, Stencil_Data);
+
+		std::vector<Pixel> Pixels;
+
+		size_t Passes = 256;
+
+		do
+		{
+			for (const auto& P : Pixels)
+			{
+				for (size_t Face = 0; Face < 3; Face++)
+				{
+					glm::vec3 Colour = glm::vec3(0.0f);
+					size_t Count = 0;
+
+					int Deltas[4][2] = 
+					{
+						{ -1, 0 },
+						{ 1, 0 },
+						{ 0, -(int)Target_Chart->Sidelength },
+						{ 0, Target_Chart->Sidelength }
+					};
+
+					for (size_t Delta = 0; Delta < 4; Delta++)
+					{
+						if (Check_Stencil(P.X + Deltas[Delta][0], P.Y + Deltas[Delta][1], Pixel_Count, Target_Chart->Sidelength, Stencil_Data))
+						{
+							Count++;
+							Colour += Lightmap.Pixel_Data[Face][P.X + Deltas[Delta][0] + P.Y + Deltas[Delta][1]];
+						}
+					}
+
+					Lightmap.Pixel_Data[Face][P.X + P.Y] += Colour /= glm::vec3(Count);
+				}
+				//Stencil_Data[P.X + P.Y] |= 0xFF000000;
+			}
+
+			for (const auto& P : Pixels)
+				Stencil_Data[P.X + P.Y] |= 0xFFFFFFFF;
+
+			Pixels.clear();
+
+			for (size_t X = 0; X < Target_Chart->Sidelength; X++)
+			{
+				for (size_t Y = 0; Y < Pixel_Count; Y += Target_Chart->Sidelength)
+				{
+					if (!Stencil_Data[X + Y])
+					{
+						if (
+							Check_Stencil(X - 1, Y, Pixel_Count, Target_Chart->Sidelength, Stencil_Data) ||
+							Check_Stencil(X + 1, Y, Pixel_Count, Target_Chart->Sidelength, Stencil_Data) ||
+							Check_Stencil(X, Y - Target_Chart->Sidelength, Pixel_Count, Target_Chart->Sidelength, Stencil_Data) ||
+							Check_Stencil(X, Y + Target_Chart->Sidelength, Pixel_Count, Target_Chart->Sidelength, Stencil_Data)
+							)
+						{
+							Pixels.push_back({ X, Y });
+						}
+					}
+				}
+			}
+
+
+		} while (!Pixels.empty() && --Passes);
+
+		delete Stencil_Data;
+	}
+
 	void Create_Lightmap3_From_Chart(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, const char* Filename)
 	{
 		// This will create special frame buffers for the shadow mapping when rendering lights to the screen
@@ -363,6 +546,10 @@ namespace Jaguar
 		// This will get the pixel data back from the texture gl object
 
 		// Then, it'll write the compressed data to the file and return
+
+		//Fill_Lightmap_Padding(Target_Chart, Lightmap);
+
+		Flood_Fill_Lightmap_Padding(Target_Chart, Lightmap);
 
 		if (Filename)
 			Write_Lightmap3_To_File(&Engine->Job_Handler, (std::string(Filename) + ".opz").c_str(), Lightmap.Pixel_Data, Target_Chart->Sidelength, true);

@@ -125,6 +125,8 @@ namespace Jaguar
 	{
 		std::vector<Lighting_Node> Nodes;
 		float Size;					// This is the distance between nodes
+
+		std::vector<glm::vec3> Origins;
 	};
 
 	void Get_Nearest_Lighting_Nodes(const Lighting_Node_Data* Node_Data, glm::vec3 Position, const Lighting_Node* Target_Nodes[4]);

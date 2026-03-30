@@ -347,7 +347,7 @@ namespace Jaguar
 
 	//
 
-	const float Luxel_Scale = 35.0f;
+	const float Luxel_Scale = 70.0f;
 
 	void Generate_Bounced_Light_Lightsources(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data3[3], std::vector<Lightsource*>& Target_Lightsources)
 	{
@@ -466,6 +466,9 @@ namespace Jaguar
 	bool Perpixel_Rasterise_Check(size_t X, size_t Y, int, void* Data)
 	{
 		const Lightmap_Chart* Target_Chart = (const Lightmap_Chart*)Data;
+
+		if (X >= Target_Chart->Sidelength || Y >= Target_Chart->Sidelength)
+			return true;
 
 		if (Target_Chart->Occupied[X][Y])
 			return true;					// Hit!!

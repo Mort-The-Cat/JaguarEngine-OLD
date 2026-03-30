@@ -161,7 +161,7 @@ namespace Jaguar
 				File.read((char*)Data, Texture_Size * sizeof(glm::vec3));
 
 #if TRIPLE_LIGHTMAPPING
-			Create_Texture_Buffer(&Target_Lighting->Lightmap_Textures[W], GL_RGB32F, Texture_Dimensions, Texture_Dimensions, GL_RGB, GL_FLOAT, Data, true);
+			Create_Texture_Buffer(&Target_Lighting->Lightmap_Textures[W], GL_RGB32F, Texture_Dimensions, Texture_Dimensions, GL_RGB, GL_FLOAT, Data, false);
 #endif
 		}
 

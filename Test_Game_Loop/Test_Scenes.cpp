@@ -146,6 +146,8 @@ void Setup_Pipe_Vent_Scene(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Sh
 		nullptr
 	);
 
+	Engine->Scene.Lighting.Lighting_Nodes.Origins.push_back(glm::vec3(-0.032222, -0.034747, -2.241589));
+
 	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
 	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(0.5f, 0.501f, 0.587f);
 	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.75f);
@@ -288,6 +290,9 @@ void Setup_Radiophobia_Level(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_
 		std::vector<Jaguar::Hitbox*>{},
 		nullptr
 	);
+
+	Engine->Scene.Lighting.Lighting_Nodes.Origins.push_back(glm::vec3(6.498826, 0.832597, 1.355308));
+	Engine->Scene.Lighting.Lighting_Nodes.Origins.push_back(glm::vec3(-0.574030, 0.699358, 12.119190));
 
 	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
 	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
@@ -484,6 +489,8 @@ void Setup_AABB_Physics_Room(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_
 
 	//
 
+	Engine->Scene.Lighting.Lighting_Nodes.Origins.push_back(glm::vec3(0.52395f, -0.34528f, -2.0792f));
+
 	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
 	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);
 	Engine->Scene.Lighting.Lightsources.back()->Position = glm::vec3(0.52395f, -0.34528f, -2.0792f);
@@ -538,6 +545,8 @@ void Setup_Cornell_Box(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Shader
 		),
 		glm::vec3(-1.30557f, 0.85809f, -4.22892f)
 	);*/
+
+	Engine->Scene.Lighting.Lighting_Nodes.Origins.push_back(glm::vec3(0.0f, 0.8f, 0.32f));
 
 	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
 	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.4f);
@@ -596,6 +605,8 @@ void Setup_New_Test_Level(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_Sha
 		{},
 		nullptr
 	);
+
+	Engine->Scene.Lighting.Lighting_Nodes.Origins.push_back(glm::vec3(-1.0f, 1.1f, 4.3f));
 
 	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
 	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.75f, 0.4f, 0.75f);

@@ -24,7 +24,7 @@ namespace Jaguar
 	*/
 
 #define LIGHTMAP_CHART_PADDING 8.0f
-#define LIGHTMAP_CHART_INTERPOLATION_CLAMP 0.06f
+#define LIGHTMAP_CHART_INTERPOLATION_CLAMP 0.0f
 
 
 	// perhaps we can delegate this task using the job system? That'd be awesome!!
@@ -56,8 +56,8 @@ namespace Jaguar
 		{
 			float Clamped_Scanline = 
 				std::max(
-					std::min(A_C.y - 1 - LIGHTMAP_CHART_INTERPOLATION_CLAMP, D_Scanline),
-				LIGHTMAP_CHART_INTERPOLATION_CLAMP);
+					std::min(A_C.y - 1 + LIGHTMAP_CHART_INTERPOLATION_CLAMP, D_Scanline),
+				-LIGHTMAP_CHART_INTERPOLATION_CLAMP);
 
 			float Scanline_Factor = Inverse_A_C * (float)Clamped_Scanline;
 
@@ -81,12 +81,16 @@ namespace Jaguar
 
 				if constexpr (Interpolate_Values)
 				{
-					Clamped_Pixel =
-						std::max(
-							std::min(Right - Left - 1 - LIGHTMAP_CHART_INTERPOLATION_CLAMP, D_Pixel),
-							LIGHTMAP_CHART_INTERPOLATION_CLAMP
-						);
+					//Clamped_Pixel =
+					//	std::max(
+					//		std::min(Right - Left - 1 - LIGHTMAP_CHART_INTERPOLATION_CLAMP, D_Pixel),
+					//		LIGHTMAP_CHART_INTERPOLATION_CLAMP
+					//	);
 
+					Clamped_Pixel =
+						std::min(
+							std::max(-LIGHTMAP_CHART_INTERPOLATION_CLAMP, D_Pixel), (Right - Left) + LIGHTMAP_CHART_INTERPOLATION_CLAMP - 1.2f
+						);
 					Factor = Inverse_Scanline * Clamped_Pixel;
 				}
 

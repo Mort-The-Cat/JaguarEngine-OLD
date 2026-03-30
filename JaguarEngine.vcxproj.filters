@@ -816,9 +816,6 @@
     <ClInclude Include="Lightmapping\Shadow_Map_Lightmapping.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Controllers\Lightmapping.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Collada_Loader\XML_Document_Loader.cpp">

@@ -98,6 +98,8 @@ void main()
 
 	vec3 Tangent = -normalize(Inv * (UV_B.y * Edge_A - UV_A.y * Edge_B));
 
+	Texture_Bitangent = -normalize(Inv * (UV_A.x * Edge_B - UV_B.x * Edge_A));
+
 	//
 
 	for(int W = 0; W < 3; W++)
@@ -107,7 +109,7 @@ void main()
 		Normal = Vertex[W].Normal;
 		Texture_Coordinates = Vertex[W].UV;
 		Texture_Tangent = Tangent;
-		Texture_Bitangent = cross(Tangent, Normal);
+		//Texture_Bitangent = cross(Tangent, Normal);
 
 		Geometry_Normal = Normal;
 

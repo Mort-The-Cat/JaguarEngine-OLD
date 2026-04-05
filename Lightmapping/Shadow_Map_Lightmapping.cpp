@@ -315,7 +315,7 @@ namespace Jaguar
 		glDeleteTextures(1, &Cubemap.Shadow_Cubemap);
 	}
 
-	void Lightmap_Bounced_Lighting_Pass(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, Shadow_Caster& Caster, Lightmap_Buffer_Data& Lightmap, int Bounces = 7, bool Generate_Bounced_Light = false)
+	void Lightmap_Bounced_Lighting_Pass(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, Shadow_Caster& Caster, Lightmap_Buffer_Data& Lightmap, int Bounces = 4, bool Generate_Bounced_Light = false)
 	{
 		size_t Pixel_Count = Target_Chart->Sidelength * Target_Chart->Sidelength;
 

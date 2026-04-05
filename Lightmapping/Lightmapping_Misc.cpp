@@ -96,7 +96,7 @@ namespace Jaguar
 
 	bool Flood_Fill_Lighting_Nodes_Check_Node(Lightmap_Chart* Target_Chart, glm::ivec3 Origin, glm::ivec3 Position, float Size, std::map<int, std::map<int, std::map<int, bool>>>& Grid, std::vector<glm::ivec3>& Node_Positions)
 	{
-		if (glm::length(glm::vec3(Origin) * Size) > 1000.0f)	// Just a little precaution to stop infinite leaking...
+		if (glm::length(glm::vec3(Origin) * Size) > 100000.0f)	// Just a little precaution to stop infinite leaking...
 			return 0;
 
 		if (Grid[Position.x][Position.y].find(Position.z) == Grid[Position.x][Position.y].end())
@@ -106,7 +106,7 @@ namespace Jaguar
 			bool Intersection = false;
 
 			for (size_t Index = 0; Index < Target_Chart->Pushed_Tris.size() && !Intersection; Index++)
-				Intersection = Line_Intersects_Tri(Target_Chart, glm::vec3(Origin) * Size, glm::vec3(Position - Origin) * Size, Index, 0.02f);
+				Intersection = Line_Intersects_Tri(Target_Chart, glm::vec3(Origin) * Size, glm::vec3(Position - Origin) * Size, Index, 0.001f);
 
 			if (Intersection)
 				return 0;
@@ -347,7 +347,7 @@ namespace Jaguar
 
 	//
 
-	const float Luxel_Scale = 70.0f;
+	const float Luxel_Scale = 25.0f;
 
 	void Generate_Bounced_Light_Lightsources(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data3[3], std::vector<Lightsource*>& Target_Lightsources)
 	{
@@ -429,7 +429,7 @@ namespace Jaguar
 						Read_From_Texture<Lightmap_RGB>(Lightmap_Texture_Data3[1], Target_Chart->Sidelength, Target_Chart->Sidelength, Lightmap_Coordinate) +
 						Read_From_Texture<Lightmap_RGB>(Lightmap_Texture_Data3[2], Target_Chart->Sidelength, Target_Chart->Sidelength, Lightmap_Coordinate);
 
-					const float Reflection_Coefficient = 0.4f / (255.0f * Scale * Scale);
+					const float Reflection_Coefficient = 0.2f / (255.0f * Scale * Scale); // was 0.4f
 
 					Target_Lightsources.back()->Colour = Lightmap_Value * Albedo_Colour * glm::vec3(Reflection_Coefficient); // This will then rewrite the lightmap accordingly
 					//Target_Lightsources.back()->Bounced = true;

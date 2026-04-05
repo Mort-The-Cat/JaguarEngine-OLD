@@ -168,7 +168,7 @@ namespace Jaguar
 		if(!Compress)
 			File.close();
 
-		delete[] Data;
+		delete Data;
 	}
 
 	//

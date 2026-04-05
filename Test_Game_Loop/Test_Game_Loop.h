@@ -177,7 +177,7 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 			Engine->Pipeline.Render_Queues[1].Objects.back()->Position = Player_Position - glm::vec3(0, 0.3, 0) + glm::vec3(0.5f) * Get_Direction_Vector(Camera_X_Direction + 0.25f);
 			Engine->Pipeline.Render_Queues[1].Objects.back()->Orientation = Get_Direction_Vector(Camera_X_Direction);
 
-			printf("Position: %f, %f, %f\n", Player_Position.x, Player_Position.y, Player_Position.z);
+			// printf("Position: %f, %f, %f\n", Player_Position.x, Player_Position.y, Player_Position.z);
 
 			// This code right now is fairly awful but it's just a test obviously
 		}
@@ -298,8 +298,8 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	Jaguar::Shader Test_Skeletal_Animation_Shader;
 	Jaguar::Create_Shader("Shaders/Dynamic_Shader.frag", "Shaders/Test_Skeletal_Animation.vert", &Test_Skeletal_Animation_Shader, "Shaders/Dynamic_TBN_Geometry.geom");
 
-	Jaguar::Shader Lighting_Node_Shader;
-	Jaguar::Create_Shader("Shaders/Test_Shader.frag", "Shaders/Test_Shader.vert", &Lighting_Node_Shader);
+	//Jaguar::Shader Lighting_Node_Shader;
+	//Jaguar::Create_Shader("Shaders/Test_Shader.frag", "Shaders/Test_Shader.vert", &Lighting_Node_Shader);
 
 	Jaguar::Shader Test_Physics_Object_Shader;
 	Jaguar::Create_Shader("Shaders/Dynamic_Shader.frag", "Shaders/Simple_Dynamic_Shader.vert", &Test_Physics_Object_Shader, "Shaders/Dynamic_TBN_Geometry.geom");
@@ -316,7 +316,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
 	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Radiophobia_Intro_Level";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Radiophobia_Intro_Level_0";
 
 	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	//Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
@@ -342,7 +342,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 		//Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, glm::vec3(-0.032222, -0.034747, -2.241589), 0.5f, &Engine->Scene.Lighting);
 
 		for(size_t Node = 0; Node < Engine->Scene.Lighting.Lighting_Nodes.Origins.size(); Node++)
-			Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, Engine->Scene.Lighting.Lighting_Nodes.Origins[Node], 0.25f, &Engine->Scene.Lighting);
+			Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, Engine->Scene.Lighting.Lighting_Nodes.Origins[Node], 0.5f, &Engine->Scene.Lighting);
 
 		//Engine->Scene.Lighting.Lighting_Nodes.Nodes.push_back(Jaguar::Lighting_Node(glm::vec3(0.0f, 0.8f, -0.8f)));
 
@@ -355,6 +355,9 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 		std::vector<Jaguar::Baked_Lightmap_Chart> Lightmap_Charts;	// This is used when we want to load the lightmap chart instead of generating it
 		Jaguar::Get_Lightmap_Chart_From_File((Lightmap_Directory + ".lmc").c_str(), Lightmap_Charts, &Engine->Asset_Cache);
 		Jaguar::Apply_Baked_Lightmap_Chart(Engine, Lightmap_Charts);
+
+		Lightmap_Charts.clear();
+
 		Jaguar::Get_Lightmap3_From_File((Lightmap_Directory + ".lux.opz").c_str(), &Engine->Scene.Lighting, true);
 
 		Jaguar::Get_Lighting_Nodes_From_File((Lightmap_Directory + ".ln").c_str(), Engine->Scene.Lighting.Lighting_Nodes);
@@ -365,7 +368,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 		Jaguar::Generate_Cubemap(Engine, &Engine->Scene.Lighting.Environment_Map);
 
-		 // Place_Lighting_Node_Visuals(Engine, Lighting_Node_Shader);
+		// Place_Lighting_Node_Visuals(Engine, Lighting_Node_Shader);
 
 		Test_Engine_Loop(Engine);
 

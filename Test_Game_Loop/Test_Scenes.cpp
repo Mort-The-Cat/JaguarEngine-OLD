@@ -292,7 +292,7 @@ void Setup_Radiophobia_Level(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader Test_
 	);
 
 	Engine->Scene.Lighting.Lighting_Nodes.Origins.push_back(glm::vec3(6.498826, 0.832597, 1.355308));
-	Engine->Scene.Lighting.Lighting_Nodes.Origins.push_back(glm::vec3(-0.574030, 0.699358, 12.119190));
+	//Engine->Scene.Lighting.Lighting_Nodes.Origins.push_back(glm::vec3(-0.574030, 0.699358, 12.119190));
 
 	Engine->Scene.Lighting.Lightsources.push_back(new Jaguar::Lightsource());
 	Engine->Scene.Lighting.Lightsources.back()->Colour = glm::vec3(0.5f, 0.5f, 0.7f);

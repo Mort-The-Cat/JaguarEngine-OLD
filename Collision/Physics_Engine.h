@@ -1,6 +1,8 @@
 #ifndef JAGUAR_PHYSICS_ENGINE
 #define JAGUAR_PHYSICS_ENGINE
 
+#define Physics_Iterations 6
+
 #include "Hitboxes.h"
 #include "../OpenGL_Handling/Scene.h"
 
@@ -9,7 +11,6 @@
 namespace Jaguar
 {
 	// In this, I'll make some controllers that do basic collision detection for some simple physics
-
 	struct Jaguar_Engine;
 
 #define PF_TO_BE_DELETED 0u
@@ -103,38 +104,6 @@ namespace Jaguar
 			// We just wanna make EXTRA sure that these are normalised 
 			// because otherwise it could potentially fuck up the physics and visuals after a long enough time due to floating point error
 		}
-
-		/*void Old_Step(float Time)
-		{
-			float Inv_Mass = 0.5f / Mass;
-
-			Force *= Inv_Mass;					// convert from force -> acceleration/2
-			Velocity += Force;						// Apply half of the force before ...
-			Position += Time * Velocity;
-			Velocity += Force;						// ... and after the movement (more accurate)
-			Force = glm::vec3(0.0f);				// reset force
-			
-			if (Flags[PF_LOCK_ROTATION])
-				Inv_Mass = 0.0f;
-
-			Torque *= Inv_Mass;					// convert from torque -> angular_acceleration/2
-
-			Rotational_Velocity += Torque;			// Apply half of the torque before ...
-			if(
-				Rotational_Velocity.x != 0 ||
-				Rotational_Velocity.y != 0 ||
-				Rotational_Velocity.z != 0
-				)
-			Axis_Angle_Rotate_Orientation(Rotational_Velocity * Time, &Orientation, &Orientation_Up);
-			Rotational_Velocity += Torque;			// ... and after the rotation
-
-			Orientation = glm::normalize(Orientation);
-			Orientation_Up = glm::normalize(Orientation_Up);	
-			// We just wanna make EXTRA sure that these are normalised 
-			// because otherwise it could potentially fuck up the physics and visuals after a long enough time due to floating point error
-
-			Torque = Force;							// reset torque
-		}*/
 	};
 
 	class Physics_Object_Controller : public Controller

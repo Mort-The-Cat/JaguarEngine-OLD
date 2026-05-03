@@ -4,36 +4,6 @@
 
 namespace Jaguar
 {
-	void Axis_Angle_Rotate_Orientation(glm::vec3 Rotation_Vector, glm::vec3* Orientation, glm::vec3* Orientation_Up)
-	{
-		float Length = glm::length(Rotation_Vector);	// gets 'angle' from axis/angle vector
-
-		Rotation_Vector *= 1.0f / Length;	// Normalises rotation vector to create normalised axis
-
-		float Sin_Theta = sinf(Length);
-		float Cos_Theta = cosf(Length);
-
-		*Orientation = *Orientation * Cos_Theta + glm::cross(Rotation_Vector, *Orientation) * Sin_Theta;
-
-		*Orientation_Up = *Orientation_Up * Cos_Theta + glm::cross(Rotation_Vector, *Orientation_Up) * Sin_Theta;
-	}
-
-	glm::vec3 Velocity_At_Point(const Physics_Object* Physics, glm::vec3 Point)
-	{
-		return Physics->Get_Velocity() + glm::cross(Physics->Get_Rotational_Velocity(), Point - Physics->Position);
-	}
-
-	glm::vec3 Get_Torque(Physics_Object* Physics, glm::vec3 Force, glm::vec3 Point)
-	{
-		glm::vec3 Axis = glm::normalize(glm::cross(Force, Point - Physics->Position));
-
-		glm::vec3 Tangent = glm::normalize(glm::cross(Axis, Point - Physics->Position));
-
-		float Line_Length = glm::length(Point - Physics->Position);
-
-		return (glm::dot(Force, Tangent) / Line_Length) * Axis;
-	}
-
 	Physics_Object* Physics_Object_Controller::Get_Physics_Object()
 	{
 		return &Physics;
@@ -64,10 +34,10 @@ namespace Jaguar
 	{
 		// This will apply the new transformations to the object
 
-		//Update_Physics_Object_Collision(this, &Physics);
+		Update_Physics_Object_Collision(this, &Physics);
 
 		Physics.Force += glm::vec3(0.0f, Engine->Time * Physics.Mass * -4.0f, 0.0f);
-
+		
 		// Apply Earth's weight-force to object
 
 		// Note that we don't need to use the 'apply force' function here because it's uniform and no torque is produced from this alone
@@ -75,44 +45,53 @@ namespace Jaguar
 		// Not much else to do! Could perhaps play sound effects if the object experienced a large force
 	}
 
-	void Record_Collisions(Jaguar_Engine* Engine)
+	void Axis_Angle_Rotate_Orientation(glm::vec3 Rotation_Vector, glm::vec3* Orientation, glm::vec3* Orientation_Up)
 	{
-		Engine->Physics.Collision_Info.clear(); // Ensures that any previous collisions have been cleared
+		float Length = glm::length(Rotation_Vector);	// gets 'angle' from axis/angle vector
 
-		for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)						// This needs to be performed before we start recording any collisions
-		{
-			//for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)
-			//{
-				Engine->Physics.Physics_Objects[Index]->Update_Movement_Vectors();
-				Engine->Physics.Physics_Objects[Index]->Step(Engine->Time / Physics_Iterations);						// pass the 'delta time' to the step function
-			//}
+		Rotation_Vector *= 1.0f / Length;	// Normalises rotation vector to create normalised axis
 
-			Update_Physics_Object_Collision(Engine->Physics.Hitboxes[Index]->Object->Control, Engine->Physics.Physics_Objects[Index]);
-		}
+		float Sin_Theta = sinf(Length);
+		float Cos_Theta = cosf(Length);
 
-		// This collects all of the Collision_Info objects between physics-objects and static hitboxes 
-		// as well as physics-objects and other physics-objects
+		*Orientation = *Orientation * Cos_Theta + glm::cross(Rotation_Vector, *Orientation) * Sin_Theta;
 
-		// The 'resolve collisions' function will create all of the impulse infos (as well as resolve the position deltas) and then apply them
+		*Orientation_Up = *Orientation_Up * Cos_Theta + glm::cross(Rotation_Vector, *Orientation_Up) * Sin_Theta;
+	}
 
-		// After that, all of the scene's control functions will be run
+	glm::vec3 Velocity_At_Point(const Physics_Object* Physics, glm::vec3 Point)
+	{
+		return Physics->Get_Velocity() + glm::cross(Physics->Get_Rotational_Velocity(), Point - Physics->Position);
+	}
 
-		for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)
-		{
-			for (size_t Other_Index = Index + 1; Other_Index < Engine->Physics.Hitboxes.size(); Other_Index++)
-			{
-				// Physics object against physics object AND non-physics hitboxes
+	glm::vec3 Get_Torque(Physics_Object* Physics, glm::vec3 Force, glm::vec3 Point)
+	{
+		glm::vec3 Axis = glm::normalize(glm::cross(Force, Point - Physics->Position));
 
-				Collision_Info Info;
+		glm::vec3 Tangent = glm::normalize(glm::cross(Axis, Point - Physics->Position));
 
-				Info = Engine->Physics.Hitboxes[Index]->Test_Collision(Engine->Physics.Hitboxes[Other_Index]);
+		float Line_Length = glm::length(Point - Physics->Position);
 
-				if (Info.Delta > 0.0f)	// If NOT zero
-				{
-					Engine->Physics.Collision_Info.push_back(Info);
-				}
-			}
-		}
+		return (glm::dot(Force, Tangent) / Line_Length) * Axis;
+	}
+
+	void Apply_Force_To_Physics_Object(Physics_Object* Physics, glm::vec3 Force, glm::vec3 Point)
+	{
+		Physics->Force += Force;	// Easy
+
+		// Torque is slightly trickier...
+
+		Physics->Torque += Get_Torque(Physics, Force, Point);
+
+		//glm::vec3 Axis = glm::normalize(glm::cross(Force, Point - Physics->Position));
+
+		//glm::vec3 Tangent = (glm::cross(Axis, Point - Physics->Position));
+
+		//Physics->Torque += ( glm::dot(Force, Tangent) / glm::length(Point - Physics->Position) ) * Axis;
+
+		// glm::vec3 Torque_Delta = glm::cross(Force, Point - Physics->Position);
+
+		// Physics->Torque += Torque_Delta;
 	}
 
 	void Get_Force_And_Torque(
@@ -122,7 +101,7 @@ namespace Jaguar
 		glm::vec3& Max_A_Torque,
 
 		glm::vec3& Min_B_Torque,
-		glm::vec3& Max_B_Torque,
+		glm::vec3& Max_B_Torque, 
 		glm::vec3 Point, const Collision_Info& Collision)
 	{
 
@@ -224,7 +203,7 @@ namespace Jaguar
 
 		for (size_t A_Index = 0; A_Index < Collision.A_Points.size(); A_Index++)
 			Get_Force_And_Torque(Forces[0], Forces_Count[0], Min_A_A_Points_Torque, Max_A_A_Points_Torque, Min_B_A_Points_Torque, Max_B_A_Points_Torque, Collision.A_Points[A_Index], Collision);
-
+	
 		for (size_t B_Index = 0; B_Index < Collision.B_Points.size(); B_Index++)
 			Get_Force_And_Torque(Forces[1], Forces_Count[1], Min_A_B_Points_Torque, Max_A_B_Points_Torque, Min_B_B_Points_Torque, Max_B_B_Points_Torque, Collision.B_Points[B_Index], Collision);
 
@@ -264,11 +243,11 @@ namespace Jaguar
 			Forces_Count[0] = 1;
 			Forces_Count[1] = 1;
 
-			Force_Index = (Forces_Count[0] * glm::length(Forces[1])) < (glm::length(Forces[0]) * Forces_Count[1]);
+			Force_Index = ( Forces_Count[0] * glm::length(Forces[1])) < (glm::length(Forces[0]) * Forces_Count[1]);
 		}
-
+	
 		//size_t 
-
+		 
 		// Force_Index = glm::length(Forces[1]) < glm::length(Forces[0]) || !Forces_Count[0];
 
 		glm::vec3 Desired_Torque = -Collision.A->Object->Get_Physics_Object()->Get_Rotational_Velocity() * Collision.A->Object->Get_Physics_Object()->Mass;
@@ -308,23 +287,81 @@ namespace Jaguar
 			// Collision.B->Object->Get_Physics_Object()->Force += Forces[Force_Index][1];
 
 			Desired_Torque = -Collision.B->Object->Get_Physics_Object()->Get_Rotational_Velocity() * Collision.B->Object->Get_Physics_Object()->Mass;
-
+				
 			Delta_Torque = glm::max(Min_Torque, glm::min(Max_Torque, Desired_Torque));
 
 			Collision.B->Object->Get_Physics_Object()->Torque += Delta_Torque;
 
 			//
 
+			//Collision.B->Object->Get_Physics_Object()->Force +=
+			//	(Forces[Force_Index][0]) *
+			//	sqrtf(
+			//		fmaxf(0,
+			//			1.0f - glm::dot(Delta_Torque, Delta_Torque) /
+			//			(20.0f * glm::dot(Forces[Force_Index][0], Forces[Force_Index][0]))
+			//		)
+			//	);
+
+			//Collision.B->Object
+
 			Collision.B->Object->Get_Physics_Object()->Force += Forces[Force_Index];
+
+			//Collision.B->Object->Control->Get_Physics_Object()->Update_Movement_Vectors();
+
 		}
 		else
 			Collision.A->Object->Control->Get_Physics_Object()->Update_Movement_Vectors();
 	}
 
+	void Record_Collisions(Jaguar_Engine* Engine)
+	{
+		Engine->Physics.Collision_Info.clear(); // Ensures that any previous collisions have been cleared
+
+		// This collects all of the Collision_Info objects between physics-objects and static hitboxes 
+		// as well as physics-objects and other physics-objects
+
+		// The 'resolve collisions' function will create all of the impulse infos (as well as resolve the position deltas) and then apply them
+
+		// After that, all of the scene's control functions will be run
+
+		for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)
+			for (size_t Other_Index = Index + 1; Other_Index < Engine->Physics.Hitboxes.size(); Other_Index++)
+			{
+				// Physics object against physics object AND non-physics hitboxes
+
+				Collision_Info Info;
+
+				Info = Engine->Physics.Hitboxes[Index]->Test_Collision(Engine->Physics.Hitboxes[Other_Index]);
+
+				if (Info.Delta > 0.0f)	// If NOT zero
+				{
+					Engine->Physics.Collision_Info.push_back(Info);
+				}
+			}
+
+		// After that, generate the impulses etc
+
+		
+	}
+
+	void Step_Physics(Jaguar_Engine* Engine)
+	{
+		for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)
+		{
+			Engine->Physics.Physics_Objects[Index]->Update_Movement_Vectors(); 
+			Engine->Physics.Physics_Objects[Index]->Step(Engine->Time);						// pass the 'delta time' to the step function
+		}
+	}
+
 	void Resolve_Collisions(Jaguar_Engine* Engine)
 	{
+		// Apply position deltas and then 'step' all physics objects
+
 		for (size_t Index = 0; Index < Engine->Physics.Collision_Info.size(); Index++)
 		{
+			// check if there's an object 'B' apply deltas to either one or both
+
 			Apply_Impulses(Engine, Engine->Physics.Collision_Info[Index]);
 
 			Physics_Object* B_Physics = Engine->Physics.Collision_Info[Index].B->Object->Get_Physics_Object();
@@ -339,8 +376,14 @@ namespace Jaguar
 			}
 
 			Engine->Physics.Collision_Info[Index].A->Object->Get_Physics_Object()->Position += Delta;
+
+			// Engine->Physics.Collision_Info[Index].Delta = 0.0f;
 		}
 
-		// We'll multithread this stuff later
+		for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)
+		{
+			Engine->Physics.Physics_Objects[Index]->Update_Movement_Vectors();
+			Engine->Physics.Physics_Objects[Index]->Step(Engine->Time);						// pass the 'delta time' to the step function
+		}
 	}
 }

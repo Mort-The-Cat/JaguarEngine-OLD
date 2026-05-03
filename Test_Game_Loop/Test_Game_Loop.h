@@ -98,9 +98,11 @@ void Place_Lighting_Node_Visuals(Jaguar::Jaguar_Engine* Engine, Jaguar::Shader N
 	}*/
 }
 
-void Shoot_Physics_Object(Jaguar::Jaguar_Engine* Engine)
+void Shoot_Physics_Object(Jaguar::Jaguar_Engine* Engine, glm::vec3 Position, glm::vec3 Direction)
 {
 	Jaguar::World_Object* Object;
+
+	Jaguar::Physics_Object_Controller* Controller = new Jaguar::Physics_Object_Controller();
 
 	Object = new Jaguar::World_Object();
 	Object->Flags[MF_ACTIVE] = true;																	// sets active flag
@@ -113,9 +115,12 @@ void Shoot_Physics_Object(Jaguar::Jaguar_Engine* Engine)
 		Jaguar::Wrap_Mesh_Hitbox(
 			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Slope_Shape.dae").Mesh
 		),
-		new Jaguar::Physics_Object_Controller(),
-		glm::vec3(0.0f, 0.8f, 0.0f)	+ glm::vec3(Jaguar::RNG(), Jaguar::RNG(), Jaguar::RNG())	// Position
+		Controller,
+		//glm::vec3(0.0f, 0.8f, 0.0f)	+ glm::vec3(Jaguar::RNG(), Jaguar::RNG(), Jaguar::RNG())	// Position
+		Position
 	);
+
+	Controller->Physics.Velocity = Direction * glm::vec3(0.1f);
 }
 
 void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
@@ -161,7 +166,7 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 		{
 			if (Engine->User_Inputs.Keys[Controls::Drop].Pressed)
 			{
-				Shoot_Physics_Object(Engine);
+				Shoot_Physics_Object(Engine, Player_Position, Get_Direction_Vector(Camera_X_Direction));
 				Drop_Time = 0.0f;
 			}
 		}
@@ -232,12 +237,12 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 
 		Engine->Scene.Camera_Position = Player_Position;
 
-		//for (size_t I = 0; I < 4; I++)
-		//{
-		Jaguar::Record_Collisions(Engine);
+		for (size_t I = 0; I < Physics_Iterations; I++)
+		{
+			Jaguar::Record_Collisions(Engine);
 			//for(size_t I = 0; I < 1; I++)
-		Jaguar::Resolve_Collisions(Engine);
-		//}
+			Jaguar::Resolve_Collisions(Engine);
+		}
 		
 		//Jaguar::Step_Physics(Engine);
 
@@ -282,7 +287,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 	Set_Input_Keycodes(&Engine->User_Inputs);
 
-	Jaguar::Initialise_Job_System(&Engine->Job_Handler, 4); // initialise 7 worker threads
+	Jaguar::Initialise_Job_System(&Engine->Job_Handler, 1); // initialise 7 worker threads
 
 	//
 

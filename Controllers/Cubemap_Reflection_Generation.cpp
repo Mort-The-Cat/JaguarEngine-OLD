@@ -192,9 +192,6 @@ namespace Jaguar
 
 			//
 
-			//Engine->Scene.Camera_Projection_Matrix =
-			//	glm::perspective(glm::radians(90.0f), 1.0f, 0.0001f, 100.0f);
-
 			// Get FOV for y and x
 
 			Engine->Scene.Camera_Projection_Matrix = Get_Perspective_Matrix(Target_Cubemap, Directions[Face], Up_Vectors[Face]);

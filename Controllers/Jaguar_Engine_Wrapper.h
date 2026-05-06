@@ -42,6 +42,14 @@ namespace Jaguar
 		Render_Pipeline Pipeline;	// This is the pipeline for drawing regular scene objects such as buildings or characters
 									// We'll use a different interface for particles etc
 		Asset_Cache_Data Asset_Cache;
+
+
+#ifndef JAGUAR_GAME_TYPENAME						// if user hasn't defined this?
+	#define JAGUAR_GAME_TYPENAME void*				// just use some bs
+#endif
+
+		JAGUAR_GAME_TYPENAME Game_Info;				// This can be swapped out from game to game.
+													// this might include global information about game state like player HP or achievements etc etc
 	};
 
 	void Handle_Deletions(Jaguar_Engine* Target_Engine);

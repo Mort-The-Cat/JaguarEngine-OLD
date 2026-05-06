@@ -170,6 +170,11 @@ namespace Jaguar
 
 	void Upsize_Chart(Lightmap_Chart* Target_Chart);
 
+
+	//
+
+	void Generate_Baked_Lighting(Jaguar_Engine* Engine, std::string Lightmap_Directory, std::vector<Shader> Queue_Shaders, bool Compress_Lightmap_Texture = true);
+	void Load_Baked_Lighting(Jaguar_Engine* Engine, std::string Lightmap_Directory, bool Compress_Lightmap_Texture = true);
 }
 
 #endif

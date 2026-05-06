@@ -9,6 +9,7 @@
 
 namespace Jaguar
 {
+	const float Luxel_Scale = 25.0f;				// was 25
 
 	class Sorted_List_Of_Lighting_Nodes
 	{
@@ -347,13 +348,11 @@ namespace Jaguar
 
 	//
 
-	const float Luxel_Scale = 25.0f;
-
 	void Generate_Bounced_Light_Lightsources(Jaguar_Engine* Engine, Lightmap_Chart* Target_Chart, glm::vec3* Lightmap_Texture_Data3[3], std::vector<Lightsource*>& Target_Lightsources)
 	{
 		// we want a specific value for the resolution of the lights generated i.e. how many lights per face
 
-		const float Scale = 16.0f;
+		const float Scale = 8.0f;
 
 		for (size_t W = 0; W < Target_Chart->Pushed_Tris.size(); W++)
 		{
@@ -429,7 +428,7 @@ namespace Jaguar
 						Read_From_Texture<Lightmap_RGB>(Lightmap_Texture_Data3[1], Target_Chart->Sidelength, Target_Chart->Sidelength, Lightmap_Coordinate) +
 						Read_From_Texture<Lightmap_RGB>(Lightmap_Texture_Data3[2], Target_Chart->Sidelength, Target_Chart->Sidelength, Lightmap_Coordinate);
 
-					const float Reflection_Coefficient = 0.2f / (255.0f * Scale * Scale); // was 0.4f
+					const float Reflection_Coefficient = 0.25f / (255.0f * Scale * Scale); // was 0.4f
 
 					Target_Lightsources.back()->Colour = Lightmap_Value * Albedo_Colour * glm::vec3(Reflection_Coefficient); // This will then rewrite the lightmap accordingly
 					//Target_Lightsources.back()->Bounced = true;
@@ -695,5 +694,37 @@ namespace Jaguar
 				// Square_Size is just the rough size of the tri here
 			}
 		}
+	}
+
+	//
+
+	//
+
+	void Generate_Baked_Lighting(Jaguar_Engine* Engine, std::string Lightmap_Directory, std::vector<Shader> Queue_Shaders, bool Compress_Lightmap_Texture)
+	{
+		Jaguar::Lightmap_Chart Lightmap;			// This will be generated during light-baking
+		Jaguar::Init_Lightmap_Chart(&Lightmap);
+
+		for(size_t Index = 0; Index < Queue_Shaders.size(); Index++)
+			Jaguar::Push_Queue_Lightmap_Chart(Engine, Jaguar::Get_Render_Queue(&Engine->Pipeline, &Queue_Shaders[Index]), &Lightmap);
+
+		Jaguar::Assemble_Lightmap_Chart(Engine, &Lightmap, (Lightmap_Directory + ".lmc").c_str());
+
+		for (size_t Node = 0; Node < Engine->Scene.Lighting.Lighting_Nodes.Origins.size(); Node++)
+			Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, Engine->Scene.Lighting.Lighting_Nodes.Origins[Node], 0.5f, &Engine->Scene.Lighting);
+
+		Jaguar::Create_Lightmap3_From_Chart(Engine, &Lightmap, (Lightmap_Directory + ".lux").c_str());
+
+		Jaguar::Write_Lighting_Nodes_To_File((Lightmap_Directory + ".ln").c_str(), Engine->Scene.Lighting.Lighting_Nodes);
+	}
+
+	void Load_Baked_Lighting(Jaguar_Engine* Engine, std::string Lightmap_Directory, bool Compress_Lightmap_Texture)
+	{
+		std::vector<Jaguar::Baked_Lightmap_Chart> Lightmap_Charts;	// This is used when we want to load the lightmap chart instead of generating it
+		Jaguar::Get_Lightmap_Chart_From_File((Lightmap_Directory + ".lmc").c_str(), Lightmap_Charts, &Engine->Asset_Cache);
+		Jaguar::Apply_Baked_Lightmap_Chart(Engine, Lightmap_Charts);
+		//Lightmap_Charts.clear();
+		Jaguar::Get_Lightmap3_From_File((Lightmap_Directory + ".lux.opz").c_str(), &Engine->Scene.Lighting, Compress_Lightmap_Texture);
+		Jaguar::Get_Lighting_Nodes_From_File((Lightmap_Directory + ".ln").c_str(), Engine->Scene.Lighting.Lighting_Nodes);
 	}
 }

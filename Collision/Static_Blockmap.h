@@ -26,6 +26,8 @@ namespace Jaguar
 	struct Jaguar_Engine;
 
 	void Initialise_Blockmap(Jaguar_Engine* Engine, float Size);
+
+	const std::vector<Hitbox*>* Read_Blockmap(const Blockmap_Data& Blockmap, glm::vec3 Position);		// This doesn't take into account size... assume that each caller object is a reasonable size
 }
 
 

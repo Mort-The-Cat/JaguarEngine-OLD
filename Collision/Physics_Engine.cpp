@@ -81,11 +81,8 @@ namespace Jaguar
 
 		for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)						// This needs to be performed before we start recording any collisions
 		{
-			//for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)
-			//{
-				Engine->Physics.Physics_Objects[Index]->Update_Movement_Vectors();
-				Engine->Physics.Physics_Objects[Index]->Step(Engine->Time / Physics_Iterations);						// pass the 'delta time' to the step function
-			//}
+			Engine->Physics.Physics_Objects[Index]->Update_Movement_Vectors();
+			Engine->Physics.Physics_Objects[Index]->Step(Engine->Time / Physics_Iterations);						// pass the 'delta time' to the step function
 
 			Update_Physics_Object_Collision(Engine->Physics.Hitboxes[Index]->Object->Control, Engine->Physics.Physics_Objects[Index]);
 		}
@@ -98,6 +95,39 @@ namespace Jaguar
 		// After that, all of the scene's control functions will be run
 
 		for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)
+		{
+			const std::vector<Hitbox*>& Nearby_Hitboxes = *Read_Blockmap(Engine->Physics.Blockmap, Engine->Physics.Physics_Objects[Index]->Position);
+
+			// compare against nearby hitboxes
+
+			for (size_t Other_Index = 0; Other_Index < Nearby_Hitboxes.size(); Other_Index++)
+			{
+				Collision_Info Info;
+
+				Info = Engine->Physics.Hitboxes[Index]->Test_Collision(Nearby_Hitboxes[Other_Index]);
+
+				if (Info.Delta > 0.0f)	// If NOT zero
+				{
+					Engine->Physics.Collision_Info.push_back(Info);
+				}
+			}
+
+			// repeats for other physics objects...
+
+			for (size_t Other_Index = Index + 1; Other_Index < Engine->Physics.Physics_Objects.size(); Other_Index++)
+			{
+				Collision_Info Info;
+
+				Info = Engine->Physics.Hitboxes[Index]->Test_Collision(Engine->Physics.Hitboxes[Other_Index]);
+
+				if (Info.Delta > 0.0f)	// If NOT zero
+				{
+					Engine->Physics.Collision_Info.push_back(Info);
+				}
+			}
+		}
+
+		/*for (size_t Index = 0; Index < Engine->Physics.Physics_Objects.size(); Index++)
 		{
 			for (size_t Other_Index = Index + 1; Other_Index < Engine->Physics.Hitboxes.size(); Other_Index++)
 			{
@@ -112,7 +142,7 @@ namespace Jaguar
 					Engine->Physics.Collision_Info.push_back(Info);
 				}
 			}
-		}
+		}*/
 	}
 
 	void Get_Force_And_Torque(

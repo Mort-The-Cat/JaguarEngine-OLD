@@ -47,6 +47,8 @@ namespace Jaguar
 
 			New_Info.Delta = -Large_Number;
 
+			//New_Info.A_Points.resize(1);
+
 			for (size_t Point = 0; Point < Hitbox_B->Transformed_Points.size(); Point++)
 			{
 				// transforms the point
@@ -59,6 +61,8 @@ namespace Jaguar
 				);
 
 				New_Info.Delta = std::fmaxf(New_Info.Delta, Local_Delta);
+				//if(Local_Delta == New_Info.Delta)
+				//	New_Info.A_Points[0] = Hitbox_B->Transformed_Points[Point] + Hitbox_B->Object->Position;
 
 				if (Local_Delta >= 0.0f)
 					New_Info.A_Points.push_back(Hitbox_B->Transformed_Points[Point] + Hitbox_B->Object->Position);

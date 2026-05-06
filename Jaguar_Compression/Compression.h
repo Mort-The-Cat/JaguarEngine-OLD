@@ -226,7 +226,7 @@ namespace Openzip
 		delete Data;
 	}
 
-	void Compress_Raw_Data(Jaguar::Job_System* System, Compressor_Data& Compressor, size_t Chunk_Size = 0x8000)
+	void Compress_Raw_Data(Jaguar::Job_System* System, Compressor_Data& Compressor, size_t Chunk_Size = 0x10000)
 	{
 		std::vector<std::vector<uint8_t>> Instructions_Out(std::ceil((float)Compressor.Raw_Data.size() / Chunk_Size) - 1);
 

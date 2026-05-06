@@ -13,6 +13,12 @@ namespace Jaguar
 		return glm::min(Blockmap.Length - glm::ivec3(1), glm::ivec3(Position));
 	}
 
+	const std::vector<Hitbox*>* Read_Blockmap(const Blockmap_Data& Blockmap, glm::vec3 Position)		// This doesn't take into account size... assume that each caller object is a reasonable size
+	{
+		glm::ivec3 Index = Get_Index_From_Blockmap(Blockmap, Position);
+		return &Blockmap.Blockmap_Hitboxes[Index.x][Index.y][Index.z];
+	}
+
 	void Initialise_Blockmap(Jaguar_Engine* Engine, float Size)
 	{
 		glm::vec3 A = glm::vec3(99999999.0f), B = -A;

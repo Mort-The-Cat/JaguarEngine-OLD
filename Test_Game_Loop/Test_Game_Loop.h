@@ -6,6 +6,7 @@
 //#include "../OpenGL_Handling/Render_Queue.h"
 //#include "../OpenGL_Handling/Input_Handling.h"
 
+#define JAGUAR_GAME_TYPENAME void*					// this is temporary
 #include "../Controllers/Jaguar_Engine_Wrapper.h"
 
 enum Controls
@@ -275,7 +276,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 	Engine->Window = glfwCreateWindow(800, 800, "Test window!", NULL, NULL);
 
-	glfwSwapInterval(0);
+	glfwSwapInterval(0);		// Disables V-sync
 
 	if (Engine->Window == NULL)
 		Throw_Error(" >> Failed to create OpenGL window!\n\t%s\n");
@@ -290,8 +291,6 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	Jaguar::Initialise_Job_System(&Engine->Job_Handler, 1); // initialise 7 worker threads
 
 	//
-
-	Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Collada_Loader/Sphere.dae", 0); // The sphere model must be loaded for the lightmapping to use as the 'light'
 	
 	Jaguar::Shader Test_Shader;
 #if TRIPLE_LIGHTMAPPING
@@ -321,7 +320,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
 	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Radiophobia_Intro_Level_1";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Radiophobia_Intro_Level_2";
 
 	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	//Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
@@ -331,45 +330,15 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 
 	Place_Animation_Objects(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 
+	Jaguar::Initialise_Blockmap(Engine, 2.0f); // 2x2x2 blockmap size
+
 	if constexpr (false)
 	{
-		Jaguar::Lightmap_Chart Lightmap;			// This will be generated during light-baking
-		Jaguar::Init_Lightmap_Chart(&Lightmap);
-
-		Jaguar::Push_Queue_Lightmap_Chart(Engine, Jaguar::Get_Render_Queue(&Engine->Pipeline, &Test_Shader), &Lightmap);
-
-		Jaguar::Assemble_Lightmap_Chart(Engine, &Lightmap, (Lightmap_Directory + ".lmc").c_str());
-
-		// Jaguar::Get_Lighting_Nodes_From_File((Lightmap_Directory + ".ln").c_str(), Engine->Scene.Lighting.Lighting_Nodes);
-
-		//Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, Engine->Scene.Lighting.Lightsources[0]->Position, 0.125f, &Engine->Scene.Lighting);
-		
-		//Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, glm::vec3(-0.032222, -0.034747, -2.241589), 0.5f, &Engine->Scene.Lighting);
-
-		for(size_t Node = 0; Node < Engine->Scene.Lighting.Lighting_Nodes.Origins.size(); Node++)
-			Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, Engine->Scene.Lighting.Lighting_Nodes.Origins[Node], 0.5f, &Engine->Scene.Lighting);
-
-		//Engine->Scene.Lighting.Lighting_Nodes.Nodes.push_back(Jaguar::Lighting_Node(glm::vec3(0.0f, 0.8f, -0.8f)));
-
-		Jaguar::Create_Lightmap3_From_Chart(Engine, &Lightmap, (Lightmap_Directory + ".lux").c_str());
-
-		Jaguar::Write_Lighting_Nodes_To_File((Lightmap_Directory + ".ln").c_str(), Engine->Scene.Lighting.Lighting_Nodes);
+		Generate_Baked_Lighting(Engine, Lightmap_Directory, { Test_Shader });
 	}
 	else
 	{
-		std::vector<Jaguar::Baked_Lightmap_Chart> Lightmap_Charts;	// This is used when we want to load the lightmap chart instead of generating it
-		Jaguar::Get_Lightmap_Chart_From_File((Lightmap_Directory + ".lmc").c_str(), Lightmap_Charts, &Engine->Asset_Cache);
-		Jaguar::Apply_Baked_Lightmap_Chart(Engine, Lightmap_Charts);
-
-		Lightmap_Charts.clear();
-
-		Jaguar::Get_Lightmap3_From_File((Lightmap_Directory + ".lux.opz").c_str(), &Engine->Scene.Lighting, true);
-
-		Jaguar::Get_Lighting_Nodes_From_File((Lightmap_Directory + ".ln").c_str(), Engine->Scene.Lighting.Lighting_Nodes);
-		
-		//glm::vec3(-0.006598f, 1.049228f, 3.835901f);
-
-		// Jaguar::Flood_Fill_Lighting_Nodes(&Lightmap, glm::vec3(1.0f, 0.0f, 1.0f), 0.5f, &Engine->Scene.Lighting);
+		Load_Baked_Lighting(Engine, Lightmap_Directory);
 
 		Jaguar::Generate_Cubemap(Engine, &Engine->Scene.Lighting.Environment_Map);
 
@@ -378,8 +347,6 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 		Test_Engine_Loop(Engine);
 
 		//
-
-		// Jaguar::Write_Lighting_Nodes_To_File((Lightmap_Directory + ".ln").c_str(), Engine->Scene.Lighting.Lighting_Nodes);
 	}
 
 	Jaguar::Terminate_Job_System(&Engine->Job_Handler);

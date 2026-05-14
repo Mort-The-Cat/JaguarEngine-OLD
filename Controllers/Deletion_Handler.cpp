@@ -8,7 +8,7 @@ namespace Jaguar
 		for (size_t W = 0; W < Target_Pipeline->Render_Queues.size(); W++)
 		{
 			for (size_t V = 0; V < Target_Pipeline->Render_Queues[W].Objects.size(); V++)
-				if (Target_Pipeline->Render_Queues[W].Objects[V]->Flags[MF_TO_BE_DELETED])
+				if (reinterpret_cast<World_Object*>(Target_Pipeline->Render_Queues[W].Objects[V])->Flags[MF_TO_BE_DELETED])
 					Target_Pipeline->Render_Queues[W].Objects[V] = nullptr; // Removes reference by setting pointer to NULL
 
 			Target_Pipeline->Render_Queues[W].Objects.erase(

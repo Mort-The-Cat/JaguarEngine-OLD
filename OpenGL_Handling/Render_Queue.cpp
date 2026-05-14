@@ -1,6 +1,8 @@
 #ifndef JAGUAR_RENDER_QUEUE
 #define JAGUAR_RENDER_QUEUE
 
+#include "../Controllers/Jaguar_Engine_Wrapper.h"
+
 #include "../Collada_Loader/Collada_Loader.h"
 #include "../OpenGL_Handling/OpenGL_Handling.h"
 #include "../OpenGL_Handling/Render_Queue.h"
@@ -185,26 +187,28 @@ namespace Jaguar
 		Target_Pipeline->Render_Queues.push_back(Queue);											// Adds queue to pipeline
 	}
 
-	void Draw_Render_Queue(const Render_Queue* Queue, const Scene_Data* Scene)
+	void Draw_Render_Queue(const Render_Queue* Queue, const Jaguar_Engine* Engine)
 	{
 		Use_Shader(Queue->Queue_Shader); // Activates shader for *this* queue
 
-		Queue->Shader_Init_Function(&Queue->Queue_Shader, Scene); // This function sets lighting uniforms etc for this shader
+		Queue->Shader_Init_Function(&Queue->Queue_Shader, &Engine->Scene); // This function sets lighting uniforms etc for this shader
 
 		for (size_t W = 0; W < Queue->Objects.size(); W++)
 		{
-			Bind_Vertex_Buffer(Queue->Objects[W]->Mesh);
+			Bind_Vertex_Buffer(reinterpret_cast<World_Object*>(Queue->Objects[W])->Mesh);
 
-			Queue->Uniform_Assign_Function(&Queue->Queue_Shader, Queue->Objects[W], Scene); // Assigns object uniforms accordingly
+			Queue->Uniform_Assign_Function(&Queue->Queue_Shader, reinterpret_cast<World_Object*>(Queue->Objects[W]), &Engine->Scene); // Assigns object uniforms accordingly
 
-			glDrawArrays(GL_TRIANGLES, 0, Queue->Objects[W]->Mesh.Vertex_Count);
+			glDrawArrays(GL_TRIANGLES, 0, reinterpret_cast<World_Object*>(Queue->Objects[W])->Mesh.Vertex_Count);
 		}
 	}
 
-	void Draw_Render_Pipeline(const Render_Pipeline* Pipeline, const Scene_Data* Scene)
+	//void Draw_Render_Pipeline(const Render_Pipeline* Pipeline, const Scene_Data* Scene)
+	void Draw_Render_Pipeline(const Jaguar_Engine* Engine)
 	{
-		for (size_t W = 0; W < Pipeline->Render_Queues.size(); W++)
-			Draw_Render_Queue(&Pipeline->Render_Queues[W], Scene);
+		for (size_t W = 0; W < Engine->Pipeline.Render_Queues.size(); W++)
+			Engine->Pipeline.Render_Queues[W].Draw_Render_Queue_Function(&Engine->Pipeline.Render_Queues[W], Engine);
+			//Draw_Render_Queue(&Engine->Pipeline.Render_Queues[W], &Engine->Scene);
 	}
 }
 

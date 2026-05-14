@@ -80,6 +80,79 @@ namespace Jaguar
 
 	Collision_Info AABB_Sphere_Collision(AABB_Hitbox* This, Sphere_Hitbox* Other_Hitbox)
 	{
+		glm::vec3 A, B;
+
+		A = This->A + This->Object->Position;
+		B = This->B + This->Object->Position;
+
+		glm::vec3 Delta = B - A;
+
+		glm::vec3 Point =
+			glm::min(
+				B,
+				glm::max(
+					A,
+					Other_Hitbox->Object->Position
+				)
+			);
+
+		glm::vec3 Offset_Point = Point - Other_Hitbox->Object->Position;
+
+		if (Other_Hitbox->Radius * Other_Hitbox->Radius > glm::dot(Offset_Point, Offset_Point))
+		{
+			// any overlap?
+
+			//glm::vec3 Lambda_Scaled = Lambda * glm::vec3(2.0f) - glm::vec3(1.0f);
+
+			size_t Axis = 1u << (fabsf(Offset_Point[1]) < fabsf(Offset_Point[2]));
+			Axis *= (fabsf(Offset_Point[Axis]) > fabsf(Offset_Point[0]));
+
+			glm::vec3 Normal = glm::vec3(0.0f);
+			Normal[Axis] = -copysignf(1.0f, Offset_Point[Axis]);
+
+			// should use lambda_scaled for the delta
+
+			Collision_Info Info;
+
+			Info.B = This;
+			Info.A = Other_Hitbox;
+			Info.Normal = Normal;
+
+			size_t Other_Axes[3][2] =
+			{
+				{ 1u, 2u },
+				{ 0u, 2u },
+				{ 0u, 1u }
+			};
+
+			glm::vec2 Circle_Offset = glm::vec2(Offset_Point[Other_Axes[Axis][0]], Offset_Point[Other_Axes[Axis][1]]);
+
+			float Radius_Depth = 
+				sqrtf(
+					Other_Hitbox->Radius * Other_Hitbox->Radius - glm::dot(Circle_Offset, Circle_Offset)
+				);
+
+			Offset_Point[Axis] += copysignf(Radius_Depth, Normal[Axis]);
+
+			Info.Delta = fabsf(Offset_Point[Axis]);
+
+			Offset_Point += Other_Hitbox->Object->Position;
+
+			Info.A_Points.push_back(Offset_Point);
+			Info.B_Points.push_back(Offset_Point);
+
+			// Info.A_Points.push_back(Point);
+
+			//Info.Delta = 0.5f * Delta[Axis] * (1.0f - fabsf(Lambda_Scaled[Axis]));
+
+			return Info;
+		}
+
+		return Collision_Info();
+	}
+
+	Collision_Info Old_AABB_Sphere_Collision(AABB_Hitbox* This, Sphere_Hitbox* Other_Hitbox)
+	{
 		// This'll do an ordinary AABB delta check
 
 		// Then, it'll check that length(dx, dy, dz) is less than radius

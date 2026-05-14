@@ -24,6 +24,8 @@ namespace Jaguar
 		Hitbox* A = nullptr;
 		Hitbox* B = nullptr;
 
+		std::vector<glm::vec3> Points;
+
 		std::vector <glm::vec3> B_Points;
 		std::vector<glm::vec3> A_Points;
 

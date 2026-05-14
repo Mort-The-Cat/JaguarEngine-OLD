@@ -121,6 +121,17 @@ void Shoot_Physics_Object(Jaguar::Jaguar_Engine* Engine, glm::vec3 Position, glm
 		Position
 	);
 
+	/*Jaguar::Create_World_Object(Engine, Object, &Engine->Pipeline.Render_Queues.back().Queue_Shader,
+		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Sphere_Simple.dae").Buffer,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Grey.png").Texture,
+		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Test_Normal.png").Texture,
+		Jaguar::Wrap_Sphere_Hitbox(
+			Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Sphere_Simple.dae").Mesh, 0.01
+		),
+		Controller,
+		Position
+	);*/
+
 	Controller->Physics.Velocity = Direction * glm::vec3(0.1f);
 }
 
@@ -180,8 +191,8 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 
 			//Place_Lighting_Node_Visuals(Engine, Engine->Pipeline.Render_Queues.back().Queue_Shader);	// This is a bit of a botch, but it's fine for testing!
 			
-			Engine->Pipeline.Render_Queues[1].Objects.back()->Position = Player_Position - glm::vec3(0, 0.3, 0) + glm::vec3(0.5f) * Get_Direction_Vector(Camera_X_Direction + 0.25f);
-			Engine->Pipeline.Render_Queues[1].Objects.back()->Orientation = Get_Direction_Vector(Camera_X_Direction);
+			reinterpret_cast<Jaguar::World_Object*>(Engine->Pipeline.Render_Queues[1].Objects.back())->Position = Player_Position - glm::vec3(0, 0.3, 0) + glm::vec3(0.5f) * Get_Direction_Vector(Camera_X_Direction + 0.25f);
+			reinterpret_cast<Jaguar::World_Object*>(Engine->Pipeline.Render_Queues[1].Objects.back())->Orientation = Get_Direction_Vector(Camera_X_Direction);
 
 			// printf("Position: %f, %f, %f\n", Player_Position.x, Player_Position.y, Player_Position.z);
 
@@ -249,7 +260,7 @@ void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
 
 		Jaguar::Handle_Scene_Controllers(Engine);
 
-		Jaguar::Draw_Render_Pipeline(&Engine->Pipeline, &Engine->Scene);
+		Jaguar::Draw_Render_Pipeline(Engine); // &Engine->Pipeline, & Engine->Scene);
 
 		glfwSwapBuffers(Engine->Window);
 
@@ -320,7 +331,7 @@ void Run_Scene(Jaguar::Jaguar_Engine* Engine)
 	//Jaguar::Push_Render_Pipeline_Queue(&Engine->Pipeline, Lighting_Node_Shader,
 	//	Jaguar::Default_Shader_Init_Function, Jaguar::Default_Uniform_Assign_Function);
 
-	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Radiophobia_Intro_Level_2";
+	std::string Lightmap_Directory = "Test_Game_Loop/Lightmaps/Radiophobia_Intro_Level";
 
 	//Setup_Cornell_Box(Engine, Test_Shader, Test_Skeletal_Animation_Shader);
 	//Setup_New_Test_Level(Engine, Test_Shader, Test_Skeletal_Animation_Shader);

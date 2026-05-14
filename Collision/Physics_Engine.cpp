@@ -31,7 +31,17 @@ namespace Jaguar
 
 		float Line_Length = glm::length(Point - Physics->Position);
 
-		return (glm::dot(Force, Tangent) / Line_Length) * Axis;
+		//glm::vec3 Torque = (glm::dot(Force, Tangent) / Line_Length) * Axis;
+		glm::vec3 Torque = glm::dot(Force, Tangent) * Axis;
+
+		if (
+			glm::isnan(Torque[0]) ||
+			glm::isnan(Torque[1]) ||
+			glm::isnan(Torque[2])
+			)
+			Torque = glm::vec3(0.0f);
+
+		return Torque;
 	}
 
 	Physics_Object* Physics_Object_Controller::Get_Physics_Object()
@@ -350,6 +360,11 @@ namespace Jaguar
 		else
 			Collision.A->Object->Control->Get_Physics_Object()->Update_Movement_Vectors();
 	}
+
+	/*void Apply_Impulses(Jaguar_Engine* Engine, const Collision_Info& Collision)
+	{
+
+	}*/
 
 	void Resolve_Collisions(Jaguar_Engine* Engine)
 	{

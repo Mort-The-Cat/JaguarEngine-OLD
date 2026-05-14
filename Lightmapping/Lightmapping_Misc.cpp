@@ -667,9 +667,9 @@ namespace Jaguar
 
 		for (size_t Object = 0; Object < Queue->Objects.size(); Object++)
 		{
-			Target_Chart->Pushed_Objects.push_back(Queue->Objects[Object]);
+			Target_Chart->Pushed_Objects.push_back(reinterpret_cast<World_Object*>(Queue->Objects[Object]));
 
-			Mesh_Cache_Info Mesh_Info = Get_Mesh_From_Buffer_ID(&Engine->Asset_Cache, Queue->Objects[Object]->Mesh.Vertex_Buffer_ID);
+			Mesh_Cache_Info Mesh_Info = Get_Mesh_From_Buffer_ID(&Engine->Asset_Cache, reinterpret_cast<World_Object*>(Queue->Objects[Object])->Mesh.Vertex_Buffer_ID);
 
 			for (size_t Triangle = 0; Triangle < Mesh_Info.Mesh->Vertices.size(); Triangle += 3) // Every 3 verts is a tri
 			{

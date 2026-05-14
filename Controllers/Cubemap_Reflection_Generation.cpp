@@ -202,7 +202,7 @@ namespace Jaguar
 				Engine->Scene.Camera_Projection_Matrix *
 				glm::lookAt(Target_Cubemap->Origin, Target_Cubemap->Origin + Directions[Face], (Up_Vectors[Face]));
 
-			Draw_Render_Pipeline(&Engine->Pipeline, &Engine->Scene);
+			Draw_Render_Pipeline(Engine);
 
 			glfwSwapBuffers(Engine->Window);
 		}

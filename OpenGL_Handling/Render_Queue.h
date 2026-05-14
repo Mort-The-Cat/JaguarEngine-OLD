@@ -7,13 +7,22 @@ namespace Jaguar
 {
 	class World_Object;
 	class Scene_Data;
+	
+	struct Render_Queue;
+
+	struct Jaguar_Engine;
+
+	void Draw_Render_Queue(const Render_Queue* Queue, const Jaguar_Engine* Engine); // This should simply draw the render queue, not do anything to it
 
 	struct Render_Queue
 	{
 		Shader Queue_Shader;
 		void(*Shader_Init_Function)(const Shader* Target_Shader, const Scene_Data* Scene);					// Used to init lighting uniforms etc etc
 		void(*Uniform_Assign_Function)(const Shader* Target_Shader, const World_Object* Target_Object, const Scene_Data*);	// Used to init object uniforms (basic matrices etc)
-		std::vector<World_Object*> Objects; // This is the queue of objects that need to be rendered
+		void(*Draw_Render_Queue_Function)(const Render_Queue* Queue, const Jaguar_Engine* Engine) = Draw_Render_Queue;		// might need additional engine data ?
+		std::vector<void*> Objects;
+		//
+		// std::vector<World_Object*> Objects; // This is the queue of objects that need to be rendered
 	};
 
 	struct Render_Pipeline // Holds all of the render queues etc
@@ -27,7 +36,6 @@ namespace Jaguar
 
 	Render_Queue* Get_Render_Queue(Render_Pipeline* Target_Pipeline, const Shader* Target_Shader);
 
-	void Draw_Render_Queue(const Render_Queue* Queue, const Scene_Data*); // This should simply draw the render queue, not do anything to it
 	void Clear_Render_Pipeline(Render_Pipeline* Target_Pipeline);
 
 	void Default_Shader_Init_Function(const Shader* Target_Shader, const Scene_Data* Scene);
@@ -36,7 +44,7 @@ namespace Jaguar
 
 	void Push_Render_Pipeline_Queue(Render_Pipeline* Target_Pipeline, Shader Queue_Shader, void(*Shader_Init_Function)(const Shader*, const Scene_Data*) = Default_Shader_Init_Function, void(*Uniform_Assign_Function)(const Shader*, const World_Object*, const Scene_Data*) = Default_Uniform_Assign_Function);
 
-	void Draw_Render_Pipeline(const Render_Pipeline* Pipeline, const Scene_Data*); // This should simply draw the render pipeline, not do anything to it
+	void Draw_Render_Pipeline(const Jaguar_Engine* Engine); // This should simply draw the render pipeline, not do anything to it
 }
 
 #endif

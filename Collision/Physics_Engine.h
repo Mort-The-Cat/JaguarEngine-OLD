@@ -1,7 +1,7 @@
 #ifndef JAGUAR_PHYSICS_ENGINE
 #define JAGUAR_PHYSICS_ENGINE
 
-#define Physics_Iterations 6
+#define Physics_Iterations 2
 
 #include "Hitboxes.h"
 #include "../OpenGL_Handling/Scene.h"
@@ -34,7 +34,7 @@ namespace Jaguar
 		float Mass = 1.0f;
 
 		float Elasticity = 0.5f;	// Fraction of kinetic energy is preserved
-		float Friction = 0.75f;		// Friction coefficient
+		float Friction = 0.5f;		// Friction coefficient
 
 		glm::vec3 Velocity, Rotational_Velocity;	// Velocity and angular velocity (as an axis with magnitude of rotation)
 		glm::vec3 Orientation_Up, Orientation;	// Up and forward vectors of the physics object (used for rotation etc)
@@ -56,6 +56,11 @@ namespace Jaguar
 		glm::vec3 Get_Rotational_Velocity() const
 		{
 			return Rotational_Velocity + Delta_Rotational_Velocity;
+		}
+
+		glm::vec3 Get_Torque() const
+		{
+			return Delta_Rotational_Velocity * Mass + Torque;
 		}
 
 		void Update_Movement_Vectors()
@@ -100,7 +105,10 @@ namespace Jaguar
 			Delta_Rotational_Velocity = Delta_Velocity;
 
 			Orientation = glm::normalize(Orientation);
-			Orientation_Up = glm::normalize(Orientation_Up);
+			// Orientation_Up = glm::normalize(Orientation_Up);
+
+			Orientation_Up = glm::normalize(glm::cross(glm::cross(Orientation, Orientation_Up), Orientation));	// Ensures perpendicular
+
 			// We just wanna make EXTRA sure that these are normalised 
 			// because otherwise it could potentially fuck up the physics and visuals after a long enough time due to floating point error
 		}

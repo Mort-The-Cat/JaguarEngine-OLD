@@ -26,8 +26,8 @@ namespace Jaguar
 
 		std::vector<glm::vec3> Points;
 
-		std::vector <glm::vec3> B_Points;
-		std::vector<glm::vec3> A_Points;
+		//std::vector <glm::vec3> B_Points;
+		//std::vector<glm::vec3> A_Points;
 
 		Collision_Info() { Delta = 0; }
 
@@ -72,7 +72,7 @@ namespace Jaguar
 	class Mesh_Hitbox : public Hitbox
 	{
 	public:
-		struct SAT_Face
+		/*struct SAT_Face
 		{
 			glm::vec3 Transformed_Normal;
 			glm::vec3 Normal;
@@ -85,13 +85,21 @@ namespace Jaguar
 				Point_Index = Point_Indexp;
 				Transformed_Normal = Transformed_Normalp;
 			}
-		};
+		};*/
 
 		std::vector<glm::vec3> Transformed_Points;	// These are the points that have undergone a transformation (rotation/displacement)
 
 		std::vector<glm::vec3> Points;
 
-		std::vector<SAT_Face> Faces;
+		struct Face
+		{
+			uint16_t Point_Index[3];	// 3 for each face
+			glm::vec3 Transformed_Normal;
+		};
+
+		std::vector<Face> Faces;
+
+		/*std::vector<SAT_Face> Faces;
 
 		struct SAT_Edge	// Oh good heavens
 		{
@@ -101,6 +109,8 @@ namespace Jaguar
 		};
 
 		std::vector<SAT_Edge> Edges;
+
+		*/
 
 		// triangles with the same normal are merged
 

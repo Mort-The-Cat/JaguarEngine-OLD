@@ -160,7 +160,6 @@ namespace Jaguar
 		size_t& Force_Count,
 		glm::vec3& Min_A_Torque,
 		glm::vec3& Max_A_Torque,
-
 		glm::vec3& Min_B_Torque,
 		glm::vec3& Max_B_Torque,
 		glm::vec3 Point, const Collision_Info& Collision)
@@ -190,8 +189,8 @@ namespace Jaguar
 		{
 			B_Velocity = glm::vec3(0.0f);
 
-			B_Elasticity = 0.15f;
-			B_Friction = 0.4f;
+			B_Elasticity = 0.3f;
+			B_Friction = 1.0f;
 
 			B_Inv_Mass = 0.0f;
 		}
@@ -220,7 +219,9 @@ namespace Jaguar
 
 			glm::vec3 Torque_A = Get_Torque(Collision.A->Object->Control->Get_Physics_Object(), -Force, Point);
 
-			Sum_Force = glm::dot(Sum_Force, Sum_Force) > glm::dot(Force, Force) ? Sum_Force : Force; // glm::normalize(Force)* sqrtf(1.0f - glm::dot(Torque_A, Torque_A) / (glm::dot(Force, Force) * 10.0f));
+			float Old_Sum_Force = glm::dot(Sum_Force, Sum_Force);
+
+			Sum_Force = Old_Sum_Force != 0.0f && Old_Sum_Force < glm::dot(Force, Force) ? Sum_Force : Force; // glm::normalize(Force)* sqrtf(1.0f - glm::dot(Torque_A, Torque_A) / (glm::dot(Force, Force) * 10.0f));
 			Force_Count++;
 
 			Min_A_Torque = glm::min(Min_A_Torque, Torque_A);
@@ -245,117 +246,59 @@ namespace Jaguar
 		// This will get the min/max torque for both objects and for both sets of points
 		// Note that we only want to check object B if it is indeed a physics object...
 
-		glm::vec3 Min_A_A_Points_Torque = glm::vec3(9999999999999.0f);
-		glm::vec3 Max_A_A_Points_Torque = -Min_A_A_Points_Torque;
-
-		glm::vec3 Min_A_B_Points_Torque = Min_A_A_Points_Torque;
-		glm::vec3 Max_A_B_Points_Torque = Max_A_A_Points_Torque;
+		glm::vec3 Min_A_Points_Torque = glm::vec3(9999999999999.0f);
+		glm::vec3 Max_A_Points_Torque = -Min_A_Points_Torque;
 
 		glm::vec3 Forces[2] = { glm::vec3(0.0f), glm::vec3(0.0f) };
 
 		size_t Forces_Count[2] = { 0, 0 };
 
 
-		glm::vec3 Min_B_A_Points_Torque = Min_A_A_Points_Torque;
-		glm::vec3 Max_B_A_Points_Torque = Max_A_A_Points_Torque;
+		glm::vec3 Min_B_Points_Torque = Min_A_Points_Torque;
+		glm::vec3 Max_B_Points_Torque = Max_A_Points_Torque;
 
-		glm::vec3 Min_B_B_Points_Torque = Min_B_A_Points_Torque;
-		glm::vec3 Max_B_B_Points_Torque = Max_B_A_Points_Torque;
+		for (size_t A_Index = 0; A_Index < Collision.Points.size(); A_Index++)
+			Get_Force_And_Torque(Forces[0], Forces_Count[0], Min_A_Points_Torque, Max_A_Points_Torque, Min_B_Points_Torque, Max_B_Points_Torque, Collision.Points[A_Index], Collision);
 
-		for (size_t A_Index = 0; A_Index < Collision.A_Points.size(); A_Index++)
-			Get_Force_And_Torque(Forces[0], Forces_Count[0], Min_A_A_Points_Torque, Max_A_A_Points_Torque, Min_B_A_Points_Torque, Max_B_A_Points_Torque, Collision.A_Points[A_Index], Collision);
+		//for (size_t A_Index = 0; A_Index < Collision.Points.size(); A_Index++)
+		//	Get_Force_And_Torque(Forces[1], Forces_Count[1], Min_B_Points_Torque, Max_B_Points_Torque, Collision.Points[A_Index], Collision);
 
-		for (size_t B_Index = 0; B_Index < Collision.B_Points.size(); B_Index++)
-			Get_Force_And_Torque(Forces[1], Forces_Count[1], Min_A_B_Points_Torque, Max_A_B_Points_Torque, Min_B_B_Points_Torque, Max_B_B_Points_Torque, Collision.B_Points[B_Index], Collision);
 
-		if (!Forces_Count[0] && !Forces_Count[1])
-			return;
-
-		// Applies the correct force and the correct torque...
-
-		// apply force with *fewer* overlaps
-
-		// apply torque that is closest to -Get_Rotational_Velocity() * Mass
-
-		glm::vec3 Min_Torque;// = glm::max(Min_A_A_Points_Torque, Min_A_B_Points_Torque);
-		glm::vec3 Max_Torque;// = glm::min(Max_A_A_Points_Torque, Max_A_B_Points_Torque);
-
-		size_t Force_Index;
+		//for (size_t B_Index = 0; B_Index < Collision.B_Points.size(); B_Index++)
+		//	Get_Force_And_Torque(Forces[1], Forces_Count[1], Min_A_B_Points_Torque, Max_A_B_Points_Torque, Min_B_B_Points_Torque, Max_B_B_Points_Torque, Collision.B_Points[B_Index], Collision);
 
 		if (!Forces_Count[0])
-		{
-			Min_Torque = Min_A_B_Points_Torque;
-			Max_Torque = Max_A_B_Points_Torque;
+			return;
 
-			Force_Index = 1;
-		}
-		else if (!Forces_Count[1])
-		{
-			Min_Torque = Min_A_A_Points_Torque;
-			Max_Torque = Max_A_A_Points_Torque;
-
-			Force_Index = 0;
-		}
-		else
-		{
-			Min_Torque = glm::max(Min_A_A_Points_Torque, Min_A_B_Points_Torque);
-			Max_Torque = glm::min(Max_A_A_Points_Torque, Max_A_B_Points_Torque);
-
-			Forces_Count[0] = 1;
-			Forces_Count[1] = 1;
-
-			Force_Index = (Forces_Count[0] * glm::length(Forces[1])) < (glm::length(Forces[0]) * Forces_Count[1]);
-		}
+		
 
 		//size_t 
 
 		// Force_Index = glm::length(Forces[1]) < glm::length(Forces[0]) || !Forces_Count[0];
 
-		glm::vec3 Desired_Torque = -Collision.A->Object->Get_Physics_Object()->Get_Rotational_Velocity() * Collision.A->Object->Get_Physics_Object()->Mass;
+		glm::vec3 Desired_Torque = -Collision.A->Object->Get_Physics_Object()->Get_Rotational_Velocity()* Collision.A->Object->Get_Physics_Object()->Mass;
 
-		glm::vec3 Delta_Torque = glm::max(Min_Torque, glm::min(Max_Torque, Desired_Torque));
+		glm::vec3 Delta_Torque = glm::max(Min_A_Points_Torque, glm::min(Max_A_Points_Torque, Desired_Torque));
 
 		Collision.A->Object->Get_Physics_Object()->Torque += Delta_Torque;
 
-		Forces[Force_Index] *= 1.0f / (float)Forces_Count[Force_Index];
+		// Forces[Force_Index] *= 1.0f / (float)Forces_Count[Force_Index];
 
-		Collision.A->Object->Get_Physics_Object()->Force -= Forces[Force_Index];
+		Collision.A->Object->Get_Physics_Object()->Force -= Forces[0];
 
 		if (Collision.B->Object->Get_Physics_Object() != nullptr)
 		{
 			// apply force and torque here as well !!
 
-			if (!Forces_Count[0])
-			{
-				Min_Torque = Min_B_B_Points_Torque;
-				Max_Torque = Max_B_B_Points_Torque;
-			}
-			else if (!Forces_Count[1])
-			{
-				Min_Torque = Min_B_A_Points_Torque;
-				Max_Torque = Max_B_A_Points_Torque;
-			}
-			else
-			{
-				Min_Torque = glm::max(Min_B_A_Points_Torque, Min_B_B_Points_Torque);
-				Max_Torque = glm::min(Max_B_A_Points_Torque, Max_B_B_Points_Torque);
-
-				// Force_Index = (Forces_Count[0] * glm::length(Forces[1][1])) > (glm::length(Forces[0][1]) * Forces_Count[1]);
-			}
-
-			// Forces[Force_Index][1] *= 1.0f / (float)Forces_Count[Force_Index];
-
-			// Collision.B->Object->Get_Physics_Object()->Force += Forces[Force_Index][1];
-
 			Desired_Torque = -Collision.B->Object->Get_Physics_Object()->Get_Rotational_Velocity() * Collision.B->Object->Get_Physics_Object()->Mass;
 
-			Delta_Torque = glm::max(Min_Torque, glm::min(Max_Torque, Desired_Torque));
+			Delta_Torque = glm::max(Min_B_Points_Torque, glm::min(Max_B_Points_Torque, Desired_Torque));
 
 			Collision.B->Object->Get_Physics_Object()->Torque += Delta_Torque;
 
 			//
 
-			Collision.B->Object->Get_Physics_Object()->Force += Forces[Force_Index];
+			Collision.B->Object->Get_Physics_Object()->Force += Forces[0];
 		}
 		else
 			Collision.A->Object->Control->Get_Physics_Object()->Update_Movement_Vectors();

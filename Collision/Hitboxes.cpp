@@ -138,10 +138,10 @@ namespace Jaguar
 
 			Offset_Point += Other_Hitbox->Object->Position;
 
-			Info.A_Points.push_back(Offset_Point);
-			Info.B_Points.push_back(Offset_Point);
+			//Info.A_Points.push_back(Offset_Point);
+			//Info.B_Points.push_back(Offset_Point);
 
-			// Info.A_Points.push_back(Point);
+			Info.Points.push_back(Offset_Point);
 
 			//Info.Delta = 0.5f * Delta[Axis] * (1.0f - fabsf(Lambda_Scaled[Axis]));
 
@@ -219,8 +219,9 @@ namespace Jaguar
 			Info.B = This;
 			Info.A = Other_Hitbox;
 
-			Info.A_Points = std::vector<glm::vec3>{ Sphere_Axes + This->Object->Position };
-			Info.B_Points = Info.A_Points;
+			Info.Points = std::vector<glm::vec3>{ Sphere_Axes + This->Object->Position };
+			//Info.A_Points = std::vector<glm::vec3>{ Sphere_Axes + This->Object->Position };
+			//Info.B_Points = Info.A_Points;
 			Info.Normal = AABB_Direction_Vectors[Shortest];
 
 			Info.Delta = Deltas[Shortest];
@@ -251,12 +252,12 @@ namespace Jaguar
 			Info.Delta = sqrtf(Rad) - sqrtf(Length_Squared);
 
 			Info.Normal = Delta * glm::vec3(-glm::inversesqrt(Length_Squared));
-			Info.A_Points = 
+			Info.Points = 
 				std::vector<glm::vec3>{
 					glm::vec3(0.5f) * (Object->Position + Other_Hitbox->Object->Position + Info.Normal * glm::vec3(Radius - Other_Hitbox->Radius))
 			};
 
-			Info.B_Points = Info.A_Points;
+			//Info.B_Points = Info.A_Points;
 
 			return Info;
 		}
@@ -350,15 +351,15 @@ namespace Jaguar
 
 			// With AABB hitboxes, we only need 1 'average' position for most cases.
 
-			Info.A_Points.resize(1);
+			Info.Points.resize(1);
 
-			Info.A_Points[0][0] = B_Vectors[Comparison[0]][0] + A_Vectors[!Comparison[0]][0];
-			Info.A_Points[0][1] = B_Vectors[Comparison[1]][1] + A_Vectors[!Comparison[1]][1];
-			Info.A_Points[0][2] = B_Vectors[Comparison[2]][2] + A_Vectors[!Comparison[2]][2];
+			Info.Points[0][0] = B_Vectors[Comparison[0]][0] + A_Vectors[!Comparison[0]][0];
+			Info.Points[0][1] = B_Vectors[Comparison[1]][1] + A_Vectors[!Comparison[1]][1];
+			Info.Points[0][2] = B_Vectors[Comparison[2]][2] + A_Vectors[!Comparison[2]][2];
 
-			Info.A_Points[0] *= 0.5f;	// This gets the average of the A and B overlap vectors
+			Info.Points[0] *= 0.5f;	// This gets the average of the A and B overlap vectors
 
-			Info.B_Points = Info.A_Points;
+			//Info.B_Points = Info.A_Points;
 
 			return Info;
 		}

@@ -887,9 +887,6 @@
     <ClCompile Include="Collision\Hitboxes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Collision\Separating_Axis_Theorem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Collision\Static_Blockmap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -900,6 +897,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Collision\Physics_Engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision\Separating_Axis_Theorem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

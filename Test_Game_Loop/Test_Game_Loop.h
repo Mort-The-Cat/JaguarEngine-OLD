@@ -109,6 +109,7 @@ void Shoot_Physics_Object(Jaguar::Jaguar_Engine* Engine, glm::vec3 Position, glm
 	Object->Flags[MF_ACTIVE] = true;																	// sets active flag
 	Object->Flags[MF_SOLID] = true;
 	Object->Flags[MF_PHYSICS_OBJECT] = true;
+	
 	Jaguar::Create_World_Object(Engine, Object, &Engine->Pipeline.Render_Queues.back().Queue_Shader,
 		Jaguar::Pull_Mesh(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Models/Slope_Shape.dae").Buffer,			// Model
 		Jaguar::Pull_Texture(&Engine->Asset_Cache, "Test_Game_Loop/Assets/Textures/Grey.png").Texture,	// Texture
@@ -133,6 +134,7 @@ void Shoot_Physics_Object(Jaguar::Jaguar_Engine* Engine, glm::vec3 Position, glm
 	);*/
 
 	Controller->Physics.Velocity = Direction * glm::vec3(0.1f);
+	//Controller->Physics.Rotational_Velocity = glm::vec3(0.0f, 0.0f, 1.0f);
 }
 
 void Test_Engine_Loop(Jaguar::Jaguar_Engine* Engine)
